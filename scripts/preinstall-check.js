@@ -169,21 +169,24 @@ function detectLibc() {
   if (process.platform !== "linux") return null;
   try {
     const header = process.report?.getReport?.()?.header;
-    // `glibcVersionRuntime` is typed as string in @types/node, but only
-    // present at runtime when Node itself was glibc-linked.
-    if (
-      header &&
-      typeof header === "object" &&
-      "glibcVersionRuntime" in header
-    ) {
-      const v = /** @type {{glibcVersionRuntime?: string}} */ (header)
-        .glibcVersionRuntime;
-      return v && v.length > 0 ? "glibc" : "musl";
+    if (!header || typeof header !== "object") {
+      // Node didn't give us a report at all (very old Node, or a sandbox
+      // that disables process.report). Fall through to null and let the
+      // caller treat it as best-effort — DESIGN intentionally favors
+      // false-negative (let install proceed) over false-positive (block
+      // a working machine) when detection genuinely can't run.
+      return null;
     }
-    // No glibcVersionRuntime field at all (e.g. older Node) — assume glibc
-    // and let downstream errors surface real failures rather than us
-    // false-positive blocking installs.
-    return "glibc";
+    // `glibcVersionRuntime` is the same field detect-libc uses. Node
+    // populates it (as a non-empty string) only when the running binary
+    // was linked against glibc; on musl Node builds the field is either
+    // absent or an empty string. Treat *both* as musl — the previous
+    // "assume glibc on missing field" behavior misclassified Alpine
+    // (where the field is omitted entirely) as glibc, defeating the
+    // whole preflight on the platform we most need to block.
+    const v = /** @type {{glibcVersionRuntime?: string}} */ (header)
+      .glibcVersionRuntime;
+    return typeof v === "string" && v.length > 0 ? "glibc" : "musl";
   } catch {
     return null;
   }
