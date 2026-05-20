@@ -351,8 +351,13 @@ ROLE: Run 3 commands to finish the gate on PR #<N>. Final message MUST be exactl
 1. `gh pr ready <N>`
 2. `gh issue comment <I> --body "PR #<N> ready for review."` (skip if a comment already exists — check `gh issue view <I> --comments`).
 3. `gh project item-edit --project-id PVT_kwDOEJ5TiM4BYP0g --id <ITEM_ID> --field-id PVTSSF_lADOEJ5TiM4BYP0gzhTW_68 --single-select-option-id 20c1ca31`
+   - If this command exits non-zero with stderr containing `denied by the Claude Code auto mode classifier`, do NOT retry. The classifier doesn't propagate the user's session allowlist to sub-agents (see §10). Skip to the alternate final message below.
 
-Final message: `EXIT_READY`. Nothing else.
+Final message:
+
+- `EXIT_READY` if all three steps succeeded.
+- `EXIT_BLOCKED classifier-board-edit` if step 3 was blocked by the auto-mode classifier (steps 1 and 2 succeeded, so the PR is ready and the issue is commented — the coordinator will apply the board edit centrally from its own session before transitioning the issue to `done`).
+- `EXIT_BLOCKED <one-line reason>` for any other failure.
 
 DO NOT run any /review skill, edit any file, or push any commit.
 ```
@@ -595,18 +600,19 @@ implementer exits BLOCKED
 ## 10. Risks and known weak spots
 
 1. **DESIGN.md ambiguity.** Several issues will hit places where DESIGN.md is silent. Implementers must default to opening a draft PR with `[QUESTION]` in the title rather than guessing.
-2. **CI duration.** If CI takes >10 min, the coordinator's tick may launch dependents from a stale PR head. Mitigation: coordinator polls `gh pr checks --watch` instead of just snapshotting status each tick.
-3. **Auto-rebase storms in Wave 3.** When 13 tool PRs all sit on top of one epic-infra PR and the epic-infra PR gets review changes, 13 rebases queue up. Mitigation: rebases run serially per blocker, not in parallel.
-4. **Token cost.** No concurrency cap × 13 concurrent agents × `ultrathink`/`think hard` triggers × multi-step implementations can spend significantly. Mitigation: model + thinking-trigger tiering per §5; Sonnet 4.6 with `think hard` (not `ultrathink`) for leaves; reserved Opus 4.7 + `ultrathink` for architectural PRs only.
-5. **`activeProcess` model in `run_project`.** Not relevant to most issues, but a few may need to touch it; flag as architectural.
-6. **Drive-by issue spam.** Implementers may file many low-value follow-up issues. Mitigation: §5 "Out-of-scope findings" requires a concrete pointer to the file/line and a one-line "why it's out of scope here"; coordinator can review the issues each tick and the user can close noisy ones.
-7. **Reviewer-Implementer disagreement loops.** If the Reviewer's `REVIEW_REQUEST_CHANGES` rationale isn't specific enough, the restart Implementer may make changes that the Reviewer still rejects. Mitigation: §5b requires `REVIEW_REQUEST_CHANGES` to include an actionable list, not "make it better"; cap of 2 restarts ensures the loop terminates.
-8. **Inflated diffs during out-of-order review.** With all PRs targeting `main`, a stacked PR's diff against `main` includes its parent's commits until the parent merges. Mitigation: the user reviews in implementation order, so each PR is reviewed AFTER its parent has merged — diff is clean at review time. Escape hatch: GitHub's "Files changed → Filter by commit" UI lets a reviewer see just the dependent's own commits without waiting for the parent merge.
-9. **Upstream-suggestion noise.** Implementers can post upstream-PR
+2. **CI duration.** If CI takes >10 min, a coordinator tick may transition a dependent issue to `impl` while the blocker PR's CI is still pending. Mitigation: the coordinator snapshots `gh pr checks <N>` each tick (NOT `--watch` — that blocks tick processing) and treats `pending` CI as "not yet ready"; the next tick re-evaluates.
+3. **Token cost.** Architectural Opus + `ultrathink` work is expensive per agent-minute; running many concurrently for tool leaves wastes budget. Mitigation: model + thinking-trigger tiering per §5a (Implementer); Reviewer (§5b) and Finalizer (§5c) are always Sonnet/`think` regardless of Implementer tier. Daily account quota is a separate concern that depends on cross-session usage — check current quota state before launching long waves rather than capping concurrency preemptively.
+4. **`activeProcess` model in `run_project`.** Not relevant to most issues, but a few may need to touch it; flag as architectural.
+5. **Drive-by issue spam.** Implementers may file many low-value follow-up issues. Mitigation: §5 item 6 requires a concrete pointer to the file/line and a one-line "why it's out of scope here"; coordinator can review the issues each tick and the user can close noisy ones.
+6. **Reviewer-Implementer disagreement loops.** If the Reviewer's `REVIEW_REQUEST_CHANGES` rationale isn't specific enough, the restart Implementer may make changes that the Reviewer still rejects. Mitigation: §5b requires `REVIEW_REQUEST_CHANGES` to include an actionable list, not "make it better"; cap of 2 restarts ensures the loop terminates.
+7. **Inflated diffs during out-of-order review.** With all PRs targeting `main`, a stacked PR's diff against `main` includes its parent's commits until the parent merges. Mitigation: the user reviews in implementation order, so each PR is reviewed AFTER its parent has merged — diff is clean at review time. Escape hatch: GitHub's "Files changed → Filter by commit" UI lets a reviewer see just the dependent's own commits without waiting for the parent merge.
+8. **Upstream-suggestion noise.** Implementers can post upstream-PR
    suggestions on blocker PRs (per §1, §5 "Out-of-scope findings"). Risk:
    many small suggestions clutter the blocker PR's review. Mitigation: the
    contract caps suggestions at 2 per blocker PR — beyond that,
    consolidate into a single drive-by issue.
+9. **Sub-agent classifier blocks.** The auto-mode classifier's allowlist set in the user's `.claude/settings.local.json` covers only the coordinator session; sub-agents (Implementer/Reviewer/Finalizer) run in their own sessions and can hit the classifier on bulk writes the user has otherwise authorized. Wave 1 observed this on `gh project item-edit` during the issue #41 Finalizer step. Mitigation: §5c Finalizers that hit a classifier block on the project-board edit should return `EXIT_BLOCKED classifier-blocked-board-edit` (other gate steps may have succeeded); the coordinator applies the board edit centrally from its own session before transitioning the issue to `done`.
+10. **Agent operating in the main checkout instead of its harness worktree.** Multiple Wave 1 agents ran git commands in the main checkout instead of their isolated worktree, switching the main checkout's branch and deleting `.orchestrator/state.json`. Mitigation: §5a/§5b/§5c step 1 mandates `pwd` contains `worktrees/agent-` and `git status` is clean; mismatch returns the appropriate `*_BLOCKED wrong cwd` message immediately. Residual: the coordinator's worktree is also at risk from misbehaving agents that skip the cwd check; periodic `git -C <main-checkout> status` during reconciliation surfaces drift early.
 
 ---
 
