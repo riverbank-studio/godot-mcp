@@ -1,0 +1,5 @@
+{
+  "entry": ["src/index.ts"],
+  "ignorePatterns": ["**/*.test.ts", "**/*.spec.ts", "build/**", "coverage/**"],
+  "plugins": ["vitest"]
+}
