@@ -14,6 +14,10 @@
  *     description first sentence.
  *   - Zero-results rule for all 7 read-only LSP tools: empty array / empty
  *     object, never an MCP error.
+ *
+ * Integration: tool registrations in the Docs subsystem (#7), LSP read (#9),
+ * and LSP write (#10) sub-issues consume this file when those tools are
+ * implemented. Until then, this file acts as the canonical draft record.
  */
 
 /** Per-parameter documentation entry. */
@@ -43,11 +47,34 @@ export interface ToolDescription {
 }
 
 /**
+ * The 14 canonical v1 tool names as a union type.
+ *
+ * Using this as the key type for `TOOL_DESCRIPTIONS` causes TypeScript to
+ * report a compile error if a name is missing or misspelled, complementing
+ * the runtime completeness tests in descriptions.test.ts.
+ */
+export type V1ToolName =
+  | "godot_search_api"
+  | "godot_get_class"
+  | "godot_find_member"
+  | "godot_search_tutorials"
+  | "godot_get_tutorial"
+  | "godot_docs_info"
+  | "godot_find_definition"
+  | "godot_find_references"
+  | "godot_hover"
+  | "godot_document_symbols"
+  | "godot_workspace_symbols"
+  | "godot_get_diagnostics"
+  | "godot_signature_help"
+  | "godot_preview_rename";
+
+/**
  * Canonical descriptions for all 14 godot_* v1 tools.
  *
  * Tools are grouped for readability; the grouping has no runtime meaning.
  */
-export const TOOL_DESCRIPTIONS: Record<string, ToolDescription> = {
+export const TOOL_DESCRIPTIONS: Record<V1ToolName, ToolDescription> = {
   // -----------------------------------------------------------------------
   // Docs tools (6)
   // -----------------------------------------------------------------------
@@ -245,11 +272,11 @@ export const TOOL_DESCRIPTIONS: Record<string, ToolDescription> = {
       },
       line: {
         description:
-          "Line number of the symbol. 1-based: line 1 is the first line of the file.",
+          "Line number of the symbol. **1-based:** line 1 is the first line of the file.",
       },
       character: {
         description:
-          "Column number of the symbol. 1-based: column 1 is the first character.",
+          "Column number of the symbol. **1-based:** column 1 is the first character.",
       },
       symbol_name: {
         description:
@@ -274,11 +301,11 @@ export const TOOL_DESCRIPTIONS: Record<string, ToolDescription> = {
       },
       line: {
         description:
-          "Line number of the symbol. 1-based: line 1 is the first line of the file.",
+          "Line number of the symbol. **1-based:** line 1 is the first line of the file.",
       },
       character: {
         description:
-          "Column number of the symbol. 1-based: column 1 is the first character.",
+          "Column number of the symbol. **1-based:** column 1 is the first character.",
       },
       symbol_name: {
         description:
