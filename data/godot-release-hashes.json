@@ -1,0 +1,14 @@
+{
+  "$schema": "./godot-release-hashes.schema.json",
+  "$comment": "Pinned SHA-256 hashes of godotengine/godot and godotengine/godot-docs source tarballs fetched from codeload.github.com. Top-level keys are git tags in godotengine/godot (e.g. '4.5-stable'). Each entry records the docs branch in godot-docs (a branch, not a tag) and the SHA-256 of both tarballs. Hashes are computed against the exact bytes returned by https://codeload.github.com/{repo}/tar.gz/refs/{tags,heads}/{ref} at the time of pinning. See docs/supply-chain.md for verification semantics.",
+  "4.5-stable": {
+    "godot": "sha256:0b2c942c79f756da5c94990e06678feaa582ae533b5e126f992a29d1ea8a816c",
+    "godot-docs-branch": "4.5",
+    "godot-docs": "sha256:6fca979fead904298a24b68482aee17f8acbb6ae8d061df9bdd8be393795122b"
+  },
+  "4.6-stable": {
+    "godot": "sha256:b451eaa16d3abe0c7430e9ce1c4e83b146e5670e5b683dd8995c931fc82b57a0",
+    "godot-docs-branch": "4.6",
+    "godot-docs": "sha256:f2af407ab817aa797654b993569c6f1d97af4d83ac18fcb300f23eaaf0920693"
+  }
+}
