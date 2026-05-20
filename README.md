@@ -83,6 +83,14 @@ Godot MCP enables AI agents to launch the Godot editor, run projects, capture de
 - Node.js (>=18.0.0) and npm
 - An AI agent that supports MCP
 
+> [!IMPORTANT]
+> Native dependencies (`better-sqlite3`, `sqlite-vec`,
+> `@huggingface/transformers`) limit the supported platforms. **Alpine /
+> musl Linux and Windows on ARM64 are not supported in v1.** A postinstall
+> preflight blocks installs on those platforms with a clear remediation.
+> See [docs/installation.md](./docs/installation.md) for the full matrix and
+> bypass instructions.
+
 ## Quick Start
 
 ### Claude Code

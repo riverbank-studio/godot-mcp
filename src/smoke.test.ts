@@ -28,10 +28,12 @@ describe("package.json structural invariants", () => {
     expect(pkg.bin).toEqual({ "godot-mcp": "./build/index.js" });
   });
 
-  it("ships only the build/ directory in the npm tarball", () => {
+  it("ships only build/ and the postinstall preflight in the npm tarball", () => {
     // Anything else here would either bloat the tarball or accidentally ship
     // source/tests. If you need to ship more, extend this list deliberately.
-    expect(pkg.files).toEqual(["build"]);
+    // `scripts/preinstall-check.js` is shipped because package.json declares
+    // it as the `postinstall` hook — see issue #43 / docs/installation.md.
+    expect(pkg.files).toEqual(["build", "scripts/preinstall-check.js"]);
   });
 
   it("requires Node >=24 (per DESIGN.md D17 minus the soften: kept strict here)", () => {

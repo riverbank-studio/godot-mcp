@@ -24,11 +24,14 @@
     "godot-mcp": "./build/index.js"
   },
   "files": [
-    "build"
+    "build",
+    "scripts/preinstall-check.js"
   ],
   "scripts": {
     "build": "tsc && node scripts/build.js",
     "inspector": "npx @modelcontextprotocol/inspector build/index.js",
+    "postinstall": "node scripts/preinstall-check.js",
+    "preflight": "node scripts/preinstall-check.js",
     "prepare": "husky && npm run build",
     "watch": "tsc --watch",
     "format": "prettier --write .",
