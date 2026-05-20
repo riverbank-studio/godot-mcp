@@ -80,3 +80,69 @@ jobs:
           # real tool tests land in Wave 4.
           GODOT_PATH: ${{ runner.tool_cache }}/godot/godot
         run: npm test
+
+  # ----------------------------------------------------------------------
+  # Postinstall preflight matrix (issue #43).
+  #
+  # Verifies that `scripts/preinstall-check.js` exits 0 on every platform we
+  # claim to support, and exits non-zero on at least one we explicitly do
+  # not (Alpine/musl). Native deps aren't actually installed here — none of
+  # them land until the ingestion work (#6) — so this matrix is currently
+  # cheap to run; it grows teeth automatically once the deps are added.
+  # ----------------------------------------------------------------------
+  preflight:
+    name: preflight — ${{ matrix.label }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            label: Linux x64 glibc (supported)
+            expect: pass
+          - os: macos-latest
+            label: macOS arm64 (supported)
+            expect: pass
+          - os: macos-13
+            label: macOS x64 (supported)
+            expect: pass
+          - os: windows-latest
+            label: Windows x64 (supported)
+            expect: pass
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Run preflight
+        shell: bash
+        run: node scripts/preinstall-check.js
+
+  preflight-alpine:
+    # Intentional failure-mode job: runs the preflight inside a node:alpine
+    # container so the musl detection branch is exercised end-to-end. Pins
+    # CI=true so the script degrades exit-1 to a warning — the assertion is
+    # that the warning string appears, not that the install fails.
+    name: preflight — Alpine/musl (intentional unsupported)
+    runs-on: ubuntu-latest
+    container:
+      image: node:24-alpine
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run preflight (expect warning, CI=true degrades exit)
+        env:
+          CI: "true"
+        run: |
+          set -e
+          node scripts/preinstall-check.js 2> preflight.stderr
+          cat preflight.stderr
+          # The matrix passes iff the script emitted the musl warning. If the
+          # supported-matrix flips (e.g. asg017/sqlite-vec#199 lands and we
+          # un-block musl), update this assertion in the same PR that flips
+          # checkPlatform's decision table.
+          grep -i "musl\|alpine" preflight.stderr
+          grep -i "warning" preflight.stderr
