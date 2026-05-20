@@ -19,38 +19,38 @@ v1/tasks/{id}/
 
 ### `task.json` fields
 
-| Field               | Type                                       | Required | Description                                                         |
-| ------------------- | ------------------------------------------ | -------- | ------------------------------------------------------------------- |
-| `id`                | string                                     | yes      | Unique slug matching the directory name                             |
-| `summary`           | string                                     | yes      | One-line description of the task                                    |
-| `prompt`            | string                                     | yes      | Verbatim prompt given to the agent                                  |
-| `category`          | `"write"` \| `"modify"` \| `"debug"` \| `"version-sensitive"` | yes | Task category |
-| `difficulty`        | `1` \| `2` \| `3`                          | yes      | Difficulty rating (1=easy, 2=medium, 3=hard)                       |
-| `godot_version`     | string                                     | yes      | Minimum Godot version the solution targets (e.g., `"4.3"`, `"4.4"`) |
-| `tags`              | string[]                                   | yes      | Free-form tags for filtering (e.g., `["signals", "nodes"]`)        |
-| `evaluation_notes`  | string                                     | yes      | Human-readable hints for reviewers; key correctness criteria       |
-| `api_check`         | object \| null                             | yes      | Programmatic API-version check spec (null if not applicable)       |
+| Field              | Type                                                          | Required | Description                                                         |
+| ------------------ | ------------------------------------------------------------- | -------- | ------------------------------------------------------------------- |
+| `id`               | string                                                        | yes      | Unique slug matching the directory name                             |
+| `summary`          | string                                                        | yes      | One-line description of the task                                    |
+| `prompt`           | string                                                        | yes      | Verbatim prompt given to the agent                                  |
+| `category`         | `"write"` \| `"modify"` \| `"debug"` \| `"version-sensitive"` | yes      | Task category                                                       |
+| `difficulty`       | `1` \| `2` \| `3`                                             | yes      | Difficulty rating (1=easy, 2=medium, 3=hard)                        |
+| `godot_version`    | string                                                        | yes      | Minimum Godot version the solution targets (e.g., `"4.3"`, `"4.4"`) |
+| `tags`             | string[]                                                      | yes      | Free-form tags for filtering (e.g., `["signals", "nodes"]`)         |
+| `evaluation_notes` | string                                                        | yes      | Human-readable hints for reviewers; key correctness criteria        |
+| `api_check`        | object \| null                                                | yes      | Programmatic API-version check spec (null if not applicable)        |
 
 ### `api_check` sub-object
 
 When `api_check` is not null:
 
-| Field        | Type     | Description                                                            |
-| ------------ | -------- | ---------------------------------------------------------------------- |
-| `class_name` | string   | Godot class to check                                                   |
-| `member`     | string   | Method, property, or signal name that must exist in target version     |
-| `introduced` | string   | Version string where this member was introduced (e.g., `"4.4"`)       |
-| `removed`    | string   | Version string where this member was removed (`null` if still present) |
-| `notes`      | string   | Human-readable description of the version constraint                   |
+| Field        | Type   | Description                                                            |
+| ------------ | ------ | ---------------------------------------------------------------------- |
+| `class_name` | string | Godot class to check                                                   |
+| `member`     | string | Method, property, or signal name that must exist in target version     |
+| `introduced` | string | Version string where this member was introduced (e.g., `"4.4"`)        |
+| `removed`    | string | Version string where this member was removed (`null` if still present) |
+| `notes`      | string | Human-readable description of the version constraint                   |
 
 ## Categories
 
-| Category           | Description                                                          | Count |
-| ------------------ | -------------------------------------------------------------------- | ----- |
-| `write`            | Implement a new function or class from scratch                       | 20    |
-| `modify`           | Edit an existing script to add or change behavior                    | 14    |
-| `debug`            | Identify and fix a broken script                                     | 14    |
-| `version-sensitive`| Requires knowledge of API differences between Godot 4.x minor versions | 12 |
+| Category            | Description                                                            | Count |
+| ------------------- | ---------------------------------------------------------------------- | ----- |
+| `write`             | Implement a new function or class from scratch                         | 20    |
+| `modify`            | Edit an existing script to add or change behavior                      | 14    |
+| `debug`             | Identify and fix a broken script                                       | 14    |
+| `version-sensitive` | Requires knowledge of API differences between Godot 4.x minor versions | 12    |
 
 **Total: 60 tasks** (20% version-sensitive = 12 tasks; exceeds the 20% minimum of 50 tasks)
 

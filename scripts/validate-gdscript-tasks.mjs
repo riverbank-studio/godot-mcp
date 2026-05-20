@@ -20,7 +20,7 @@ const TASKS_DIR = join(
   "datasets",
   "gdscript-correctness",
   "v1",
-  "tasks"
+  "tasks",
 );
 
 const MIN_TASKS = 50;
@@ -44,7 +44,10 @@ function validateTaskJson(data, taskId) {
   const errors = [];
 
   if (typeof data !== "object" || data === null) {
-    errors.push({ field: "(root)", message: "task.json must be a JSON object" });
+    errors.push({
+      field: "(root)",
+      message: "task.json must be a JSON object",
+    });
     return errors;
   }
 
@@ -185,7 +188,9 @@ function main() {
     try {
       data = JSON.parse(readFileSync(taskJsonPath, "utf-8"));
     } catch (e) {
-      console.error(`  FAIL [${taskId}]: task.json is not valid JSON — ${e.message}`);
+      console.error(
+        `  FAIL [${taskId}]: task.json is not valid JSON — ${e.message}`,
+      );
       failed = true;
       continue;
     }
@@ -220,25 +225,22 @@ function main() {
   // Count checks
   if (totalCount < MIN_TASKS) {
     console.error(
-      `FAIL: only ${totalCount} tasks found — minimum is ${MIN_TASKS}`
+      `FAIL: only ${totalCount} tasks found — minimum is ${MIN_TASKS}`,
     );
     failed = true;
   } else if (totalCount > MAX_TASKS) {
-    console.error(
-      `FAIL: ${totalCount} tasks found — maximum is ${MAX_TASKS}`
-    );
+    console.error(`FAIL: ${totalCount} tasks found — maximum is ${MAX_TASKS}`);
     failed = true;
   }
 
   // Version-sensitive ratio check
-  const versionSensitiveRatio = totalCount > 0
-    ? versionSensitiveTasks.length / totalCount
-    : 0;
+  const versionSensitiveRatio =
+    totalCount > 0 ? versionSensitiveTasks.length / totalCount : 0;
 
   if (versionSensitiveRatio < MIN_VERSION_SENSITIVE_RATIO) {
     console.error(
       `FAIL: only ${versionSensitiveTasks.length}/${totalCount} tasks are version-sensitive ` +
-        `(${(versionSensitiveRatio * 100).toFixed(1)}%) — minimum is ${MIN_VERSION_SENSITIVE_RATIO * 100}%`
+        `(${(versionSensitiveRatio * 100).toFixed(1)}%) — minimum is ${MIN_VERSION_SENSITIVE_RATIO * 100}%`,
     );
     failed = true;
   }
@@ -248,7 +250,7 @@ function main() {
     console.log(`\nPASS — ${totalCount} tasks validated.`);
     console.log(
       `  Version-sensitive: ${versionSensitiveTasks.length}/${totalCount} ` +
-        `(${(versionSensitiveRatio * 100).toFixed(1)}%)`
+        `(${(versionSensitiveRatio * 100).toFixed(1)}%)`,
     );
     process.exit(0);
   } else {
