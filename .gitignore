@@ -29,3 +29,7 @@ coverage/
 
 # Orchestrator runtime state (see docs/orchestration-plan.md)
 .orchestrator/
+
+# Python bytecode (benchmarks/ contains Python research harnesses)
+__pycache__/
+*.pyc
