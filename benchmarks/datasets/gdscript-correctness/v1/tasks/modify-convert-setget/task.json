@@ -1,0 +1,11 @@
+{
+  "id": "modify-convert-setget",
+  "summary": "Convert Godot 3 setget to Godot 4 property setter/getter syntax",
+  "prompt": "The script uses the Godot 3 `setget` keyword which does not exist in Godot 4. Convert the `health` variable to use the Godot 4 property setter/getter syntax with `set(value)` and `get` blocks. Preserve the clamping behavior and the signal emission on change.",
+  "category": "modify",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["setget", "properties", "Godot-4-migration", "modify"],
+  "evaluation_notes": "Must use Godot 4 var health: int: set(value), get: syntax. Must preserve clamp. Must preserve signal emission. setget keyword must be completely removed.",
+  "api_check": null
+}

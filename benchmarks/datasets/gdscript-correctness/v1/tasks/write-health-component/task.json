@@ -1,0 +1,11 @@
+{
+  "id": "write-health-component",
+  "summary": "Implement a reusable health component with signals",
+  "prompt": "Write a GDScript Node class called HealthComponent. It should have an exported `max_health: int` (default 100) and a private `_current_health: int`. Define two signals: `health_changed(old_value: int, new_value: int)` and `died`. Implement `take_damage(amount: int)` that reduces health (clamp to 0), emits `health_changed`, and emits `died` if health reaches 0. Implement `heal(amount: int)` that increases health (clamp to max_health) and emits `health_changed`. Add a `get_health() -> int` getter.",
+  "category": "write",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["signals", "components", "health", "patterns"],
+  "evaluation_notes": "Signals must be declared with typed parameters using Godot 4 signal syntax. died signal has no parameters. Must clamp health properly. health_changed must emit old and new values. Use _current_health (private convention) not current_health.",
+  "api_check": null
+}

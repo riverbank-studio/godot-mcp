@@ -1,0 +1,11 @@
+{
+  "id": "debug-wrong-node-path",
+  "summary": "Fix a get_node() call using an absolute path instead of relative path",
+  "prompt": "The script below uses an absolute path starting with '/' to get a node, but this only works if the node is at the exact tree position. When the scene is instanced as a child of another node, the path breaks. Fix it to use a relative path instead.",
+  "category": "debug",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["node-path", "get_node", "scene-instancing", "debug"],
+  "evaluation_notes": "Bug: get_node('/root/GameScene/Player') is an absolute path. Fix: use a relative path like get_node('../Player') or $'../Player' or use a NodePath exported variable. The relative path depends on scene structure — '../Player' assumes sibling.",
+  "api_check": null
+}

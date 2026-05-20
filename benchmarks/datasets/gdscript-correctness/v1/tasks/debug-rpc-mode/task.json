@@ -1,0 +1,17 @@
+{
+  "id": "debug-rpc-mode",
+  "summary": "Fix a Godot 3 rpc() call pattern to use Godot 4 method-based RPC",
+  "prompt": "The multiplayer script uses `rpc('method_name', args)` which is the Godot 3 pattern. In Godot 4, this should be `method_name.rpc(args)` (calling .rpc() on the Callable). Convert all rpc() calls in the script to the Godot 4 pattern.",
+  "category": "debug",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["multiplayer", "RPC", "Godot-4-migration", "debug"],
+  "evaluation_notes": "rpc('sync_position', pos) becomes sync_position.rpc(pos). rpc_id(peer_id, 'set_health', hp) becomes set_health.rpc_id(peer_id, hp). Both patterns must be fixed.",
+  "api_check": {
+    "class_name": "Node",
+    "member": "rpc",
+    "introduced": "4.0",
+    "removed": null,
+    "notes": "In Godot 4, rpc() is a method on Callable (the function reference itself), not a global Node method taking a string name. rpc('method', args) is Godot 3 only."
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "id": "modify-add-export-vars",
+  "summary": "Add @export_group and categorized export variables to an existing script",
+  "prompt": "The script below has several hardcoded constants for enemy behavior. Convert them to @export variables organized into two @export_group sections: 'Movement' (speed, acceleration, deceleration) and 'Combat' (attack_damage, attack_range, attack_cooldown). Use appropriate types and preserve the original default values.",
+  "category": "modify",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["export", "export_group", "editor-tools", "modify"],
+  "evaluation_notes": "Must use @export_group decorator. Must use @export before each variable. Types must match original values (float for floats, etc.). Default values must match originals.",
+  "api_check": null
+}

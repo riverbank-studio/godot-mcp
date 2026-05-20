@@ -1,0 +1,17 @@
+{
+  "id": "ver-randomize-removed",
+  "summary": "Avoid calling randomize() which is no longer needed in Godot 4",
+  "prompt": "The script below calls `randomize()` in `_ready()` to seed the RNG. In Godot 4, the RNG is automatically seeded — calling `randomize()` is redundant and was changed in behavior. Remove the `randomize()` call. If the intent is to get a reproducible sequence, use `var rng := RandomNumberGenerator.new()` with `rng.seed = 12345` instead of the global RNG. Rewrite the `roll_dice() -> int` function to use a local `RandomNumberGenerator`.",
+  "category": "version-sensitive",
+  "difficulty": 1,
+  "godot_version": "4.0",
+  "tags": ["randomize", "RandomNumberGenerator", "version-sensitive", "4.0"],
+  "evaluation_notes": "In Godot 4, the global RNG is auto-seeded. randomize() still exists but is a no-op effectively. The recommended approach for reproducible sequences is RandomNumberGenerator with explicit seed. Must use rng.randi_range() not global randi_range().",
+  "api_check": {
+    "class_name": "RandomNumberGenerator",
+    "member": "seed",
+    "introduced": "3.1",
+    "removed": null,
+    "notes": "In Godot 4, the global randomize() call is unnecessary as the global RNG is auto-seeded at startup. For reproducible random sequences, RandomNumberGenerator with an explicit seed is the proper approach."
+  }
+}

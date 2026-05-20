@@ -1,0 +1,17 @@
+{
+  "id": "modify-sync-to-async",
+  "summary": "Convert synchronous ResourceLoader.load to async load_threaded_request",
+  "prompt": "The script below loads a texture synchronously using `load()`. Convert it to use `ResourceLoader.load_threaded_request()` to load the resource in the background. In `_ready()`, call `ResourceLoader.load_threaded_request(texture_path)`. In `_process()`, call `ResourceLoader.load_threaded_get_status(texture_path)` and when it returns `ResourceLoader.THREAD_LOAD_LOADED`, retrieve the resource with `ResourceLoader.load_threaded_get(texture_path)` and assign it to `$Sprite2D.texture`. Remove the synchronous load call.",
+  "category": "modify",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["ResourceLoader", "async", "threading", "modify"],
+  "evaluation_notes": "Must use load_threaded_request in _ready. Must poll in _process using load_threaded_get_status. Must check for THREAD_LOAD_LOADED (not == 1 or THREAD_LOAD_IN_PROGRESS). Must use load_threaded_get to retrieve result.",
+  "api_check": {
+    "class_name": "ResourceLoader",
+    "member": "load_threaded_request",
+    "introduced": "4.0",
+    "removed": null,
+    "notes": "load_threaded_request is the Godot 4 async loading API. Godot 3 used ResourceInteractiveLoader. Agents sometimes generate ResourceInteractiveLoader code."
+  }
+}

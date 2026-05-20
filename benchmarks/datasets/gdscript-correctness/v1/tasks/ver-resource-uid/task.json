@@ -1,0 +1,17 @@
+{
+  "id": "ver-resource-uid",
+  "summary": "Use ResourceUID to look up a resource by UID (Godot 4.0+)",
+  "prompt": "Write a function `load_by_uid(uid_string: String) -> Resource` that loads a resource using its UID string (format: 'uid://abc123'). Use `ResourceUID.text_to_id(uid_string)` to convert the string to an ID, then `ResourceUID.get_id_path(id)` to get the file path, then `load()` the path. Return null if the UID is not found (check with `ResourceUID.has_id(id)`).",
+  "category": "version-sensitive",
+  "difficulty": 2,
+  "godot_version": "4.0",
+  "tags": ["ResourceUID", "uid", "resources", "version-sensitive", "4.0"],
+  "evaluation_notes": "ResourceUID is a Godot 4 singleton. text_to_id converts uid:// string to numeric ID. has_id checks existence. get_id_path returns the file path. All three methods must be used in correct order.",
+  "api_check": {
+    "class_name": "ResourceUID",
+    "member": "text_to_id",
+    "introduced": "4.0",
+    "removed": null,
+    "notes": "ResourceUID is a new Godot 4 system for stable resource references. It has no equivalent in Godot 3. Agents may not know this API exists and may invent incorrect method names."
+  }
+}

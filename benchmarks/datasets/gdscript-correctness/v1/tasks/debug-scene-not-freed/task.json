@@ -1,0 +1,11 @@
+{
+  "id": "debug-scene-not-freed",
+  "summary": "Fix a memory leak where an instantiated scene is never freed",
+  "prompt": "The script below instantiates a popup scene and shows it, but the popup is never freed when the player dismisses it. The popup emits a `close_requested` signal. Connect to this signal and call `queue_free()` on the popup when it fires. The connection should use a lambda (anonymous function) to capture the popup reference.",
+  "category": "debug",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["memory", "queue_free", "signals", "lambda", "debug"],
+  "evaluation_notes": "Must connect close_requested signal. Lambda syntax: popup.close_requested.connect(func(): popup.queue_free()). Or named method with popup reference. Must actually free popup, not just hide it.",
+  "api_check": null
+}

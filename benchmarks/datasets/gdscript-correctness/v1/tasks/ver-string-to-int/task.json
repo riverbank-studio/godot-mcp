@@ -1,0 +1,17 @@
+{
+  "id": "ver-string-to-int",
+  "summary": "Use int() cast instead of deprecated String.to_int() for string-to-int conversion",
+  "prompt": "Write a function `parse_score(text: String) -> int` that converts a score string like '42' to an integer. Use the correct Godot 4 approach: `int(text)` or `text.to_int()`. Note: `String.to_int()` still exists in Godot 4 but `int()` is the idiomatic cast. Verify which form is preferred in modern Godot 4 code and use that. Also write `parse_float(text: String) -> float` using the equivalent float conversion.",
+  "category": "version-sensitive",
+  "difficulty": 1,
+  "godot_version": "4.0",
+  "tags": ["String", "type-conversion", "version-sensitive", "4.0"],
+  "evaluation_notes": "Both int(text) and text.to_int() are valid in Godot 4. int() cast is idiomatic GDScript 2.0. text.to_int() still works but was more common in Godot 3 style. float(text) or text.to_float() are both valid. The test checks that the function returns correct numeric type.",
+  "api_check": {
+    "class_name": "String",
+    "member": "to_int",
+    "introduced": "1.0",
+    "removed": null,
+    "notes": "String.to_int() exists in both Godot 3 and 4. The version-sensitive aspect is that GDScript 2.0 (Godot 4) prefers int() cast form. Using int() is required for typed arrays and return type inference."
+  }
+}

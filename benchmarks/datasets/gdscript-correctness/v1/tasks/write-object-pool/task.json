@@ -1,0 +1,11 @@
+{
+  "id": "write-object-pool",
+  "summary": "Implement a simple object pool for reusing scene instances",
+  "prompt": "Write a Node class implementing a simple object pool. Store an `Array[Node]` called `_pool`. Accept a `PackedScene` and a pool size in a `setup(scene: PackedScene, size: int)` method that pre-instantiates all nodes, hides them (visible = false), and adds them as children. Implement `acquire() -> Node` that finds the first inactive (not visible) node and makes it visible, or returns null if all active. Implement `release(node: Node)` that hides the node and resets its position to Vector2.ZERO.",
+  "category": "write",
+  "difficulty": 3,
+  "godot_version": "4.3",
+  "tags": ["object-pool", "performance", "PackedScene", "patterns"],
+  "evaluation_notes": "Must use PackedScene.instantiate(). Pool must be pre-populated in setup(). acquire() must return null gracefully. release() must set visible = false and reset position.",
+  "api_check": null
+}

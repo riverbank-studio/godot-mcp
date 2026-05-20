@@ -1,0 +1,11 @@
+{
+  "id": "debug-typo-method",
+  "summary": "Fix a method name typo causing runtime error",
+  "prompt": "The script calls `queue_delete()` which does not exist in Godot 4. The correct method is `queue_free()`. Find all instances of the wrong method name and fix them.",
+  "category": "debug",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["debug", "method-name", "queue_free"],
+  "evaluation_notes": "Bug: queue_delete() is not a Godot API method. Must be replaced with queue_free(). May appear in multiple places in the script.",
+  "api_check": null
+}

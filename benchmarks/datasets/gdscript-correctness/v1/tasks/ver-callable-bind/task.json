@@ -1,0 +1,17 @@
+{
+  "id": "ver-callable-bind",
+  "summary": "Use Callable.bind() to pass extra arguments to signal callbacks",
+  "prompt": "Connect a button's pressed signal to a method `_on_item_selected` that needs to know which item index was clicked. Use `Callable.bind(index)` to pre-bind the index argument. The `_on_item_selected(index: int)` method should print the index. Do NOT use funcref() (Godot 3 API). Show how to do this for 5 buttons in a loop.",
+  "category": "version-sensitive",
+  "difficulty": 2,
+  "godot_version": "4.0",
+  "tags": ["Callable", "bind", "signals", "version-sensitive", "4.0"],
+  "evaluation_notes": "Must use .bind(index) on the Callable. button.pressed.connect(_on_item_selected.bind(i)) is correct. funcref() is Godot 3 and doesn't exist in Godot 4. Lambda alternative also acceptable: connect(func(): _on_item_selected(i)).",
+  "api_check": {
+    "class_name": "Callable",
+    "member": "bind",
+    "introduced": "4.0",
+    "removed": null,
+    "notes": "Callable.bind() is Godot 4's way to partially apply arguments to a callable. Godot 3 used funcref() which doesn't exist in Godot 4. Using funcref() is an API version error."
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "id": "write-input-handler",
+  "summary": "Implement input handling using _unhandled_input and InputEventMouseButton",
+  "prompt": "Write a Node script with an `_unhandled_input(event: InputEvent)` method. Inside, check if the event is a `InputEventMouseButton` using `is` keyword. If so, check `event.button_index == MOUSE_BUTTON_LEFT` and `event.pressed`. When left mouse is pressed, emit a signal `clicked(position: Vector2)` passing `event.position`. Also handle `KEY_ESCAPE` using `Input.is_action_just_pressed(\"ui_cancel\")` in `_process` to emit a `cancel_requested` signal.",
+  "category": "write",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["input", "signals", "InputEvent", "mouse"],
+  "evaluation_notes": "Must use InputEventMouseButton (not InputEventMouseMotion). MOUSE_BUTTON_LEFT constant (not BUTTON_LEFT which was Godot 3). _unhandled_input is correct (not _input for the button check). event.position for mouse position.",
+  "api_check": null
+}

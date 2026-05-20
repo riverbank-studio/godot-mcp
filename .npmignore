@@ -1,0 +1,8 @@
+# Exclude benchmark datasets from the npm package tarball
+benchmarks/
+docs/
+scripts/
+src/
+*.md
+.github/
+.claude/

@@ -1,0 +1,11 @@
+{
+  "id": "debug-singleton-conflict",
+  "summary": "Fix a script that uses a class_name that conflicts with an autoload singleton",
+  "prompt": "The GameManager script defines `class_name GameManager` but there's also an autoload named GameManager registered in project settings. This causes a parser error. Fix the class by removing the `class_name` declaration — the autoload name takes precedence and the class_name is redundant and conflicting.",
+  "category": "debug",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["autoload", "class_name", "singleton", "debug"],
+  "evaluation_notes": "Bug: class_name conflicts with autoload name. Fix: remove class_name GameManager line. The autoload singleton is accessed globally by its registered name without needing class_name.",
+  "api_check": null
+}

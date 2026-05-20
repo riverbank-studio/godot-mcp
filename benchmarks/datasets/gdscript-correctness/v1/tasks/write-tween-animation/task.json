@@ -1,0 +1,11 @@
+{
+  "id": "write-tween-animation",
+  "summary": "Animate a UI element using Tween",
+  "prompt": "Write a GDScript method `animate_popup(panel: Control)` that animates a Control node appearing on screen. Use `create_tween()` to create a Tween. Set the panel's `modulate.a` from 0.0 to 1.0 over 0.3 seconds, then tween its `scale` from Vector2(0.8, 0.8) to Vector2(1.0, 1.0) over 0.2 seconds. Chain these using tween_property. Set the panel visible before starting the tween.",
+  "category": "write",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["Tween", "animation", "UI", "Control"],
+  "evaluation_notes": "Must use create_tween() not Tween.new() or $Tween. tween_property is the correct method. Must set panel.visible = true. Chaining with .chain() or separate tween_property calls both acceptable.",
+  "api_check": null
+}

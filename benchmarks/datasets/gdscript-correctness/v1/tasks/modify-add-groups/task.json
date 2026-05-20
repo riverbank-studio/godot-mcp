@@ -1,0 +1,11 @@
+{
+  "id": "modify-add-groups",
+  "summary": "Add nodes to groups and use group-based queries",
+  "prompt": "The enemy script below does not use Godot groups. Add the node to the 'enemies' group in `_ready()` using `add_to_group()`. Then add a class method `get_all_enemies(tree: SceneTree) -> Array[Node]` that returns all nodes in the 'enemies' group. Also add a method `notify_enemies(message: String)` that calls `tree.call_group('enemies', 'receive_message', message)` where tree is retrieved via `get_tree()`. Add a `receive_message(message: String)` stub that prints the message.",
+  "category": "modify",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["groups", "SceneTree", "call_group", "modify"],
+  "evaluation_notes": "Must use add_to_group in _ready. get_nodes_in_group returns Array[Node] in Godot 4. call_group is correct (not call_group_flags). receive_message must accept String.",
+  "api_check": null
+}

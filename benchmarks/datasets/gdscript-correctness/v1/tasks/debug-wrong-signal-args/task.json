@@ -1,0 +1,11 @@
+{
+  "id": "debug-wrong-signal-args",
+  "summary": "Fix a signal connection that passes the wrong number of arguments",
+  "prompt": "The script below connects to a signal but the callback has the wrong signature — it does not match the signal's parameters. The game logs 'Signal argument count mismatch' at runtime. Find and fix the bug.",
+  "category": "debug",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["signals", "debug", "callbacks"],
+  "evaluation_notes": "Bug: health_changed signal emits (old_value: int, new_value: int) but _on_health_changed only accepts (new_value: int). Fix: add old_value parameter to the callback, or use Callable.bind to drop the first arg. Adding old_value: int as first param is simplest.",
+  "api_check": null
+}

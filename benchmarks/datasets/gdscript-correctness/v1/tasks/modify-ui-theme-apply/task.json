@@ -1,0 +1,11 @@
+{
+  "id": "modify-ui-theme-apply",
+  "summary": "Apply a Theme resource to UI elements programmatically",
+  "prompt": "The UI script below creates buttons dynamically but applies no theme. Add a method `apply_button_theme(button: Button, theme: Theme)` that sets `button.theme = theme`. Also add `set_panel_color(panel: PanelContainer, color: Color)` that creates a StyleBoxFlat, sets its `bg_color` to `color`, and applies it as an override: `panel.add_theme_stylebox_override(\"panel\", style_box)`. Add `reset_button_theme(button: Button)` that sets `button.theme = null`.",
+  "category": "modify",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["Theme", "StyleBoxFlat", "UI", "modify"],
+  "evaluation_notes": "StyleBoxFlat.new() to create. bg_color property is correct. add_theme_stylebox_override is the Godot 4 API (not add_stylebox_override). Setting theme = null resets.",
+  "api_check": null
+}

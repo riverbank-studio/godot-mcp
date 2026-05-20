@@ -1,0 +1,11 @@
+{
+  "id": "write-inventory-item",
+  "summary": "Implement a Resource subclass for an inventory item",
+  "prompt": "Write a GDScript class that extends Resource and represents an inventory item. It should have exported properties: `item_name: String`, `max_stack: int` (default 99), `icon: Texture2D` (nullable). Add a method `can_stack_with(other: InventoryItem) -> bool` that returns true if the other item has the same item_name and the max_stack is greater than 1. Name the class InventoryItem using the class_name keyword.",
+  "category": "write",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["Resource", "class_name", "inventory", "export"],
+  "evaluation_notes": "Must use class_name InventoryItem. Must extend Resource. @export var icon: Texture2D must accept null. can_stack_with must compare item_name, not identity. max_stack default should be 99.",
+  "api_check": null
+}

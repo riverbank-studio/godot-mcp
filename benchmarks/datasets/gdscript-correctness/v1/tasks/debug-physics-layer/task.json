@@ -1,0 +1,11 @@
+{
+  "id": "debug-physics-layer",
+  "summary": "Fix collision mask mismatch preventing Area2D from detecting bodies",
+  "prompt": "The Area2D below never triggers its `body_entered` signal even though enemies walk into it. The issue is a collision layer/mask mismatch. Enemies are on layer 3 (value = 4). The Area2D's collision_mask is set to 1 (layer 1 only). Fix the collision_mask in `_ready()` to detect layer 3.",
+  "category": "debug",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["Area2D", "collision-layers", "debug", "physics"],
+  "evaluation_notes": "Bug: collision_mask = 1 means only layer 1. Enemies are on layer 3. Fix: collision_mask = 4 (1 << 2 = layer 3 bit). Or use set_collision_mask_value(3, true) which sets bit for layer 3.",
+  "api_check": null
+}

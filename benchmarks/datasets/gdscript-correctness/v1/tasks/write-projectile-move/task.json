@@ -1,0 +1,11 @@
+{
+  "id": "write-projectile-move",
+  "summary": "Implement projectile movement that frees itself on collision",
+  "prompt": "Write a CharacterBody2D script for a projectile. On `_ready()`, set the velocity to `Vector2.RIGHT.rotated(rotation) * speed`. In `_physics_process`, call `move_and_slide()`. After moving, check `get_slide_collision_count() > 0` — if so, queue_free() the projectile. Export a `speed: float` variable with default 400.0.",
+  "category": "write",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["projectile", "CharacterBody2D", "collision", "movement"],
+  "evaluation_notes": "Must use get_slide_collision_count() not get_slide_collisions (Godot 3). velocity set in _ready using rotation. queue_free() after collision detection.",
+  "api_check": null
+}

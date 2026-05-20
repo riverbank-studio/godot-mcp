@@ -1,0 +1,11 @@
+{
+  "id": "write-grid-snap",
+  "summary": "Implement grid snapping for a draggable object",
+  "prompt": "Write a GDScript function `snap_to_grid(world_position: Vector2, cell_size: int) -> Vector2` that rounds a world position to the nearest grid cell center. The grid has cells of `cell_size` pixels. Use `snapped()` or integer arithmetic to align to the grid. Add a second function `world_to_cell(world_position: Vector2, cell_size: int) -> Vector2i` that returns the cell coordinates (integer column, row).",
+  "category": "write",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["math", "Vector2", "grid", "snapping"],
+  "evaluation_notes": "snap_to_grid should use snapped(world_position, Vector2(cell_size, cell_size)) or equivalent floor/round arithmetic. world_to_cell should return Vector2i using floor division. Return type annotations required.",
+  "api_check": null
+}

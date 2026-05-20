@@ -1,0 +1,11 @@
+{
+  "id": "write-enemy-patrol",
+  "summary": "Implement enemy patrol between waypoints using NavigationAgent2D",
+  "prompt": "Write a CharacterBody2D script that patrols between an array of Vector2 waypoints. Store waypoints as `@export var waypoints: Array[Vector2]`. Track the current waypoint index. In `_physics_process`, move toward the current waypoint using `NavigationAgent2D` — set the target position via `$NavigationAgent2D.target_position` and get the next path position with `get_next_path_position()`. When the agent reaches the target (use `is_navigation_finished()`), advance to the next waypoint (wrap around). Move at `speed` pixels/sec.",
+  "category": "write",
+  "difficulty": 3,
+  "godot_version": "4.3",
+  "tags": ["NavigationAgent2D", "patrol", "CharacterBody2D", "pathfinding"],
+  "evaluation_notes": "Must use NavigationAgent2D not direct vector math (though vector math acceptable if NavigationAgent2D not available). is_navigation_finished() for arrival check. Modulo wraparound for waypoint index. velocity = direction * speed then move_and_slide().",
+  "api_check": null
+}

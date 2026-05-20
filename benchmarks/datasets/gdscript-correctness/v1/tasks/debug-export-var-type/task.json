@@ -1,0 +1,11 @@
+{
+  "id": "debug-export-var-type",
+  "summary": "Fix an @export variable with wrong type hint causing editor warning",
+  "prompt": "The script exports a `speed` variable as String but uses it in arithmetic as if it were a float. This causes a runtime error. Fix the export type so the variable is properly typed and editor-visible as a float.",
+  "category": "debug",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["export", "types", "debug", "runtime-error"],
+  "evaluation_notes": "Bug: @export var speed: String = '200.0' — used as float in velocity calculation. Fix: change type to float and default to 200.0. String arithmetic in GDScript will not crash on multiply but will give wrong result.",
+  "api_check": null
+}

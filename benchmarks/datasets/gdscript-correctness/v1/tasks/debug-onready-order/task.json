@@ -1,0 +1,11 @@
+{
+  "id": "debug-onready-order",
+  "summary": "Fix a variable used before @onready initialization in _init",
+  "prompt": "The script below crashes because `_label` is accessed in `_init()` before `@onready` variables are populated. In Godot 4, `@onready` vars are set during `_ready()`, not `_init()`. Move the label initialization to `_ready()` instead.",
+  "category": "debug",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["onready", "_init", "_ready", "initialization-order", "debug"],
+  "evaluation_notes": "Bug: _init() runs before the scene tree is available, so @onready vars are null. Fix: move _label.text assignment to _ready(). The @onready declaration remains at class level.",
+  "api_check": null
+}

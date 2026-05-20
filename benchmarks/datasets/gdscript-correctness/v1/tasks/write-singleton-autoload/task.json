@@ -1,0 +1,17 @@
+{
+  "id": "write-singleton-autoload",
+  "summary": "Implement a GameManager autoload singleton",
+  "prompt": "Write a GDScript Node class to be used as an autoload singleton named GameManager. It should track the current score (int, default 0) and the high score (int, loaded from and saved to a file at 'user://highscore.dat' using FileAccess). Implement: `add_score(points: int)` that adds to score and updates high_score if score exceeds it, `reset_score()` that resets score to 0, `save_high_score()` using FileAccess.open with WRITE mode, and `load_high_score()` using FileAccess.open with READ mode. Call load_high_score() in _ready().",
+  "category": "write",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["autoload", "singleton", "FileAccess", "persistence"],
+  "evaluation_notes": "Must use FileAccess.open not File (Godot 3 API). Must use FileAccess.WRITE and FileAccess.READ constants. store_32/get_32 or store_string/get_as_text both acceptable. Must call load_high_score in _ready.",
+  "api_check": {
+    "class_name": "FileAccess",
+    "member": "open",
+    "introduced": "4.0",
+    "removed": null,
+    "notes": "FileAccess.open replaces the old File class from Godot 3. Using 'File' instead of 'FileAccess' is a common hallucination."
+  }
+}

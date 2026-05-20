@@ -1,0 +1,17 @@
+{
+  "id": "ver-signal-connect",
+  "summary": "Use Godot 4 signal.connect(callable) instead of Godot 3 connect('name', obj, 'method')",
+  "prompt": "Connect a Timer's timeout signal to a method called `_on_timer_timeout` using the Godot 4 API. The Godot 3 form `$Timer.connect('timeout', self, '_on_timer_timeout')` is invalid in Godot 4. Use the direct signal reference syntax. Also show how to disconnect the same signal.",
+  "category": "version-sensitive",
+  "difficulty": 1,
+  "godot_version": "4.0",
+  "tags": ["signals", "connect", "version-sensitive", "4.0"],
+  "evaluation_notes": "Must use $Timer.timeout.connect(_on_timer_timeout) — signal as object, connect() takes Callable directly. Disconnect: $Timer.timeout.disconnect(_on_timer_timeout). The Godot 3 connect('string', self, 'string') form is a fail.",
+  "api_check": {
+    "class_name": "Signal",
+    "member": "connect",
+    "introduced": "4.0",
+    "removed": null,
+    "notes": "In Godot 4, signals are first-class objects. signal.connect(callable) replaces node.connect('signal_name', target, 'method_name'). The old string-based form was removed."
+  }
+}
