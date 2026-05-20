@@ -43,7 +43,8 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "0.6.0",
-    "fs-extra": "^11.2.0"
+    "fs-extra": "^11.2.0",
+    "vscode-jsonrpc": "^8.2.1"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
