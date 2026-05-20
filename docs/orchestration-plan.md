@@ -8,24 +8,24 @@ How a team of Claude Code agents will implement all 38 open issues in this repo 
 
 ## 1. Locked-in decisions
 
-| Topic | Choice |
-| --- | --- |
-| Wave 0 (pre-orchestrator) | User + me set up CI interactively (Godot binary install, build/test/lint workflow, smoke PR). Orchestrator only launches once CI is green. |
-| Concurrency cap | None — DAG-driven, peaks ~13 concurrent agents in Wave 4 (renumbered; was Wave 3 before CI became Wave 0) |
-| PR granularity | One PR per issue, including each sub-issue under epics #7, #9, #10 |
-| Merge policy | Agents open PRs **ready-for-review**; the user merges |
-| Non-TDD issues | Research (#34, #39) hand-off to user as `docs/research/<topic>.md` PRs; benchmark/curation issues use acceptance-criteria assertions instead of unit tests |
-| Orchestrator | Background `/loop` coordinator agent, tick = 10 min; auto-exits when every issue is in `{Done, Blocked}` |
-| Stack rebase | Dependent branches auto-rebase when their blocker PR head moves |
-| `dispatch.ts` hotspot | Epic-infra PR for #7 and #9 introduces an auto-discovery registry; per-tool PRs touch only their own file |
-| Quality gate | Local `npm test` + `npm run lint` + CI green required before marking ready-for-review |
-| Failure handling | Retry once with a fresh agent + fresh worktree; if still failing, open draft PR titled `[BLOCKED] ...` and set Status=Blocked |
-| Self-review | Every PR: agent runs `/review`. Tool & LSP PRs additionally run `/security-review` |
-| State tracking | GitHub Projects v2 with a `Status` single-select field (`Pending` / `Blocked` / `In-Progress` / `Ready-for-Review` / `Done`); fallback to labels if `project` scope unavailable |
-| Research deliverable | `docs/research/<topic>.md` markdown PR |
-| Drive-by findings | Implementers file new GH issues via `gh issue create`; PR diffs stay scoped |
-| Model + effort tiering | Opus 4.7 + `ultrathink` (architectural), Sonnet 4.6 + `think hard` (leaves/benchmarks), Sonnet 4.6 + `think` (mechanical), Opus 4.7 + `think harder` (research). See §5. |
-| Worktree base | `E:\Bradley\Documents\VSCodeProjects\godot-mcp-worktrees\<branch-name>` |
+| Topic                     | Choice                                                                                                                                                                          |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Wave 0 (pre-orchestrator) | User + me set up CI interactively (Godot binary install, build/test/lint workflow, smoke PR). Orchestrator only launches once CI is green.                                      |
+| Concurrency cap           | None — DAG-driven, peaks ~13 concurrent agents in Wave 4 (renumbered; was Wave 3 before CI became Wave 0)                                                                       |
+| PR granularity            | One PR per issue, including each sub-issue under epics #7, #9, #10                                                                                                              |
+| Merge policy              | Agents open PRs **ready-for-review**; the user merges                                                                                                                           |
+| Non-TDD issues            | Research (#34, #39) hand-off to user as `docs/research/<topic>.md` PRs; benchmark/curation issues use acceptance-criteria assertions instead of unit tests                      |
+| Orchestrator              | Background `/loop` coordinator agent, tick = 10 min; auto-exits when every issue is in `{Done, Blocked}`                                                                        |
+| Stack rebase              | Dependent branches auto-rebase when their blocker PR head moves                                                                                                                 |
+| `dispatch.ts` hotspot     | Epic-infra PR for #7 and #9 introduces an auto-discovery registry; per-tool PRs touch only their own file                                                                       |
+| Quality gate              | Local `npm test` + `npm run lint` + CI green required before marking ready-for-review                                                                                           |
+| Failure handling          | Retry once with a fresh agent + fresh worktree; if still failing, open draft PR titled `[BLOCKED] ...` and set Status=Blocked                                                   |
+| Self-review               | Every PR: agent runs `/review`. Tool & LSP PRs additionally run `/security-review`                                                                                              |
+| State tracking            | GitHub Projects v2 with a `Status` single-select field (`Pending` / `Blocked` / `In-Progress` / `Ready-for-Review` / `Done`); fallback to labels if `project` scope unavailable |
+| Research deliverable      | `docs/research/<topic>.md` markdown PR                                                                                                                                          |
+| Drive-by findings         | Implementers file new GH issues via `gh issue create`; PR diffs stay scoped                                                                                                     |
+| Model + effort tiering    | Opus 4.7 + `ultrathink` (architectural), Sonnet 4.6 + `think hard` (leaves/benchmarks), Sonnet 4.6 + `think` (mechanical), Opus 4.7 + `think harder` (research). See §5.        |
+| Worktree base             | `E:\Bradley\Documents\VSCodeProjects\godot-mcp-worktrees\<branch-name>`                                                                                                         |
 
 ---
 
@@ -77,16 +77,16 @@ Wave 7:
 
 **Parallelism profile** (best case, assuming no failures):
 
-| Phase | Concurrent agents |
-| --- | --- |
-| Wave 0 | 0 (user + me interactive) |
-| Wave 1 (Foundation) | 9 |
-| Wave 2 | 2 (#4, #5) |
-| Wave 3 | 2 (#6, #8) — runs alongside any unfinished Wave 1 |
-| Wave 4 | up to 13 (6 docs + 7 LSP tools) + 2 epic-infra = 15 peak |
-| Wave 5 | 3 (#10/#27, #12, #13) |
-| Wave 6 | up to 5 (benchmarks) |
-| Wave 7 | 1 (#46) |
+| Phase               | Concurrent agents                                        |
+| ------------------- | -------------------------------------------------------- |
+| Wave 0              | 0 (user + me interactive)                                |
+| Wave 1 (Foundation) | 9                                                        |
+| Wave 2              | 2 (#4, #5)                                               |
+| Wave 3              | 2 (#6, #8) — runs alongside any unfinished Wave 1        |
+| Wave 4              | up to 13 (6 docs + 7 LSP tools) + 2 epic-infra = 15 peak |
+| Wave 5              | 3 (#10/#27, #12, #13)                                    |
+| Wave 6              | up to 5 (benchmarks)                                     |
+| Wave 7              | 1 (#46)                                                  |
 
 ---
 
@@ -143,7 +143,14 @@ echo ".orchestrator/" >> .gitignore   # if not already ignored
 ```json
 {
   "issues": {
-    "3": { "status": "In-Progress", "branch": "feat/3-refactor-index", "pr": null, "worktree": "...", "attempts": 1, "lastTick": "2026-05-20T18:00:00Z" }
+    "3": {
+      "status": "In-Progress",
+      "branch": "feat/3-refactor-index",
+      "pr": null,
+      "worktree": "...",
+      "attempts": 1,
+      "lastTick": "2026-05-20T18:00:00Z"
+    }
   },
   "lastTick": "2026-05-20T18:00:00Z"
 }
@@ -291,12 +298,12 @@ The implementer is `subagent_type=general-purpose`, `isolation=worktree`, `run_i
 
 **Model + effort assignment:**
 
-| Bucket | Issues | Model | Thinking trigger | Effort approximation |
-| --- | --- | --- | --- | --- |
-| Architectural | #3, #5, #6, #7-infra, #8, #9-infra, #43, #44, #47 | Opus 4.7 | `ultrathink` | max |
-| Tool leaves & benchmarks | #14–19, #20–27, #10, #12, #13, #30–32, #45, #46, #11 | Sonnet 4.6 | `think hard` | high |
-| Mechanical / curation | #4, #40, #41, #42 | Sonnet 4.6 | `think` | medium |
-| Research hand-off | #34, #39 | Opus 4.7 | `think harder` | very high |
+| Bucket                   | Issues                                               | Model      | Thinking trigger | Effort approximation |
+| ------------------------ | ---------------------------------------------------- | ---------- | ---------------- | -------------------- |
+| Architectural            | #3, #5, #6, #7-infra, #8, #9-infra, #43, #44, #47    | Opus 4.7   | `ultrathink`     | max                  |
+| Tool leaves & benchmarks | #14–19, #20–27, #10, #12, #13, #30–32, #45, #46, #11 | Sonnet 4.6 | `think hard`     | high                 |
+| Mechanical / curation    | #4, #40, #41, #42                                    | Sonnet 4.6 | `think`          | medium               |
+| Research hand-off        | #34, #39                                             | Opus 4.7   | `think harder`   | very high            |
 
 The Agent tool doesn't expose an explicit effort/thinking-budget parameter; the
 trigger words above are interpreted by the spawned subagent's Claude Code instance
@@ -366,7 +373,13 @@ import { docsTools } from "./tools/docs-tools.js";
 import { lspTools } from "./tools/lsp-tools.js";
 // existing editor/scene/project tool imports...
 
-const ALL_TOOLS = [...editorTools, ...sceneTools, ...projectTools, ...docsTools, ...lspTools];
+const ALL_TOOLS = [
+  ...editorTools,
+  ...sceneTools,
+  ...projectTools,
+  ...docsTools,
+  ...lspTools,
+];
 ```
 
 Per-tool PRs (e.g. #14 `godot_search_api`):
@@ -397,17 +410,17 @@ User + me in this session (or another), before the coordinator launches. See §3
 
 ### Wave 1 — Foundation (orchestrator's first tick)
 
-| Issue | Type | Notes |
-| --- | --- | --- |
-| #3 | refactor | Architectural; Opus 4.7. Blocks the entire chain. Highest priority. |
-| #34 | research | docs/research/godot-lsp-builtins.md. Hand back for review. |
-| #39 | research | docs/research/fts5-tokenizer-bm25.md. |
-| #40 | content | 14 tool descriptions per DESIGN.md. |
-| #41 | curation | GDScript task set; output as fixtures/benchmarks/gdscript/*.json. |
-| #42 | curation | Tutorial Q/A set; output as fixtures/benchmarks/tutorials/*.json. |
-| #43 | infra | Platform matrix + postinstall preflight. May touch package.json scripts. |
-| #44 | feature | GODOT_MCP_OFFLINE env + pre-built DB path resolver. |
-| #47 | infra | Tarball SHA + godot-release-hashes.json manifest. |
+| Issue | Type     | Notes                                                                    |
+| ----- | -------- | ------------------------------------------------------------------------ |
+| #3    | refactor | Architectural; Opus 4.7. Blocks the entire chain. Highest priority.      |
+| #34   | research | docs/research/godot-lsp-builtins.md. Hand back for review.               |
+| #39   | research | docs/research/fts5-tokenizer-bm25.md.                                    |
+| #40   | content  | 14 tool descriptions per DESIGN.md.                                      |
+| #41   | curation | GDScript task set; output as fixtures/benchmarks/gdscript/\*.json.       |
+| #42   | curation | Tutorial Q/A set; output as fixtures/benchmarks/tutorials/\*.json.       |
+| #43   | infra    | Platform matrix + postinstall preflight. May touch package.json scripts. |
+| #44   | feature  | GODOT_MCP_OFFLINE env + pre-built DB path resolver.                      |
+| #47   | infra    | Tarball SHA + godot-release-hashes.json manifest.                        |
 
 **Conflict watch:** #43, #44, #47 may all touch `package.json` and `scripts/`. Coordinator schedules these to land in declared order if conflicts arise: #43 → #47 → #44.
 
@@ -426,10 +439,12 @@ User + me in this session (or another), before the coordinator launches. See §3
 ### Wave 4 — Epic-infra PRs, then leaf tools
 
 For epic #7:
+
 1. `feat/7-docs-tools-infra` — introduces `src/tools/docs-tools.ts` registry + `src/docs/*` helpers consumed by all 6 docs tools.
 2. Six concurrent leaves: #14, #15, #16, #17, #18, #19. Each branches from `feat/7-docs-tools-infra` head.
 
 For epic #9:
+
 1. `feat/9-lsp-tools-infra` — registry + LSP request/response helpers.
 2. Seven concurrent leaves: #20, #21, #22, #23, #24, #25, #26.
 
@@ -444,6 +459,7 @@ The two epic-infra PRs can run concurrently with each other. Their leaves can ru
 ### Wave 6 — Benchmarks
 
 All five run concurrently once their blockers are open:
+
 - #11 needs #47 + #6
 - #30 needs #9 (read-only LSP), #7 (docs tools), #40
 - #31 needs #9, #7, #41
@@ -473,7 +489,7 @@ implementer exits BLOCKED
       Status=Pending in the project.
 ```
 
-A rebase agent that exits `REBASE_BLOCKED` triggers the same path against the *dependent* PR, not the blocker.
+A rebase agent that exits `REBASE_BLOCKED` triggers the same path against the _dependent_ PR, not the blocker.
 
 ---
 
@@ -499,6 +515,7 @@ sections 4 and 5 for your contract. Run one tick now."
 ```
 
 The first tick will:
+
 - Inspect `Status=Pending` issues, find all foundation-wave issues unblocked
 - Create 9 worktrees under `godot-mcp-worktrees\`
 - Spawn 9 implementer agents in the background (`run_in_background: true`)
@@ -519,4 +536,4 @@ Subsequent ticks will pick up Wave 1 as soon as #3's PR opens, and so on.
 
 ---
 
-*Generated 2026-05-20. Update this file as decisions evolve.*
+_Generated 2026-05-20. Update this file as decisions evolve._
