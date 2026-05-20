@@ -2,16 +2,15 @@
 
 [![Github-sponsors](https://img.shields.io/badge/sponsor-30363D?style=for-the-badge&logo=GitHub-Sponsors&logoColor=#EA4AAA)](https://github.com/sponsors/Coding-Solo)
 
-[![](https://badge.mcpx.dev?type=server 'MCP Server')](https://modelcontextprotocol.io/introduction)
+[![](https://badge.mcpx.dev?type=server "MCP Server")](https://modelcontextprotocol.io/introduction)
 [![Made with Godot](https://img.shields.io/badge/Made%20with-Godot-478CBF?style=flat&logo=godot%20engine&logoColor=white)](https://godotengine.org)
-[![](https://img.shields.io/badge/Node.js-339933?style=flat&logo=nodedotjs&logoColor=white 'Node.js')](https://nodejs.org/en/download/)
-[![](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white 'TypeScript')](https://www.typescriptlang.org/)
+[![](https://img.shields.io/badge/Node.js-339933?style=flat&logo=nodedotjs&logoColor=white "Node.js")](https://nodejs.org/en/download/)
+[![](https://img.shields.io/badge/TypeScript-3178C6?style=flat&logo=typescript&logoColor=white "TypeScript")](https://www.typescriptlang.org/)
 
-[![](https://img.shields.io/github/last-commit/Coding-Solo/godot-mcp 'Last Commit')](https://github.com/Coding-Solo/godot-mcp/commits/main)
-[![](https://img.shields.io/github/stars/Coding-Solo/godot-mcp 'Stars')](https://github.com/Coding-Solo/godot-mcp/stargazers)
-[![](https://img.shields.io/github/forks/Coding-Solo/godot-mcp 'Forks')](https://github.com/Coding-Solo/godot-mcp/network/members)
-[![](https://img.shields.io/badge/License-MIT-red.svg 'MIT License')](https://opensource.org/licenses/MIT)
-
+[![](https://img.shields.io/github/last-commit/Coding-Solo/godot-mcp "Last Commit")](https://github.com/Coding-Solo/godot-mcp/commits/main)
+[![](https://img.shields.io/github/stars/Coding-Solo/godot-mcp "Stars")](https://github.com/Coding-Solo/godot-mcp/stargazers)
+[![](https://img.shields.io/github/forks/Coding-Solo/godot-mcp "Forks")](https://github.com/Coding-Solo/godot-mcp/network/members)
+[![](https://img.shields.io/badge/License-MIT-red.svg "MIT License")](https://opensource.org/licenses/MIT)
 
 ```text
                            (((((((             (((((((
@@ -196,10 +195,10 @@ For any MCP-compatible client, use this configuration:
 
 ### Environment Variables
 
-| Variable | Description |
-|----------|-------------|
+| Variable     | Description                                                  |
+| ------------ | ------------------------------------------------------------ |
 | `GODOT_PATH` | Path to the Godot executable (overrides automatic detection) |
-| `DEBUG` | Set to `"true"` to enable detailed server-side debug logging |
+| `DEBUG`      | Set to `"true"` to enable detailed server-side debug logging |
 
 <details>
 <summary><strong>Building from Source</strong></summary>
@@ -214,7 +213,6 @@ npm run build
 Then point your MCP client to `build/index.js` instead of using `npx`.
 
 </details>
-
 
 ## Architecture
 
