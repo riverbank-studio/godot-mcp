@@ -280,9 +280,8 @@ export class LspProcessManager {
   }
 
   /**
-   * Stop the manager: kill the child, remove exit handlers, mark
-   * cap-exhausted to lock further spawn attempts. Called from the
-   * top-level `cleanup()` path.
+   * Stop the manager: kill the active child and remove all registered
+   * process-exit handlers. Called from the top-level `cleanup()` path.
    */
   dispose(): void {
     this.kill();

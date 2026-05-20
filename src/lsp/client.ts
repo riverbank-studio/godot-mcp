@@ -544,8 +544,8 @@ export class LspClient {
   /**
    * Handle a connection close: reject in-flight diagnostic waiters with
    * a connection-lost error and clear our connection pointer. The tiered
-   * recovery layer (alive-check → reconnect → respawn) is exposed via
-   * {@link recover} so callers can drive it explicitly between sessions.
+   * recovery layer (alive-check → reconnect → respawn) is deferred; a
+   * future `recover()` call will drive it explicitly between sessions.
    */
   private wireConnectionLostHandler(
     conn: MessageConnection,
