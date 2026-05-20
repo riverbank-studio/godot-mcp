@@ -55,8 +55,8 @@ Multiple `answer_anchors` indicate that more than one page section acceptably an
 
 | Metric                               | Value                                                      |
 | ------------------------------------ | ---------------------------------------------------------- |
-| Total queries                        | 60                                                         |
-| Train split                          | 50                                                         |
+| Total queries                        | 61                                                         |
+| Train split                          | 51                                                         |
 | Held-out split                       | 10                                                         |
 | Queries with multiple answer_anchors | ≥ 5                                                        |
 | Categories covered                   | 4 (conceptual, procedural, api-discovery, troubleshooting) |
@@ -64,7 +64,7 @@ Multiple `answer_anchors` indicate that more than one page section acceptably an
 
 ## Held-out split
 
-Queries with `"split": "held-out"` (q-051 through q-060) are reserved for final benchmark evaluation and must not be used during chunking parameter tuning. They are stored in the same file for schema consistency; the validation script enforces the count.
+Queries with `"split": "held-out"` (q-052 through q-061) are reserved for final benchmark evaluation and must not be used during chunking parameter tuning. They are stored in the same file for schema consistency; the validation script enforces the count.
 
 ## Validation
 
