@@ -1,0 +1,8 @@
+# Force LF line endings in the working tree on every platform.
+# Without this, Windows + core.autocrlf=true produces CRLF checkouts
+# that fight with Prettier's default endOfLine: "lf".
+* text=auto eol=lf
+
+# Belt-and-suspenders for files that must stay LF regardless of detection:
+*.sh   text eol=lf
+*.gd   text eol=lf

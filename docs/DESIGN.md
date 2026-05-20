@@ -51,21 +51,21 @@ All tools use the flat `godot_` prefix. This is a one-time rename for existing t
 
 These already exist in the upstream fork. The rename is a single PR before any new work.
 
-| Old name | New name |
-|----------|----------|
-| `launch_editor` | `godot_launch_editor` |
-| `run_project` | `godot_run_project` |
-| `stop_project` | `godot_stop_project` |
-| `get_debug_output` | `godot_get_debug_output` |
-| `get_godot_version` | `godot_get_version` |
-| `list_projects` | `godot_list_projects` |
-| `get_project_info` | `godot_get_project_info` |
-| `create_scene` | `godot_create_scene` |
-| `add_node` | `godot_add_node` |
-| `load_sprite` | `godot_load_sprite` |
+| Old name              | New name                    |
+| --------------------- | --------------------------- |
+| `launch_editor`       | `godot_launch_editor`       |
+| `run_project`         | `godot_run_project`         |
+| `stop_project`        | `godot_stop_project`        |
+| `get_debug_output`    | `godot_get_debug_output`    |
+| `get_godot_version`   | `godot_get_version`         |
+| `list_projects`       | `godot_list_projects`       |
+| `get_project_info`    | `godot_get_project_info`    |
+| `create_scene`        | `godot_create_scene`        |
+| `add_node`            | `godot_add_node`            |
+| `load_sprite`         | `godot_load_sprite`         |
 | `export_mesh_library` | `godot_export_mesh_library` |
-| `save_scene` | `godot_save_scene` |
-| `get_uid` | `godot_get_uid` |
+| `save_scene`          | `godot_save_scene`          |
+| `get_uid`             | `godot_get_uid`             |
 | `update_project_uids` | `godot_update_project_uids` |
 
 The `get_godot_version` → `godot_get_version` change drops a redundant "godot" in the action verb.
@@ -116,27 +116,27 @@ All configuration via environment variables. No config file.
 
 ### Documentation subsystem
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `GODOT_DOCS_VERSION` | `stable` | Which Godot version's docs to serve. Accepts `stable`, `latest`, or `X.Y` (e.g., `4.5`). Patch versions and pre-releases rejected. Godot 3.x not supported in v1 — versions `<4.0` rejected (see Future Work). |
-| `GODOT_DOCS_FAILURE_THRESHOLD_PERCENT` | `5` at runtime, `0` in CI | Maximum percentage of files allowed to fail parsing before ingestion fails. |
+| Variable                               | Default                   | Purpose                                                                                                                                                                                                        |
+| -------------------------------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GODOT_DOCS_VERSION`                   | `stable`                  | Which Godot version's docs to serve. Accepts `stable`, `latest`, or `X.Y` (e.g., `4.5`). Patch versions and pre-releases rejected. Godot 3.x not supported in v1 — versions `<4.0` rejected (see Future Work). |
+| `GODOT_DOCS_FAILURE_THRESHOLD_PERCENT` | `5` at runtime, `0` in CI | Maximum percentage of files allowed to fail parsing before ingestion fails.                                                                                                                                    |
 
 ### LSP subsystem
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `GODOT_LSP_HOST` | `127.0.0.1` | Host for LSP connection. |
-| `GODOT_LSP_PORT` | `6005` | Starting port for headless Godot LSP. Scans upward if in use. |
+| Variable                 | Default     | Purpose                                                                  |
+| ------------------------ | ----------- | ------------------------------------------------------------------------ |
+| `GODOT_LSP_HOST`         | `127.0.0.1` | Host for LSP connection.                                                 |
+| `GODOT_LSP_PORT`         | `6005`      | Starting port for headless Godot LSP. Scans upward if in use.            |
 | `GODOT_LSP_PROJECT_PATH` | auto-detect | Project root. Auto-detect walks up from cwd looking for `project.godot`. |
-| `GODOT_LSP_EAGER_INIT` | `false` | Spawn headless Godot at MCP startup instead of on first LSP call. |
+| `GODOT_LSP_EAGER_INIT`   | `false`     | Spawn headless Godot at MCP startup instead of on first LSP call.        |
 
 ### Shared
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `GODOT_PATH` | inherited from fork | Path to Godot binary. Used for both editor launch (existing tools) and headless LSP spawn (new). |
-| `GODOT_MCP_LOG_LEVEL` | `info` | Stderr log verbosity. Levels: `silent`, `error`, `warn`, `info`, `debug`. |
-| `OTEL_SDK_DISABLED` | unset | Standard OTel env var. Set to `true` to disable telemetry instrumentation entirely. |
+| Variable              | Default             | Purpose                                                                                          |
+| --------------------- | ------------------- | ------------------------------------------------------------------------------------------------ |
+| `GODOT_PATH`          | inherited from fork | Path to Godot binary. Used for both editor launch (existing tools) and headless LSP spawn (new). |
+| `GODOT_MCP_LOG_LEVEL` | `info`              | Stderr log verbosity. Levels: `silent`, `error`, `warn`, `info`, `debug`.                        |
+| `OTEL_SDK_DISABLED`   | unset               | Standard OTel env var. Set to `true` to disable telemetry instrumentation entirely.              |
 
 ## Architecture
 
@@ -211,12 +211,12 @@ Resolution happens at startup, synchronously:
 
 The shared `fetchAndParseVersion(version, outputPath)` function is used by both the build script (CI, with `GODOT_DOCS_FAILURE_THRESHOLD_PERCENT=0`) and the runtime fetcher (with the default threshold). Callers differ in:
 
-| | Build script (CI) | Runtime fetcher |
-|---|------------------|-----------------|
-| Threshold | 0 | 5 |
-| Output path | `data/docs-stable.db` in repo | OS cache dir |
-| Logging | Verbose | Concise |
-| Await | Synchronous | Async via latch |
+|             | Build script (CI)             | Runtime fetcher |
+| ----------- | ----------------------------- | --------------- |
+| Threshold   | 0                             | 5               |
+| Output path | `data/docs-stable.db` in repo | OS cache dir    |
+| Logging     | Verbose                       | Concise         |
+| Await       | Synchronous                   | Async via latch |
 
 Pipeline stages:
 
@@ -309,6 +309,7 @@ Server-level errors (DB connection lost, file corruption detected at runtime): M
 Write the LSP client using `vscode-jsonrpc` (Microsoft's JSON-RPC library, supports any duplex transport including TCP) for the protocol layer. Implement LSP semantics (document state, diagnostics cache, capability handshake) ourselves. Do not depend on `cclsp` or `lsp-mcp` as packages — they are MCP servers, not libraries.
 
 Before implementation, study `ktnyt/cclsp` and `tritlo/lsp-mcp` source code thoroughly. Especially worth understanding:
+
 - cclsp's `LSPClient` in `src/lsp-client.ts` (process management, request correlation, capability handshake)
 - cclsp's adapter pattern for Vue/Pyright (the shape of per-server workarounds)
 - lsp-mcp's `publishDiagnostics` buffering and resource subscriptions
@@ -401,8 +402,16 @@ Response shape for edit-returning tools:
     {
       "file": "scripts/player.gd",
       "changes": [
-        { "line": 23, "before": "func old_name(x):", "after": "func new_name(x):" },
-        { "line": 47, "before": "    self.old_name(1)", "after": "    self.new_name(1)" }
+        {
+          "line": 23,
+          "before": "func old_name(x):",
+          "after": "func new_name(x):"
+        },
+        {
+          "line": 47,
+          "before": "    self.old_name(1)",
+          "after": "    self.new_name(1)"
+        }
       ]
     }
   ],
@@ -434,16 +443,16 @@ The MCP does the LSP query, position-to-text resolution, and file reads. The age
 
 JSON-RPC standard errors → MCP errors:
 
-| Code | Meaning | MCP response |
-|------|---------|--------------|
-| `-32700` | ParseError | MCP internal error (our bug) |
-| `-32600` | InvalidRequest | MCP internal error (our bug) |
-| `-32601` | MethodNotFound | MCP error: "operation not supported by Godot's LSP" |
-| `-32602` | InvalidParams | MCP internal error (our bug) |
-| `-32603` | InternalError | Pass through with server's message |
-| `-32099..-32000` | ServerError | Pass through with server's message |
-| LSP `RequestCancelled`, `ContentModified` | Lifecycle | Pass through with context |
-| `ECONNREFUSED`, `EPIPE` | Connection | MCP error: "Godot LSP unavailable" with reconnect hint |
+| Code                                      | Meaning        | MCP response                                           |
+| ----------------------------------------- | -------------- | ------------------------------------------------------ |
+| `-32700`                                  | ParseError     | MCP internal error (our bug)                           |
+| `-32600`                                  | InvalidRequest | MCP internal error (our bug)                           |
+| `-32601`                                  | MethodNotFound | MCP error: "operation not supported by Godot's LSP"    |
+| `-32602`                                  | InvalidParams  | MCP internal error (our bug)                           |
+| `-32603`                                  | InternalError  | Pass through with server's message                     |
+| `-32099..-32000`                          | ServerError    | Pass through with server's message                     |
+| LSP `RequestCancelled`, `ContentModified` | Lifecycle      | Pass through with context                              |
+| `ECONNREFUSED`, `EPIPE`                   | Connection     | MCP error: "Godot LSP unavailable" with reconnect hint |
 
 ### Initialization failure semantics
 
@@ -467,6 +476,7 @@ On init failure:
 The npm package ships with `data/docs-stable.db` for the current Godot stable version at publish time. Built in CI via `npm run build:docs` (which calls the same `fetchAndParseVersion` function used at runtime). The `data/` directory is gitignored; the DB is regenerated in CI before publish via a `prepublishOnly` script.
 
 Consequences:
+
 - Anyone running `npm install` gets immediate docs functionality.
 - The bundled `stable` lags Godot's actual current stable by however long it takes to cut a new package release.
 - Users who need to track Godot's current stable use `GODOT_DOCS_VERSION=latest`.
@@ -507,6 +517,7 @@ Two separate concerns:
 Operational, human-readable. Levels: `silent | error | warn | info | debug`. Default `info`.
 
 Examples:
+
 - `info`: "Building docs index for Godot 4.5. This is a one-time setup..."
 - `warn`: "LSP connection dropped, attempting reconnect (2/3)"
 - `error`: "FATAL: Could not load docs for GODOT_DOCS_VERSION=4.55"
@@ -562,6 +573,7 @@ Three benchmark plans, in order of effort and value.
 **Part C (config A/B testing):** Run benchmark #2 across two or more chunking configurations. Compare downstream correctness. Used for picking between viable strategies, not a pass/fail gate.
 
 **Acceptance criteria (Part A + B):**
+
 - Recall@5 ≥ 80% (correct chunk in top 5 for at least 40/50 queries).
 - Recall@1 ≥ 50% (correct chunk is top result for at least 25/50 queries).
 - Answer correctness ≥ 70% on Part B.
@@ -584,10 +596,7 @@ Suggested PR sequence:
 7. **LSP tools (read-only).** Seven tools.
 8. **LSP tools (advisory write).** Three tools.
 
-Optional/follow-up:
-9. **Auto-republish CI pipeline** (with security hardening).
-10. **Symbol-based resolution** (cclsp-style fallback) — v1.1 if not landed in v1.
-11. **Per-server adapter pattern** for Godot-specific LSP quirks — initially empty, populated as quirks are discovered.
+Optional/follow-up: 9. **Auto-republish CI pipeline** (with security hardening). 10. **Symbol-based resolution** (cclsp-style fallback) — v1.1 if not landed in v1. 11. **Per-server adapter pattern** for Godot-specific LSP quirks — initially empty, populated as quirks are discovered.
 
 ## Future work
 
