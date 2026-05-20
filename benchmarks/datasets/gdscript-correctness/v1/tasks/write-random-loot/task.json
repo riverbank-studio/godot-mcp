@@ -1,0 +1,11 @@
+{
+  "id": "write-random-loot",
+  "summary": "Implement weighted random loot table selection",
+  "prompt": "Write a GDScript function `roll_loot(loot_table: Array[Dictionary]) -> Dictionary` where each dictionary has keys 'item' (String) and 'weight' (float). Select a random item weighted by the weight values. First sum all weights, then pick a random float from 0 to total using `randf() * total_weight`, then iterate through the table accumulating weights until you exceed the random value. Return the selected dictionary. Return an empty Dictionary if loot_table is empty.",
+  "category": "write",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["randomness", "loot", "algorithms", "Array"],
+  "evaluation_notes": "Must use typed Array[Dictionary] for parameter. Algorithm: sum weights, pick randf() * total, iterate accumulating. Return type must be Dictionary. Empty array guard required.",
+  "api_check": null
+}

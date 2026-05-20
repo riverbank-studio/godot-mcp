@@ -1,0 +1,11 @@
+{
+  "id": "write-platformer-jump",
+  "summary": "Implement platformer jump with variable height and gravity",
+  "prompt": "Write a CharacterBody2D script for a platformer character. Apply gravity each frame using `ProjectSettings.get_setting('physics/2d/default_gravity')`. On the ground (is_on_floor()), allow jumping by checking `Input.is_action_just_pressed(\"ui_accept\")` and setting velocity.y to a negative jump_velocity. Handle horizontal movement with `Input.get_axis(\"ui_left\", \"ui_right\") * speed`. Export `jump_velocity: float` (default -400.0) and `speed: float` (default 200.0).",
+  "category": "write",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["platformer", "CharacterBody2D", "gravity", "jump"],
+  "evaluation_notes": "Must use is_on_floor() for ground check. Gravity must be retrieved from ProjectSettings or hardcoded numerically. velocity.y must be set negative for jump. Input.get_axis for horizontal (not get_action_strength).",
+  "api_check": null
+}

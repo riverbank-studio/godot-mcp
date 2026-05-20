@@ -1,0 +1,11 @@
+{
+  "id": "debug-wrong-await",
+  "summary": "Fix incorrect await usage that awaits a method call instead of a signal",
+  "prompt": "The script below uses await incorrectly — it awaits a void function call rather than a signal. This causes the coroutine to complete immediately without actually waiting. Find the bug and fix it so the code properly waits for the tween to finish.",
+  "category": "debug",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["await", "Tween", "coroutines", "debug"],
+  "evaluation_notes": "Bug: 'await tween.play()' is wrong — tween.play() returns void. Should be 'await tween.finished' to wait for the Tween's finished signal. Fix: replace await tween.play() with tween.play() on one line and await tween.finished on the next (or just await create_tween()...finished).",
+  "api_check": null
+}

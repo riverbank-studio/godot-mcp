@@ -1,0 +1,17 @@
+{
+  "id": "write-save-game",
+  "summary": "Implement save/load game state using JSON and FileAccess",
+  "prompt": "Write a GDScript class (not extending anything specific, just extends Node) with methods `save_game(data: Dictionary)` and `load_game() -> Dictionary`. Use FileAccess to write/read a file at 'user://save.json'. Use JSON.stringify() to serialize and JSON.parse_string() to deserialize. Return an empty Dictionary if the file does not exist in load_game(). Handle the case where JSON.parse_string returns null (corrupted file) by returning an empty Dictionary.",
+  "category": "write",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["FileAccess", "JSON", "save-load", "serialization"],
+  "evaluation_notes": "Must use JSON.stringify not JSON.print (Godot 3). Must use JSON.parse_string not JSON.parse (which returns a JSONParseResult in Godot 3). FileAccess.file_exists or OS.file_exists both acceptable for existence check. Null check on parse_string result is required.",
+  "api_check": {
+    "class_name": "JSON",
+    "member": "parse_string",
+    "introduced": "4.0",
+    "removed": null,
+    "notes": "JSON.parse_string() is the Godot 4 API. Godot 3 used JSON.parse() which returned a JSONParseResult object. Using JSON.parse() directly for string parsing is a version hallucination."
+  }
+}

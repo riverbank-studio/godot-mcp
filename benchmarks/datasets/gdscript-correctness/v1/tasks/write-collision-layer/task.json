@@ -1,0 +1,11 @@
+{
+  "id": "write-collision-layer",
+  "summary": "Implement collision layer/mask helper functions",
+  "prompt": "Write a standalone GDScript (no extends) with two utility functions. `set_collision_layer_bit(body: CollisionObject2D, layer: int, enabled: bool)` should set a specific bit on the collision_layer using bit manipulation. `set_collision_mask_bit(body: CollisionObject2D, layer: int, enabled: bool)` should do the same for collision_mask. Layers are 1-indexed (layer 1 = bit 0). Use bitwise OR to enable and bitwise AND NOT to disable.",
+  "category": "write",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["collision", "bit-manipulation", "CollisionObject2D", "utilities"],
+  "evaluation_notes": "Layer 1 = bit index 0, so the bit is (1 << (layer - 1)). Enable: body.collision_layer |= bit. Disable: body.collision_layer &= ~bit. Same pattern for mask.",
+  "api_check": null
+}

@@ -1,0 +1,11 @@
+{
+  "id": "write-damage-calc",
+  "summary": "Implement a damage calculator function with crit chance",
+  "prompt": "Write a GDScript function called `calculate_damage(base_damage: float, crit_chance: float, crit_multiplier: float) -> float` that returns the final damage after applying a random crit. `crit_chance` is a value between 0.0 and 1.0. If a crit occurs, the damage is multiplied by `crit_multiplier`. Use `randf()` to roll for crit. Do not use a class, just the function.",
+  "category": "write",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["math", "randomness", "functions"],
+  "evaluation_notes": "Must use randf() not rand_range(). Must multiply by crit_multiplier only on crit. Return type must be float. Using randf_range is acceptable for the roll but base randf() is simpler and expected.",
+  "api_check": null
+}

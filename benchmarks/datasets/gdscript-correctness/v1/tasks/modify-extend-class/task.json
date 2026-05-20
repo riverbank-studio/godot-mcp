@@ -1,0 +1,11 @@
+{
+  "id": "modify-extend-class",
+  "summary": "Extend a base class and call super() in overridden methods",
+  "prompt": "The BaseEnemy script below defines movement logic. Create a subclass called RangedEnemy that extends BaseEnemy. Override `_physics_process` to call `super(delta)` first, then add ranged attack logic: if the distance to `target` is less than `attack_range` and `_attack_cooldown_timer <= 0`, call `_fire_projectile()` and reset `_attack_cooldown_timer` to `attack_cooldown`. Add `_attack_cooldown_timer: float = 0.0` and reduce it by delta each frame. Add a stub `_fire_projectile()` that prints 'FIRE'.",
+  "category": "modify",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["inheritance", "super", "override", "modify"],
+  "evaluation_notes": "Must use super(delta) not super._physics_process(delta) — both are valid but super(delta) is idiomatic. Class must use class_name. Must reduce _attack_cooldown_timer by delta before check.",
+  "api_check": null
+}

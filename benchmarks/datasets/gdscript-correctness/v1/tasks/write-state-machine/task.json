@@ -1,0 +1,11 @@
+{
+  "id": "write-state-machine",
+  "summary": "Implement a simple enum-based state machine for an enemy",
+  "prompt": "Write a GDScript Node class for an enemy that uses an enum to track state. Define states: IDLE, PATROL, CHASE, ATTACK. Add a variable `state` of the enum type. Implement `_process(delta)` that calls a different function based on the current state: `_idle_state()`, `_patrol_state()`, `_chase_state()`, `_attack_state()`. Each state function should just print the current state name. Include a `transition_to(new_state)` method that sets the state.",
+  "category": "write",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["enum", "state-machine", "nodes", "patterns"],
+  "evaluation_notes": "Must use enum keyword. State variable should be typed to the enum. match statement or if/elif chain both acceptable in _process. transition_to must update state variable.",
+  "api_check": null
+}

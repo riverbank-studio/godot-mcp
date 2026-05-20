@@ -1,0 +1,17 @@
+{
+  "id": "ver-get-node-or-null",
+  "summary": "Use get_node_or_null() for optional node lookups in Godot 4",
+  "prompt": "Write a method `find_optional_hud() -> Control` that safely looks for a 'HUD' node that may not exist. In Godot 4, use `get_node_or_null('HUD')` which returns null if not found, instead of checking `has_node()` and then `get_node()` separately. Cast the result to Control. Return null if not found.",
+  "category": "version-sensitive",
+  "difficulty": 1,
+  "godot_version": "4.0",
+  "tags": ["get_node_or_null", "optional-nodes", "version-sensitive", "4.0"],
+  "evaluation_notes": "Must use get_node_or_null() not has_node()+get_node() pattern. Cast result with 'as Control'. Return type -> Control (nullable). The combined has_node/get_node is error-prone (TOCTOU) and verbose compared to get_node_or_null.",
+  "api_check": {
+    "class_name": "Node",
+    "member": "get_node_or_null",
+    "introduced": "3.5",
+    "removed": null,
+    "notes": "get_node_or_null() was added in Godot 3.5 and is the idiomatic safe node lookup in Godot 4. Using has_node() + get_node() separately is both verbose and slightly unsafe (TOCTOU)."
+  }
+}

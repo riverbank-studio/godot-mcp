@@ -1,0 +1,11 @@
+{
+  "id": "modify-add-physics-layer",
+  "summary": "Configure collision layers for a multi-type area detection system",
+  "prompt": "The script below has an Area2D that should only detect enemy bodies (layer 3) and not trigger on walls (layer 1) or other areas. In `_ready()`, set `$DetectionArea.collision_mask` to only include bit 3 (value 4, since layer 3 = bit index 2 = 1 << 2). Also connect the `body_entered` signal of `$DetectionArea` to `_on_body_entered`. In `_on_body_entered(body: Node2D)`, check if body is in group 'enemies' and if so emit signal `enemy_detected(body)`.",
+  "category": "modify",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["Area2D", "collision-layers", "signals", "modify"],
+  "evaluation_notes": "Layer 3 = bit index 2 = value 4 (1 << 2). collision_mask must be set to 4 (not 3 or 8). body_entered signal passes Node2D. is_in_group check on body is correct.",
+  "api_check": null
+}

@@ -1,0 +1,11 @@
+{
+  "id": "debug-missing-super-call",
+  "summary": "Fix a missing super() call that breaks base class initialization",
+  "prompt": "The ArmoredEnemy below extends BaseEnemy but its `_ready()` never calls super(). As a result, the base class navigation setup never runs and the enemy doesn't move. Find the bug and fix it.",
+  "category": "debug",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["inheritance", "super", "debug", "_ready"],
+  "evaluation_notes": "Bug: ArmoredEnemy._ready() does not call super(). Fix: add super() as first line of _ready(). The base class _ready() sets up the NavigationAgent2D target.",
+  "api_check": null
+}

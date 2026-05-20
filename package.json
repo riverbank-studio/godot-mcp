@@ -39,7 +39,8 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "analyze": "fallow audit",
-    "analyze:dead": "fallow dead-code"
+    "analyze:dead": "fallow dead-code",
+    "validate:gdscript-tasks": "node scripts/validate-gdscript-tasks.mjs"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "0.6.0",

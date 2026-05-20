@@ -1,0 +1,17 @@
+{
+  "id": "ver-array-typed",
+  "summary": "Use typed arrays (Array[T]) introduced in Godot 4",
+  "prompt": "Write a function `filter_enemies(nodes: Array[Node]) -> Array[Node2D]` that returns only nodes that extend Node2D. Use a typed Array[Node2D] for the result. Use the `is` keyword to filter. In Godot 4, typed arrays use `Array[Type]` syntax. Do NOT use untyped `Array` for the return type.",
+  "category": "version-sensitive",
+  "difficulty": 1,
+  "godot_version": "4.0",
+  "tags": ["typed-arrays", "Array", "version-sensitive", "4.0"],
+  "evaluation_notes": "Return type must be Array[Node2D] (typed array). Filtering with 'is Node2D' check. Appending to result with typed array. Array[T] is a Godot 4 feature not available in Godot 3.",
+  "api_check": {
+    "class_name": "Array",
+    "member": "Array[T]",
+    "introduced": "4.0",
+    "removed": null,
+    "notes": "Typed arrays (Array[T]) are a GDScript 2.0 / Godot 4 feature. Godot 3 only had untyped Array. Using Array without type parameter misses the version-specific feature."
+  }
+}

@@ -1,0 +1,11 @@
+{
+  "id": "modify-add-input-map",
+  "summary": "Add runtime input remapping using InputMap",
+  "prompt": "The script below has hardcoded action names. Add a method `remap_action(action: StringName, new_key: Key)` that programmatically changes an input action's keyboard binding. Use `InputMap.action_erase_events(action)` to remove old bindings, create a new `InputEventKey` with `keycode` set to `new_key`, and add it via `InputMap.action_add_event(action, event)`. Also add `get_action_events(action: StringName) -> Array[InputEvent]` that returns `InputMap.action_get_events(action)`.",
+  "category": "modify",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["InputMap", "remapping", "input", "modify"],
+  "evaluation_notes": "Must use InputMap.action_erase_events (not action_set_deadzone or clear). InputEventKey must set .keycode not .scancode (Godot 3). Must use action_get_events for the getter. Return type Array[InputEvent].",
+  "api_check": null
+}

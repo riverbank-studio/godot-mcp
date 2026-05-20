@@ -1,0 +1,17 @@
+{
+  "id": "ver-tween-api",
+  "summary": "Use Godot 4 Tween API (create_tween/tween_property) not Godot 3 Tween node methods",
+  "prompt": "Animate a node's position from its current position to Vector2(500, 300) over 1.0 second using easing. Use the Godot 4 Tween API: `create_tween()`, then `tween_property()`. Set the transition type to `Tween.TRANS_SINE` and ease type to `Tween.EASE_IN_OUT`. Do NOT use the Godot 3 Tween node methods like `interpolate_property()` or `start()`.",
+  "category": "version-sensitive",
+  "difficulty": 2,
+  "godot_version": "4.0",
+  "tags": ["Tween", "animation", "version-sensitive", "4.0"],
+  "evaluation_notes": "Must use create_tween() and tween_property(). set_trans() and set_ease() are method chain calls on the PropertyTweener returned by tween_property(). Godot 3 Tween.interpolate_property() is a fail. No $Tween node needed.",
+  "api_check": {
+    "class_name": "Tween",
+    "member": "tween_property",
+    "introduced": "4.0",
+    "removed": null,
+    "notes": "Godot 4 introduced a new Tween API where Tweens are created via create_tween() and animated via tween_property(). The old Tween node API (interpolate_property, start) was removed."
+  }
+}

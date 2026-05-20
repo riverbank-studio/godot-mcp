@@ -1,0 +1,17 @@
+{
+  "id": "ver-load-threaded",
+  "summary": "Use load_threaded_request API introduced in Godot 4.0 (not Godot 3's ResourceInteractiveLoader)",
+  "prompt": "Write code that loads a texture asynchronously. Use `ResourceLoader.load_threaded_request()` to start loading 'res://textures/bg.png'. Check status in `_process` using `load_threaded_get_status()`. When status equals `ResourceLoader.THREAD_LOAD_LOADED`, retrieve the texture with `load_threaded_get()`. Do NOT use `ResourceInteractiveLoader` (Godot 3 API).",
+  "category": "version-sensitive",
+  "difficulty": 2,
+  "godot_version": "4.0",
+  "tags": ["ResourceLoader", "async-loading", "version-sensitive", "4.0"],
+  "evaluation_notes": "ResourceInteractiveLoader was removed in Godot 4.0 and replaced by load_threaded_request/load_threaded_get_status/load_threaded_get. Any use of ResourceInteractiveLoader is a fail.",
+  "api_check": {
+    "class_name": "ResourceLoader",
+    "member": "load_threaded_request",
+    "introduced": "4.0",
+    "removed": null,
+    "notes": "Godot 3 used ResourceInteractiveLoader for async loading. Godot 4 replaced it entirely with the load_threaded_* API. Using ResourceInteractiveLoader in Godot 4 code is an API version error."
+  }
+}

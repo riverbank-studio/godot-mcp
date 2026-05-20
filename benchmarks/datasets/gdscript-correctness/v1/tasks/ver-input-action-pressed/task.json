@@ -1,0 +1,11 @@
+{
+  "id": "ver-input-action-pressed",
+  "summary": "Use Input.is_action_just_pressed() correctly — not the Godot 3 is_action_pressed() for one-shot checks",
+  "prompt": "Write a script that handles a one-shot jump action. The jump should only trigger once per button press, not repeat while held. Use `Input.is_action_just_pressed('jump')` (not `is_action_pressed` which is true the entire time the key is held). Also show the difference by implementing `is_holding_run() -> bool` that uses `Input.is_action_pressed('run')` for a continuous held check.",
+  "category": "version-sensitive",
+  "difficulty": 1,
+  "godot_version": "4.0",
+  "tags": ["Input", "is_action_just_pressed", "version-sensitive", "4.0"],
+  "evaluation_notes": "is_action_just_pressed fires only on the frame the key was pressed. is_action_pressed fires every frame while held. Using is_action_pressed for jump instead of is_action_just_pressed is a logic error. Both methods exist in Godot 4.",
+  "api_check": null
+}

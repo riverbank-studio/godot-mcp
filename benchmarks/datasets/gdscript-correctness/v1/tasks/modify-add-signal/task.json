@@ -1,0 +1,11 @@
+{
+  "id": "modify-add-signal",
+  "summary": "Add a signal and emit it at the right point in existing code",
+  "prompt": "The Player script below handles movement but does not notify other systems when the player's speed changes. Add a signal `speed_changed(new_speed: float)` and emit it whenever `current_speed` is modified by the `set_speed()` method. Do not change any existing behavior.",
+  "category": "modify",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["signals", "modify", "patterns"],
+  "evaluation_notes": "Must declare signal with typed parameter. Emit must pass new speed value. Must not change existing move logic. Signal declaration goes at top after extends.",
+  "api_check": null
+}

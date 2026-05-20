@@ -1,0 +1,11 @@
+{
+  "id": "write-camera-follow",
+  "summary": "Implement smooth camera follow using lerp",
+  "prompt": "Write a Camera2D script that smoothly follows a target node. Add an `@export var target: Node2D` and a `@export var follow_speed: float` defaulting to 5.0. In `_process(delta)`, interpolate the camera's global_position toward the target's global_position using `lerp()` with weight `follow_speed * delta`. If target is null, do nothing. Do NOT use Camera2D's built-in smoothing; implement it manually.",
+  "category": "write",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["Camera2D", "lerp", "smooth-follow", "Node2D"],
+  "evaluation_notes": "Must use global_position lerp, not position. lerp weight must be follow_speed * delta (not just follow_speed). Null check on target required.",
+  "api_check": null
+}

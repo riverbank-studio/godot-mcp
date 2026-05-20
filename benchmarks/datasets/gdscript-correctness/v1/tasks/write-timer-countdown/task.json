@@ -1,0 +1,11 @@
+{
+  "id": "write-timer-countdown",
+  "summary": "Implement a countdown timer using a Timer node",
+  "prompt": "Write a GDScript Node class that implements a countdown timer. In `_ready()`, get the child Timer node using `$Timer`, set its `wait_time` to an exported `duration: float` (default 10.0), set `one_shot` to true, and connect its `timeout` signal to a method `_on_timeout`. In `start_timer()`, call `$Timer.start()`. In `_on_timeout()`, emit a signal called `countdown_finished`. Also emit a `tick(seconds_left: float)` signal every second using the timer's `time_left` property — connect this via a separate Timer with `wait_time` of 1.0.",
+  "category": "write",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["Timer", "signals", "nodes", "time"],
+  "evaluation_notes": "Must use $Timer node path shorthand. Signal connection must use Godot 4 callable syntax (connect with Callable or .connect method). timeout signal connection required. tick signal must use Timer.time_left.",
+  "api_check": null
+}

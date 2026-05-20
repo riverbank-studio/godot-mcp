@@ -1,0 +1,17 @@
+{
+  "id": "ver-dictionary-assign",
+  "summary": "Use Dictionary.merge() introduced in Godot 4 instead of manual key iteration",
+  "prompt": "Write a function `merge_stats(base: Dictionary, overrides: Dictionary) -> Dictionary` that combines two dictionaries, with values from `overrides` taking priority. Use `Dictionary.merge()` with the overwrite parameter set to true. Also write `shallow_copy(d: Dictionary) -> Dictionary` using `d.duplicate()`.",
+  "category": "version-sensitive",
+  "difficulty": 1,
+  "godot_version": "4.0",
+  "tags": ["Dictionary", "merge", "version-sensitive", "4.0"],
+  "evaluation_notes": "Dictionary.merge() is a Godot 4.0 method. The merge(overrides, true) call with overwrite=true means override values win. duplicate() is correct for shallow copy. Manual key iteration is acceptable but merge() is preferred and version-specific.",
+  "api_check": {
+    "class_name": "Dictionary",
+    "member": "merge",
+    "introduced": "4.0",
+    "removed": null,
+    "notes": "Dictionary.merge() was added in Godot 4.0. It doesn't exist in Godot 3. Agents trained on Godot 3 data may write manual merge loops instead."
+  }
+}

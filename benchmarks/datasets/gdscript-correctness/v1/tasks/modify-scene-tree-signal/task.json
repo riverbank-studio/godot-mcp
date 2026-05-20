@@ -1,0 +1,11 @@
+{
+  "id": "modify-scene-tree-signal",
+  "summary": "Connect to SceneTree node_added signal to track new nodes",
+  "prompt": "Modify the script below to connect to the SceneTree's `node_added` signal in `_ready()`. When a node is added to the scene tree, if it is in the group 'enemy', add it to the local `_tracked_enemies` Array. Also connect to `node_removed` and remove any enemy from `_tracked_enemies` when removed. Initialize `_tracked_enemies` as an `Array[Node]`.",
+  "category": "modify",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["SceneTree", "signals", "node_added", "tracking"],
+  "evaluation_notes": "get_tree().node_added.connect(...) is correct. The signal passes Node not Node2D. node_removed similarly. Must check is_in_group('enemy'). erase() to remove from array.",
+  "api_check": null
+}

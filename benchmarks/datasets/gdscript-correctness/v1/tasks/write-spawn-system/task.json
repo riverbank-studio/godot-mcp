@@ -1,0 +1,17 @@
+{
+  "id": "write-spawn-system",
+  "summary": "Implement a spawner that instances scenes at random positions",
+  "prompt": "Write a Node2D script for an enemy spawner. Export a `PackedScene` variable called `enemy_scene`. Export an `int` called `max_enemies` (default 10). Export a `float` called `spawn_interval` (default 3.0). In `_ready()`, create a Timer, set its wait_time to spawn_interval, connect its timeout signal to `_spawn_enemy`, and start it. In `_spawn_enemy()`, if the count of children with group 'enemy' is less than max_enemies, instantiate enemy_scene using `enemy_scene.instantiate()`, add it as a child, and set its position to a random offset within 200 pixels using `randf_range(-200, 200)`.",
+  "category": "write",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["spawning", "PackedScene", "Timer", "instantiate"],
+  "evaluation_notes": "Must use PackedScene.instantiate() not instance() (Godot 3). Timer created programmatically and added as child. get_tree().get_nodes_in_group('enemy').size() or iterating children both acceptable for count. randf_range is correct.",
+  "api_check": {
+    "class_name": "PackedScene",
+    "member": "instantiate",
+    "introduced": "4.0",
+    "removed": null,
+    "notes": "PackedScene.instantiate() replaced PackedScene.instance() in Godot 4. Using .instance() is a very common Godot 3 hallucination."
+  }
+}

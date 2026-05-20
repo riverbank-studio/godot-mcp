@@ -1,0 +1,11 @@
+{
+  "id": "modify-refactor-onready",
+  "summary": "Refactor _ready() node lookups to use @onready annotations",
+  "prompt": "The script below uses get_node() calls in _ready() to cache node references. Refactor it to use @onready annotations instead. Move each get_node() call to an @onready var declaration. The _ready() method should only keep the business logic (the signal connections and initial state setup), not the node lookups.",
+  "category": "modify",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["onready", "refactoring", "node-references", "modify"],
+  "evaluation_notes": "Must replace get_node() assignments with @onready var declarations using $ shorthand or get_node(). Declarations should be typed. _ready() must keep signal connections. Types should be inferred or explicitly typed.",
+  "api_check": null
+}

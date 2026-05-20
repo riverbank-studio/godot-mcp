@@ -1,0 +1,11 @@
+{
+  "id": "debug-yield-replaced",
+  "summary": "Replace Godot 3 yield() with Godot 4 await",
+  "prompt": "The script uses `yield()` which does not exist in Godot 4. Convert the coroutine to use `await` properly. The script should wait for the animation to finish, then queue_free the node.",
+  "category": "debug",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["await", "coroutines", "Godot-4-migration", "debug"],
+  "evaluation_notes": "yield(signal, 'signal_name') becomes await signal. yield($AnimationPlayer, 'animation_finished') becomes await $AnimationPlayer.animation_finished. Function must be async (use await keyword). No func return type change needed but await makes it effectively a coroutine.",
+  "api_check": null
+}

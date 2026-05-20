@@ -1,0 +1,17 @@
+{
+  "id": "modify-add-collision-shape",
+  "summary": "Programmatically add a CollisionShape2D to a StaticBody2D",
+  "prompt": "The script below has a StaticBody2D that has no collision shape. Add a `setup_collision(width: float, height: float)` method that: creates a RectangleShape2D, sets its `size` to Vector2(width, height), creates a CollisionShape2D node, assigns the shape to its `shape` property, and adds it as a child of this node. Call `setup_collision(64.0, 64.0)` from `_ready()`.",
+  "category": "modify",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["CollisionShape2D", "RectangleShape2D", "StaticBody2D", "modify"],
+  "evaluation_notes": "RectangleShape2D.size is the correct property (not extents which was Godot 3). CollisionShape2D.shape = shape_resource. add_child must be called on self. Must call setup_collision in _ready.",
+  "api_check": {
+    "class_name": "RectangleShape2D",
+    "member": "size",
+    "introduced": "4.0",
+    "removed": null,
+    "notes": "In Godot 3, RectangleShape2D used 'extents' (half-size). In Godot 4, it uses 'size' (full size). Using 'extents' is a common Godot 3 hallucination."
+  }
+}

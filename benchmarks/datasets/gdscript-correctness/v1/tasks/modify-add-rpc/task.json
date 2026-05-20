@@ -1,0 +1,17 @@
+{
+  "id": "modify-add-rpc",
+  "summary": "Add multiplayer RPC annotation to a method",
+  "prompt": "The player script below runs locally. Add multiplayer synchronization: decorate `set_position_on_server` with `@rpc(\"any_peer\", \"call_local\", \"reliable\")` so any peer can call it. Add a `sync_position()` method that calls `set_position_on_server.rpc(global_position)` to broadcast to all peers. In `set_position_on_server(pos: Vector2)`, set `global_position = pos`. Also add `is_local_player() -> bool` that returns `multiplayer.get_unique_id() == get_multiplayer_authority()`.",
+  "category": "modify",
+  "difficulty": 3,
+  "godot_version": "4.3",
+  "tags": ["multiplayer", "RPC", "annotations", "modify"],
+  "evaluation_notes": "Must use @rpc annotation syntax (not rpc() function call). Calling .rpc() on the method is correct Godot 4 syntax. multiplayer.get_unique_id() is correct. get_multiplayer_authority() not get_network_master().",
+  "api_check": {
+    "class_name": "MultiplayerAPI",
+    "member": "get_unique_id",
+    "introduced": "4.0",
+    "removed": null,
+    "notes": "In Godot 3 the equivalent was get_network_unique_id(). Godot 4 uses multiplayer.get_unique_id(). Also get_network_master was renamed to get_multiplayer_authority."
+  }
+}

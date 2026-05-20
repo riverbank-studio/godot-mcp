@@ -1,0 +1,11 @@
+{
+  "id": "debug-signal-not-firing",
+  "summary": "Fix a signal that is declared but never emits",
+  "prompt": "The HealthComponent below declares a `died` signal but it never fires even when health reaches 0. Find the bug and fix it.",
+  "category": "debug",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["signals", "debug", "health"],
+  "evaluation_notes": "Bug: died.emit() is missing in take_damage when _health reaches 0. The condition checks health <= 0 but does not emit the signal. Fix: add died.emit() inside the if block.",
+  "api_check": null
+}

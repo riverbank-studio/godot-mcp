@@ -1,0 +1,17 @@
+{
+  "id": "ver-audiostreamplayer-bus",
+  "summary": "Assign AudioStreamPlayer to a named audio bus using the bus property",
+  "prompt": "Write a script that creates an AudioStreamPlayer programmatically, loads an AudioStream from 'res://sounds/music.ogg', and assigns it to the 'Music' audio bus (not the default 'Master' bus). Use the `bus` property on AudioStreamPlayer. Set `autoplay` to true and add the player as a child. The `bus` property takes a StringName.",
+  "category": "version-sensitive",
+  "difficulty": 1,
+  "godot_version": "4.0",
+  "tags": ["AudioStreamPlayer", "audio-bus", "version-sensitive", "4.0"],
+  "evaluation_notes": "AudioStreamPlayer.bus accepts a StringName of the bus name. Must set bus = 'Music' (or &'Music'). autoplay property is correct. load() for audio stream is fine. Adding as child is required.",
+  "api_check": {
+    "class_name": "AudioStreamPlayer",
+    "member": "bus",
+    "introduced": "1.0",
+    "removed": null,
+    "notes": "The bus property exists in both Godot 3 and 4, but in Godot 4 it is a StringName (not String). The &'BusName' StringName literal syntax is Godot 4-specific and should be used."
+  }
+}

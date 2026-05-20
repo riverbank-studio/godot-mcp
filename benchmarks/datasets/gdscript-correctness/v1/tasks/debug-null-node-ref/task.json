@@ -1,0 +1,11 @@
+{
+  "id": "debug-null-node-ref",
+  "summary": "Fix a null node reference crash from incorrect @onready path",
+  "prompt": "The script below crashes with 'Invalid get index on base Nil' at runtime. Find the bug — the @onready path is wrong. Fix it so the node reference resolves correctly.",
+  "category": "debug",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["onready", "node-path", "debug", "null"],
+  "evaluation_notes": "Bug: @onready var _label: Label = $HUD/ScoreLabel but the actual path is $UI/ScoreLabel. The fix is to correct the path to $UI/ScoreLabel. Also acceptable: adding a null check guard, but the real fix is the correct path.",
+  "api_check": null
+}

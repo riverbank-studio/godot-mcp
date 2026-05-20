@@ -1,0 +1,11 @@
+{
+  "id": "write-move-character",
+  "summary": "Implement basic CharacterBody2D movement with move_and_slide",
+  "prompt": "Write a GDScript class that extends CharacterBody2D and implements 8-directional movement. Use `Input.get_vector(\"ui_left\", \"ui_right\", \"ui_up\", \"ui_down\")` to get the direction, multiply by a speed of 200.0, assign to `velocity`, then call `move_and_slide()` in `_physics_process`. Export the speed as a float variable.",
+  "category": "write",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["movement", "CharacterBody2D", "physics", "input"],
+  "evaluation_notes": "Must use Input.get_vector (not get_action_strength). Must call move_and_slide() with no arguments (Godot 4 API). velocity property is set directly, not passed to move_and_slide. @export float speed = 200.0 or similar.",
+  "api_check": null
+}

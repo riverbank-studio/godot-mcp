@@ -12,4 +12,14 @@ export default tseslint.config(
   js.configs.recommended,
   tseslint.configs.recommended,
   prettier,
+  {
+    // scripts/*.mjs and scripts/*.js run in Node — grant globals
+    files: ["scripts/**/*.mjs", "scripts/**/*.js"],
+    languageOptions: {
+      globals: {
+        console: "readonly",
+        process: "readonly",
+      },
+    },
+  },
 );

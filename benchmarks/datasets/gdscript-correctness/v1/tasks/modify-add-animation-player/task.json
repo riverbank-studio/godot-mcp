@@ -1,0 +1,11 @@
+{
+  "id": "modify-add-animation-player",
+  "summary": "Add AnimationPlayer state transitions to a character controller",
+  "prompt": "The character script below handles movement but plays no animations. Add animation playback using `$AnimationPlayer`. Play animation 'walk' when velocity is non-zero, 'idle' when velocity is zero. When velocity.x is negative, set `$Sprite2D.flip_h = true`, otherwise false. Use `play()` and check current_animation to avoid restarting the same animation. All animation calls go at the end of `_physics_process`.",
+  "category": "modify",
+  "difficulty": 1,
+  "godot_version": "4.3",
+  "tags": ["AnimationPlayer", "animations", "sprites", "modify"],
+  "evaluation_notes": "AnimationPlayer.current_animation or is_playing() check to avoid restart. flip_h for direction. velocity must be non-zero check (velocity != Vector2.ZERO or velocity.length() > 0 both acceptable).",
+  "api_check": null
+}

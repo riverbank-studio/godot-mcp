@@ -1,0 +1,17 @@
+{
+  "id": "write-ui-health-bar",
+  "summary": "Implement a ProgressBar that responds to a HealthComponent signal",
+  "prompt": "Write a GDScript Control class for a health bar UI. It should find a HealthComponent in the scene by searching the scene tree using `get_tree().get_first_node_in_group(\"health_component\")`. In `_ready()`, connect to the health_component's `health_changed` signal. In the callback, update a `$ProgressBar` node's `value` to the new_value and `max_value` to the health_component's `max_health`. Also set the ratio label `$Label.text` to \"%d / %d\" % [new_value, max_health].",
+  "category": "write",
+  "difficulty": 2,
+  "godot_version": "4.3",
+  "tags": ["UI", "ProgressBar", "signals", "groups"],
+  "evaluation_notes": "Must use get_first_node_in_group (Godot 4 API). Signal connection must handle typed health_changed(old_value, new_value) — callback must accept both parameters. ProgressBar.max_value and .value are correct property names.",
+  "api_check": {
+    "class_name": "SceneTree",
+    "member": "get_first_node_in_group",
+    "introduced": "4.0",
+    "removed": null,
+    "notes": "get_first_node_in_group() is the Godot 4 replacement for iterating get_nodes_in_group() and taking index 0. Common hallucination is using get_nodes_in_group()[0] without checking empty."
+  }
+}
