@@ -16,7 +16,7 @@ How a team of Claude Code agents will implement all 38 open issues in this repo 
 | Merge policy                  | Agents open PRs **ready-for-review**; the user merges                                                                                                                                                                                                                                                       |
 | Non-TDD issues                | Research (#34, #39) hand-off to user as `docs/research/<topic>.md` PRs; benchmark/curation issues use acceptance-criteria assertions instead of unit tests                                                                                                                                                  |
 | Orchestrator                  | Background `/loop` coordinator agent, tick = 10 min; auto-exits when every issue is in `{Done, Blocked}`                                                                                                                                                                                                    |
-| Stack rebase                  | Dependent branches auto-rebase when their blocker PR head moves                                                                                                                                                                                                                                             |
+| Dependent PR base             | All PRs target `main` regardless of which branch they were forked from. Branches are still forked from their parent's head so the code compiles, but the PR's merge target is `main`. GitHub's three-dot diff cleans up automatically when the parent merges (merge-commit strategy). See §8 and §12.       |
 | `dispatch.ts` hotspot         | Epic-infra PR for #7 and #9 introduces an auto-discovery registry; per-tool PRs touch only their own file                                                                                                                                                                                                   |
 | Quality gate                  | Local `npm test` + `npm run lint` + CI green required before marking ready-for-review                                                                                                                                                                                                                       |
 | Failure handling              | Retry once with a fresh agent + fresh worktree; if still failing, open draft PR titled `[BLOCKED] ...` and set Status=Blocked                                                                                                                                                                               |
@@ -205,7 +205,6 @@ A long-running Claude Code agent invoked via `/loop 10m <coordinator-prompt>`. E
    - Query `gh pr checks <N>` for CI status on each open PR.
 2. **Reconcile**
    - For each issue with `Status=Ready-for-Review` whose PR has been merged externally → mark `Done`.
-   - For each PR where a blocker PR's head SHA changed since last tick → enqueue a rebase job (handled by spawning a short-lived rebase agent in the existing worktree).
 3. **Launch / transition stages.** Each tracked issue has a `stage` field in `{pending, impl, review, finalize, done, blocked}` and an `attempts` counter (Implementer restarts only).
    - `pending` with all blockers in `{Ready-for-Review, Done}`: spawn Implementer (§5a). Transition to `stage=impl`, `attempts=1`.
    - `impl` returns `IMPL_READY <pr>`: store PR number, spawn Reviewer (§5b). Transition to `stage=review`.
@@ -236,7 +235,6 @@ You are the godot-mcp build coordinator. Read docs/orchestration-plan.md
 for the contract. On each tick:
 - Refresh state from GH Projects + open PRs + CI checks.
 - For ready-to-launch issues (Pending + blockers cleared), spawn an implementer agent via the Agent tool with subagent_type=general-purpose, run_in_background=true, isolation=worktree, and the implementer prompt template from §5. Set Status=In-Progress.
-- For PRs whose blocker head SHA changed, spawn a rebase agent.
 - For blocked agents, set Status=Blocked and post a comment.
 - Update .orchestrator/state.json.
 - Print a one-line tick summary.
@@ -392,22 +390,7 @@ Each worktree is created by the coordinator with:
 git worktree add -b <branch-name> "E:\...\godot-mcp-worktrees\<branch-name>" <base-ref>
 ```
 
-When the implementer finishes (READY or BLOCKED), the coordinator does **not** prune the worktree yet — it may need re-entering for rebase or escalation work. Worktrees are pruned at end-of-wave or on user command.
-
-Rebase agent (spawned when a blocker's head moves):
-
-```
-ROLE: Rebase branch <X> onto updated blocker branch <Y> at SHA <Z>.
-cwd is the worktree for <X>.
-1. git fetch origin
-2. git rebase origin/<Y>
-3. If conflicts: attempt automatic resolution following the patterns in CLAUDE.md.
-   If you can't resolve cleanly, exit with status REBASE_BLOCKED.
-4. npm test
-5. git push --force-with-lease
-6. /review the PR again only if the diff changed meaningfully.
-7. Exit with status REBASED.
-```
+When the implementer finishes (READY or BLOCKED), the coordinator does **not** prune the worktree yet — it may need re-entering for escalation work. Worktrees are pruned at end-of-wave or on user command.
 
 ---
 
@@ -489,27 +472,27 @@ User + me in this session (or another), before the coordinator launches. See §3
 
 ### Wave 2 — Sequenced behind #3
 
-- #4 `feat/4-godot-prefix` — base off `feat/3-refactor-index` head once that PR opens.
-- #5 `feat/5-shared-infra` — base off `feat/3-refactor-index` head.
+- #4 `feat/4-godot-prefix` — branch from `feat/3-refactor-index` head once that PR opens; PR targets `main`.
+- #5 `feat/5-shared-infra` — branch from `feat/3-refactor-index` head; PR targets `main`.
 
 #4 and #5 don't conflict (one renames exported tool names, the other adds new shared modules), so both run concurrently.
 
 ### Wave 3 — Sequenced behind #5
 
-- #6 `feat/6-docs-ingestion` — base off `feat/5-shared-infra` head.
-- #8 `feat/8-lsp-client` — base off `feat/5-shared-infra` head.
+- #6 `feat/6-docs-ingestion` — branch from `feat/5-shared-infra` head; PR targets `main`.
+- #8 `feat/8-lsp-client` — branch from `feat/5-shared-infra` head; PR targets `main`.
 
 ### Wave 4 — Epic-infra PRs, then leaf tools
 
 For epic #7:
 
 1. `feat/7-docs-tools-infra` — introduces `src/tools/docs-tools.ts` registry + `src/docs/*` helpers consumed by all 6 docs tools.
-2. Six concurrent leaves: #14, #15, #16, #17, #18, #19. Each branches from `feat/7-docs-tools-infra` head.
+2. Six concurrent leaves: #14, #15, #16, #17, #18, #19. Each branches from `feat/7-docs-tools-infra` head, PR targets `main`.
 
 For epic #9:
 
 1. `feat/9-lsp-tools-infra` — registry + LSP request/response helpers.
-2. Seven concurrent leaves: #20, #21, #22, #23, #24, #25, #26.
+2. Seven concurrent leaves: #20, #21, #22, #23, #24, #25, #26. Each branches from `feat/9-lsp-tools-infra` head, PR targets `main`.
 
 The two epic-infra PRs can run concurrently with each other. Their leaves can run concurrently too — **15 concurrent agents at peak** (2 epic-infra + 13 leaves).
 
@@ -552,8 +535,6 @@ implementer exits BLOCKED
       Status=Pending in the project.
 ```
 
-A rebase agent that exits `REBASE_BLOCKED` triggers the same path against the _dependent_ PR, not the blocker.
-
 ---
 
 ## 10. Risks and known weak spots
@@ -565,6 +546,7 @@ A rebase agent that exits `REBASE_BLOCKED` triggers the same path against the _d
 5. **`activeProcess` model in `run_project`.** Not relevant to most issues, but a few may need to touch it; flag as architectural.
 6. **Drive-by issue spam.** Implementers may file many low-value follow-up issues. Mitigation: §5 item 6 requires a concrete pointer to the file/line and a one-line "why it's out of scope here"; coordinator can review the issues each tick and the user can close noisy ones.
 7. **Reviewer-Implementer disagreement loops.** If the Reviewer's `REVIEW_REQUEST_CHANGES` rationale isn't specific enough, the restart Implementer may make changes that the Reviewer still rejects. Mitigation: §5b requires `REVIEW_REQUEST_CHANGES` to include an actionable list, not "make it better"; cap of 2 restarts ensures the loop terminates.
+8. **Inflated diffs during out-of-order review.** With all PRs targeting `main`, a stacked PR's diff against `main` includes its parent's commits until the parent merges. Mitigation: the user reviews in implementation order, so each PR is reviewed AFTER its parent has merged — diff is clean at review time. Escape hatch: GitHub's "Files changed → Filter by commit" UI lets a reviewer see just the dependent's own commits without waiting for the parent merge.
 
 ---
 
@@ -598,6 +580,7 @@ Subsequent ticks will pick up Wave 1 as soon as #3's PR opens, and so on.
 - [x] **Terminal behavior.** Coordinator auto-exits when every issue is in `{Done, Blocked}`. See §4 step 6.
 - [x] **Model + effort tiering.** Opus 4.7 + `ultrathink` for architectural; Sonnet 4.6 + `think hard` for leaves & benchmarks; Sonnet 4.6 + `think` for mechanical/curation; Opus 4.7 + `think harder` for research hand-offs. See §5 table.
 - [x] **Stuck-at-review pattern.** Wave 1 had ~67% of first-pass agents exit at `/review` returning the verbose review as terminal output (Opus + ultrathink especially robust to prompt countermeasures). The three-stage pipeline (§5a/§5b/§5c) splits implementation from review from gate-finishing, with the Reviewer's terminal action BEING the structured review token (`REVIEW_APPROVE` / `REVIEW_REQUEST_CHANGES` / `REVIEW_SECURITY_BLOCKER`). Sonnet/`think` for Reviewer and Finalizer regardless of Implementer tier.
+- [x] **All PRs target `main`.** Dependent PRs (Wave 2+) are still forked from their parent's head so code compiles, but they target `main` for merging. Merge-commit strategy means GitHub's three-dot diff cleans up automatically when each parent merges, so no coordinator-driven rebases are needed. Cost: inflated diffs while parent is unmerged, mitigated by review-in-order practice. See §1, §4, §6, §8, §10.
 
 ---
 
