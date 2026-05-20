@@ -25,6 +25,7 @@ How a team of Claude Code agents will implement all 38 open issues in this repo 
 | State tracking                | GitHub Projects v2 with a `Status` single-select field (`Pending` / `Blocked` / `In-Progress` / `Ready-for-Review` / `Done`); fallback to labels if `project` scope unavailable                                                                                                                             |
 | Research deliverable          | `docs/research/<topic>.md` markdown PR                                                                                                                                                                                                                                                                      |
 | Drive-by findings             | Implementers file new GH issues via `gh issue create`; PR diffs stay scoped                                                                                                                                                                                                                                 |
+| Upstream PR suggestions       | When a blocker PR is still open and an implementer discovers a small, concrete issue while building on top of it, the implementer may post a code-review suggestion on the blocker PR (not a commit). See §5a "Out-of-scope findings".                                                                      |
 | Model + effort tiering        | Opus 4.7 + `ultrathink` (architectural), Sonnet 4.6 + `think hard` (leaves/benchmarks), Sonnet 4.6 + `think` (mechanical), Opus 4.7 + `think harder` (research). See §5.                                                                                                                                    |
 | Worktree base                 | `E:\Bradley\Documents\VSCodeProjects\godot-mcp-worktrees\<branch-name>`                                                                                                                                                                                                                                     |
 
@@ -283,12 +284,13 @@ RESTART CONTEXT (only if attempts > 1):
 8. Final message: `IMPL_READY <pr-number>`.
 
 DO NOT:
+
 - Run /review or /security-review (Reviewer subagent handles those).
 - Mark the PR ready, comment on the issue, or touch the project board (Finalizer handles those).
 - Use `gh pr checks --watch` (it has hung agents).
 - Operate in the main checkout — only in your harness worktree.
 
-Drive-by findings → new GH issues via `gh issue create` (or upstream-PR suggestions per §1, §5d). Keep your diff scoped.
+Drive-by findings → see "Out-of-scope findings" sub-section at end of §5. Implementers may also post upstream-PR suggestions per §5(b) of that sub-section.
 
 Commit footer: <model-appropriate Co-Authored-By>
 PR body footer: 🤖 Generated with [Claude Code](https://claude.com/claude-code)
@@ -331,6 +333,8 @@ DO NOT:
 - Comment on the issue or touch the project board.
 - Push commits other than inline trivial must-fixes (≤10 lines, ≤1 file).
 - Combine review prose with the exit token — the structured final message is what the coordinator parses.
+
+For unrelated findings discovered during review, file drive-by issues per the "Out-of-scope findings" sub-section at the end of §5. Reviewers do not post upstream-PR suggestions (they review PR #N, not a blocker).
 ```
 
 ### 5c. Finalizer
@@ -366,9 +370,60 @@ The Implementer's tier table from old §5 still applies — Opus/`ultrathink` fo
 
 The Agent tool doesn't expose an explicit effort/thinking-budget parameter; the trigger words above are interpreted by the spawned subagent's Claude Code instance and enable extended thinking at progressively higher budgets. Architectural prompts also explicitly call for "explore 2–3 alternatives in design notes inline before writing code"; leaf prompts go straight to "implement, test, ship."
 
-### Drive-by findings
+### Out-of-scope findings (applies to all three subagents)
 
-Same as §1, §5d, §6 of the old plan (the upstream-suggestion route from #63 still applies). Implementers and Reviewers both file new GH issues for unrelated findings; Implementers may post upstream-PR suggestions per §5d.
+Three ways to route a finding that isn't part of your issue's acceptance criteria:
+
+a. **Drive-by issue** (default for findings unrelated to your blocker chain):
+If you find an unrelated bug, missing test, dead code, security smell, or
+documentation gap, file a new GH issue with `gh issue create`. Include:
+reproduction or pointer to the file/line, why it's out of scope here, and
+a link back to your PR ("Discovered while implementing #<N>"). Apply area
+labels (`area:foundation`, `area:docs`, `area:lsp`) and type labels
+(`bug`, `tech-debt`, `follow-up`). Do NOT include the drive-by fix in
+your PR. Keep your diff scoped.
+
+b. **Upstream PR suggestion** (when the finding is in a blocker PR you're
+stacked on and the blocker hasn't merged yet):
+Post a code-review suggestion on the blocker PR. For prose feedback:
+
+```
+gh pr review <blocker-PR> --comment --body "<rationale>"
+```
+
+For line-level suggestions with ` ```suggestion ` blocks, use the
+Reviews API directly:
+
+````
+gh api repos/riverbank-studio/godot-mcp/pulls/<blocker-PR>/reviews \
+  -f event=COMMENT \
+  -F body="<top-level rationale>" \
+  -F 'comments[][path]=<file>' \
+  -F 'comments[][line]=<line>' \
+  -F 'comments[][body]=Suggested fix, rationale: ...
+
+```suggestion
+<replacement code>
+```'
+````
+
+Criteria — ALL must apply before going this route: - You're directly affected (the finding blocks or complicates your own
+implementation). - The fix is small (a few lines / one logical change). - The blocker PR is still open. If it's already merged, file a
+follow-up issue instead. - You can articulate the suggestion concretely; "looks weird" doesn't
+qualify. - You have at most 2 such suggestions for the same blocker PR. More
+than that, consolidate them into a single drive-by issue instead;
+many small comments are review-time noise.
+Do NOT push commits to the blocker PR's branch. Suggestions only; the
+blocker PR's author/coordinator decides whether to apply.
+
+c. **In-scope fix** (when the finding is genuinely part of your issue's
+acceptance criteria):
+Just fix it in your PR. Note the inclusion in your PR description so
+reviewers see it.
+
+In all three cases, keep YOUR PR's diff scoped to your issue. Do not bundle
+upstream fixes into your own PR even if you have permission to write to the
+blocker's branch.
 
 ---
 
@@ -544,9 +599,14 @@ implementer exits BLOCKED
 3. **Auto-rebase storms in Wave 3.** When 13 tool PRs all sit on top of one epic-infra PR and the epic-infra PR gets review changes, 13 rebases queue up. Mitigation: rebases run serially per blocker, not in parallel.
 4. **Token cost.** No concurrency cap × 13 concurrent agents × `ultrathink`/`think hard` triggers × multi-step implementations can spend significantly. Mitigation: model + thinking-trigger tiering per §5; Sonnet 4.6 with `think hard` (not `ultrathink`) for leaves; reserved Opus 4.7 + `ultrathink` for architectural PRs only.
 5. **`activeProcess` model in `run_project`.** Not relevant to most issues, but a few may need to touch it; flag as architectural.
-6. **Drive-by issue spam.** Implementers may file many low-value follow-up issues. Mitigation: §5 item 6 requires a concrete pointer to the file/line and a one-line "why it's out of scope here"; coordinator can review the issues each tick and the user can close noisy ones.
+6. **Drive-by issue spam.** Implementers may file many low-value follow-up issues. Mitigation: §5 "Out-of-scope findings" requires a concrete pointer to the file/line and a one-line "why it's out of scope here"; coordinator can review the issues each tick and the user can close noisy ones.
 7. **Reviewer-Implementer disagreement loops.** If the Reviewer's `REVIEW_REQUEST_CHANGES` rationale isn't specific enough, the restart Implementer may make changes that the Reviewer still rejects. Mitigation: §5b requires `REVIEW_REQUEST_CHANGES` to include an actionable list, not "make it better"; cap of 2 restarts ensures the loop terminates.
 8. **Inflated diffs during out-of-order review.** With all PRs targeting `main`, a stacked PR's diff against `main` includes its parent's commits until the parent merges. Mitigation: the user reviews in implementation order, so each PR is reviewed AFTER its parent has merged — diff is clean at review time. Escape hatch: GitHub's "Files changed → Filter by commit" UI lets a reviewer see just the dependent's own commits without waiting for the parent merge.
+9. **Upstream-suggestion noise.** Implementers can post upstream-PR
+   suggestions on blocker PRs (per §1, §5 "Out-of-scope findings"). Risk:
+   many small suggestions clutter the blocker PR's review. Mitigation: the
+   contract caps suggestions at 2 per blocker PR — beyond that,
+   consolidate into a single drive-by issue.
 
 ---
 
@@ -576,11 +636,15 @@ Subsequent ticks will pick up Wave 1 as soon as #3's PR opens, and so on.
 ## 12. Resolved questions
 
 - [x] **Godot binary in CI.** Set up interactively in Wave 0 (§3.6) before the orchestrator launches. Removed from risk list.
-- [x] **Drive-by findings.** Implementers file new GH issues with `gh issue create` when they find unrelated work. PR diffs stay scoped. See §5 item 6.
+- [x] **Drive-by findings.** Implementers file new GH issues with `gh issue create` when they find unrelated work. PR diffs stay scoped. See §5 "Out-of-scope findings".
 - [x] **Terminal behavior.** Coordinator auto-exits when every issue is in `{Done, Blocked}`. See §4 step 6.
 - [x] **Model + effort tiering.** Opus 4.7 + `ultrathink` for architectural; Sonnet 4.6 + `think hard` for leaves & benchmarks; Sonnet 4.6 + `think` for mechanical/curation; Opus 4.7 + `think harder` for research hand-offs. See §5 table.
 - [x] **Stuck-at-review pattern.** Wave 1 had ~67% of first-pass agents exit at `/review` returning the verbose review as terminal output (Opus + ultrathink especially robust to prompt countermeasures). The three-stage pipeline (§5a/§5b/§5c) splits implementation from review from gate-finishing, with the Reviewer's terminal action BEING the structured review token (`REVIEW_APPROVE` / `REVIEW_REQUEST_CHANGES` / `REVIEW_SECURITY_BLOCKER`). Sonnet/`think` for Reviewer and Finalizer regardless of Implementer tier.
 - [x] **All PRs target `main`.** Dependent PRs (Wave 2+) are still forked from their parent's head so code compiles, but they target `main` for merging. Merge-commit strategy means GitHub's three-dot diff cleans up automatically when each parent merges, so no coordinator-driven rebases are needed. Cost: inflated diffs while parent is unmerged, mitigated by review-in-order practice. See §1, §4, §6, §8, §10.
+- [x] **Upstream PR suggestions.** When an implementer discovers a small,
+      concrete issue in a blocker PR they're stacked on, they may post a
+      code-review suggestion on the blocker PR (with a 2-suggestion cap). See
+      §5 "Out-of-scope findings".
 
 ---
 
