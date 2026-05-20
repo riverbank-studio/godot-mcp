@@ -115,20 +115,20 @@ Add to your Cline MCP settings file (`~/Library/Application Support/Code/User/gl
       },
       "disabled": false,
       "autoApprove": [
-        "launch_editor",
-        "run_project",
-        "get_debug_output",
-        "stop_project",
-        "get_godot_version",
-        "list_projects",
-        "get_project_info",
-        "create_scene",
-        "add_node",
-        "load_sprite",
-        "export_mesh_library",
-        "save_scene",
-        "get_uid",
-        "update_project_uids"
+        "godot_launch_editor",
+        "godot_run_project",
+        "godot_get_debug_output",
+        "godot_stop_project",
+        "godot_get_version",
+        "godot_list_projects",
+        "godot_get_project_info",
+        "godot_create_scene",
+        "godot_add_node",
+        "godot_load_sprite",
+        "godot_export_mesh_library",
+        "godot_save_scene",
+        "godot_get_uid",
+        "godot_update_project_uids"
       ]
     }
   }

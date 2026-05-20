@@ -39,6 +39,6 @@ The build step (`scripts/build.js`) exists specifically to copy `godot_operation
 
 The server accepts both snake_case and camelCase keys for tool args. When adding tool params, register them in both directions of the mapping so external callers can use either style.
 
-### Process lifecycle for `run_project`
+### Process lifecycle for `godot_run_project`
 
-A single running project is tracked via an `activeProcess` handle (process + output/error buffer arrays). `run_project` spawns and stores; `get_debug_output` reads the buffers; `stop_project` kills the handle. No support for multiple concurrent runs.
+A single running project is tracked via an `activeProcess` handle (process + output/error buffer arrays). `godot_run_project` spawns and stores; `godot_get_debug_output` reads the buffers; `godot_stop_project` kills the handle. No support for multiple concurrent runs.
