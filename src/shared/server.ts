@@ -10,8 +10,11 @@ import { Server } from "@modelcontextprotocol/sdk/server/index.js";
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 
 import { setupToolHandlers } from "../dispatch.js";
+import { bootstrapDocsRuntime } from "../docs/bootstrap.js";
+import { getDocsRuntime } from "../docs/runtime.js";
 import { allTools } from "../tools/index.js";
 
+import { parseSharedEnv } from "./env.js";
 import {
   executeOperation as executeOperationImpl,
   getOperationsScriptPath,
@@ -104,11 +107,14 @@ export class GodotServer {
   }
 
   /**
-   * Kill any active project and close the MCP server.
+   * Kill any active project, close the docs DB, and close the MCP server.
    */
   async cleanup(): Promise<void> {
     logDebug("Cleaning up resources");
     this.activeProcess.kill();
+    // Best-effort: dispose() is idempotent and swallows close-errors on
+    // a never-opened DB, so calling it even on a failed-bootstrap is safe.
+    getDocsRuntime().dispose();
     await this.server.close();
   }
 
@@ -149,6 +155,31 @@ export class GodotServer {
       }
 
       console.error(`[SERVER] Using Godot at: ${godotPath}`);
+
+      // Docs runtime bootstrap. Per DESIGN.md § Cross-subsystem independence,
+      // docs is the core MCP value — cold-startup failure crashes the server.
+      // The bootstrap is synchronous (better-sqlite3 open is sync) and either
+      // initializes the runtime or fails it with a precise message. We do not
+      // crash here on docs failure because (a) Phase 1 of #7 deliberately
+      // does not implement the runtime fetcher for `latest`/cache-miss, and
+      // (b) editor/LSP tools still work against a failed docs runtime. The
+      // docs tool handlers themselves surface the failure as MCP errors.
+      const envConfig = parseSharedEnv(process.env);
+      bootstrapDocsRuntime(getDocsRuntime(), {
+        offline: envConfig.offline,
+        docsDbPath: envConfig.docsDbPath,
+        docsVersion: envConfig.docsVersion,
+      });
+      const docsState = getDocsRuntime().state();
+      if (docsState.kind === "ready") {
+        console.error(
+          `[SERVER] Docs DB loaded (${docsState.source}): ${docsState.path}`,
+        );
+      } else if (docsState.kind === "failed") {
+        console.error(
+          `[SERVER] Docs subsystem unavailable: ${docsState.error.message}`,
+        );
+      }
 
       const transport = new StdioServerTransport();
       await this.server.connect(transport);
