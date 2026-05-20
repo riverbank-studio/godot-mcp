@@ -30,6 +30,11 @@ export class OfflineModeError extends Error {
   constructor(message: string) {
     super(message);
     this.name = "OfflineModeError";
+    // Omit the constructor frame from V8 stack traces so the trace points at
+    // the throw site, not the Error constructor.
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, OfflineModeError);
+    }
   }
 }
 
@@ -85,9 +90,9 @@ export type EnvSource = Record<string, string | undefined>;
  */
 export function parseSharedEnv(env: EnvSource): SharedEnvConfig {
   const offline = parseBoolean(env.GODOT_MCP_OFFLINE, "GODOT_MCP_OFFLINE");
-  const docsDbPath = parsePath(env.GODOT_DOCS_DB_PATH);
-  const modelPath = parsePath(env.GODOT_MCP_MODEL_PATH);
-  const docsVersion = parsePath(env.GODOT_DOCS_VERSION); // empty/whitespace → undefined; same trim semantics
+  const docsDbPath = parseOptionalString(env.GODOT_DOCS_DB_PATH);
+  const modelPath = parseOptionalString(env.GODOT_MCP_MODEL_PATH);
+  const docsVersion = parseOptionalString(env.GODOT_DOCS_VERSION); // empty/whitespace → undefined; same trim semantics
 
   const cfg: SharedEnvConfig = { offline, docsDbPath, modelPath, docsVersion };
 
@@ -135,11 +140,12 @@ function parseBoolean(raw: string | undefined, varName: string): boolean {
 }
 
 /**
- * Normalize a path-shaped env var. Returns `undefined` for unset / empty /
- * whitespace-only; otherwise the raw string (paths are platform-specific and
- * we deliberately do not normalize separators — the eventual fs call decides).
+ * Normalize an optional string env var. Returns `undefined` for unset /
+ * empty / whitespace-only; otherwise the trimmed string. Used for both
+ * path-shaped vars (where the OS handles separator normalisation) and
+ * plain string vars like `GODOT_DOCS_VERSION`.
  */
-function parsePath(raw: string | undefined): string | undefined {
+function parseOptionalString(raw: string | undefined): string | undefined {
   if (raw === undefined) return undefined;
   const trimmed = raw.trim();
   return trimmed === "" ? undefined : trimmed;
