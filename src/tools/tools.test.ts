@@ -12,6 +12,7 @@ import { describe, it, expect } from "vitest";
 import { editorTools } from "./editor-tools.js";
 import { sceneTools } from "./scene-tools.js";
 import { projectTools } from "./project-tools.js";
+import { lspTools } from "./lsp-tools.js";
 import { allTools } from "./index.js";
 
 /**
@@ -76,10 +77,16 @@ describe("tool registries", () => {
     );
   });
 
-  it("allTools is the union of editor/scene/project tools, no duplicates", () => {
+  it("allTools is the union of editor/scene/project/lsp tools, no duplicates", () => {
     const names = allTools.map((t) => t.name);
     expect(new Set(names).size).toBe(names.length);
-    expect(names.sort()).toEqual([...PRE_REFACTOR_TOOLS].sort());
+    // The LSP-area registry is populated by per-leaf PRs (#20–#26); this
+    // test asserts the pre-refactor surface PLUS the current LSP roster.
+    const expected = [
+      ...PRE_REFACTOR_TOOLS,
+      ...lspTools.map((t) => t.name),
+    ].sort();
+    expect(names.sort()).toEqual(expected);
   });
 
   it("each tool definition has a non-empty description, schema, and async handler", () => {

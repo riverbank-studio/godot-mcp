@@ -82,3 +82,24 @@ export type {
   LspDiagnostic,
   DiagnosticCacheEntry,
 } from "./client.js";
+
+export {
+  fromLspPosition,
+  fromLspRange,
+  mapLspErrorToResponse,
+  resolveLspContext,
+  toLspPosition,
+  toLspRange,
+  uriToFilePath,
+  validateFileInProject,
+  withLspClient,
+} from "./tool-helpers.js";
+export type {
+  LspClientLike,
+  LspPosition,
+  LspProvider,
+  LspRange,
+  LspToolContext,
+  WirePosition,
+  WireRange,
+} from "./tool-helpers.js";
