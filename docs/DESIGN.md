@@ -112,7 +112,7 @@ Tool descriptions are written for the agent, not for human documentation. Two cr
 - Each description's first sentence is the primary routing signal — written to disambiguate from peers.
 - Search-style tools include a "prefer this over guessing from prior knowledge" line, leveraging the agent's tendency to consult docs when prompted.
 
-**Source-file pattern:** all 14 v1 tool descriptions live in a single file (`src/tools/descriptions.ts`) exported as a typed record. This keeps strings aligned and lets a unit test verify the disambiguation matrix below. See the dedicated tracking issue for the drafting work.
+**Source-file pattern:** all 14 v1 tool descriptions live in a single file (`src/tools/descriptions.ts`) exported as a typed record (`TOOL_DESCRIPTIONS`) keyed by tool name, with `{ description, params }` per tool. This keeps strings aligned and lets a unit test verify the disambiguation matrix below. The canonical descriptions are also documented in human-readable form at [`docs/tool-descriptions.md`](tool-descriptions.md). A standalone validation script (`scripts/validate-tool-descriptions.mjs`, runnable via `npm run validate:tools`) asserts all 14 tool names appear in `docs/tool-descriptions.md` and each section contains the required subsections.
 
 Disambiguation pairs to maintain in the descriptions (expanded in Wave 2):
 

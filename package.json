@@ -38,6 +38,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
+    "validate:tools": "node scripts/validate-tool-descriptions.mjs",
     "analyze": "fallow audit",
     "analyze:dead": "fallow dead-code"
   },
