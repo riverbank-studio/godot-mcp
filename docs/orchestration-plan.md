@@ -8,24 +8,25 @@ How a team of Claude Code agents will implement all 38 open issues in this repo 
 
 ## 1. Locked-in decisions
 
-| Topic                     | Choice                                                                                                                                                                          |
-| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Wave 0 (pre-orchestrator) | User + me set up CI interactively (Godot binary install, build/test/lint workflow, smoke PR). Orchestrator only launches once CI is green.                                      |
-| Concurrency cap           | None — DAG-driven, peaks ~13 concurrent agents in Wave 4 (renumbered; was Wave 3 before CI became Wave 0)                                                                       |
-| PR granularity            | One PR per issue, including each sub-issue under epics #7, #9, #10                                                                                                              |
-| Merge policy              | Agents open PRs **ready-for-review**; the user merges                                                                                                                           |
-| Non-TDD issues            | Research (#34, #39) hand-off to user as `docs/research/<topic>.md` PRs; benchmark/curation issues use acceptance-criteria assertions instead of unit tests                      |
-| Orchestrator              | Background `/loop` coordinator agent, tick = 10 min; auto-exits when every issue is in `{Done, Blocked}`                                                                        |
-| Stack rebase              | Dependent branches auto-rebase when their blocker PR head moves                                                                                                                 |
-| `dispatch.ts` hotspot     | Epic-infra PR for #7 and #9 introduces an auto-discovery registry; per-tool PRs touch only their own file                                                                       |
-| Quality gate              | Local `npm test` + `npm run lint` + CI green required before marking ready-for-review                                                                                           |
-| Failure handling          | Retry once with a fresh agent + fresh worktree; if still failing, open draft PR titled `[BLOCKED] ...` and set Status=Blocked                                                   |
-| Self-review               | Every PR: agent runs `/review`. Tool & LSP PRs additionally run `/security-review`                                                                                              |
-| State tracking            | GitHub Projects v2 with a `Status` single-select field (`Pending` / `Blocked` / `In-Progress` / `Ready-for-Review` / `Done`); fallback to labels if `project` scope unavailable |
-| Research deliverable      | `docs/research/<topic>.md` markdown PR                                                                                                                                          |
-| Drive-by findings         | Implementers file new GH issues via `gh issue create`; PR diffs stay scoped                                                                                                     |
-| Model + effort tiering    | Opus 4.7 + `ultrathink` (architectural), Sonnet 4.6 + `think hard` (leaves/benchmarks), Sonnet 4.6 + `think` (mechanical), Opus 4.7 + `think harder` (research). See §5.        |
-| Worktree base             | `E:\Bradley\Documents\VSCodeProjects\godot-mcp-worktrees\<branch-name>`                                                                                                         |
+| Topic                         | Choice                                                                                                                                                                                                                                                                                                      |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Wave 0 (pre-orchestrator)     | User + me set up CI interactively (Godot binary install, build/test/lint workflow, smoke PR). Orchestrator only launches once CI is green.                                                                                                                                                                  |
+| Concurrency cap               | None — DAG-driven, peaks ~13 concurrent agents in Wave 4 (renumbered; was Wave 3 before CI became Wave 0)                                                                                                                                                                                                   |
+| PR granularity                | One PR per issue, including each sub-issue under epics #7, #9, #10                                                                                                                                                                                                                                          |
+| Merge policy                  | Agents open PRs **ready-for-review**; the user merges                                                                                                                                                                                                                                                       |
+| Non-TDD issues                | Research (#34, #39) hand-off to user as `docs/research/<topic>.md` PRs; benchmark/curation issues use acceptance-criteria assertions instead of unit tests                                                                                                                                                  |
+| Orchestrator                  | Background `/loop` coordinator agent, tick = 10 min; auto-exits when every issue is in `{Done, Blocked}`                                                                                                                                                                                                    |
+| Stack rebase                  | Dependent branches auto-rebase when their blocker PR head moves                                                                                                                                                                                                                                             |
+| `dispatch.ts` hotspot         | Epic-infra PR for #7 and #9 introduces an auto-discovery registry; per-tool PRs touch only their own file                                                                                                                                                                                                   |
+| Quality gate                  | Local `npm test` + `npm run lint` + CI green required before marking ready-for-review                                                                                                                                                                                                                       |
+| Failure handling              | Retry once with a fresh agent + fresh worktree; if still failing, open draft PR titled `[BLOCKED] ...` and set Status=Blocked                                                                                                                                                                               |
+| Three-stage pipeline          | Each issue runs through Implementer → Reviewer → Finalizer subagents instead of one large agent. Defends against the "stuck-at-review" failure mode observed in Wave 1 where ~67% of first-pass agents (especially Opus + ultrathink) exited at `/review` with verbose analysis as terminal output. See §5. |
+| Reviewer respawns implementer | If the Reviewer subagent returns `REVIEW_REQUEST_CHANGES`, the coordinator respawns a fresh Implementer with the findings inline. Capped at 2 restarts before marking `Blocked`. See §4 step 3, §5b.                                                                                                        |
+| State tracking                | GitHub Projects v2 with a `Status` single-select field (`Pending` / `Blocked` / `In-Progress` / `Ready-for-Review` / `Done`); fallback to labels if `project` scope unavailable                                                                                                                             |
+| Research deliverable          | `docs/research/<topic>.md` markdown PR                                                                                                                                                                                                                                                                      |
+| Drive-by findings             | Implementers file new GH issues via `gh issue create`; PR diffs stay scoped                                                                                                                                                                                                                                 |
+| Model + effort tiering        | Opus 4.7 + `ultrathink` (architectural), Sonnet 4.6 + `think hard` (leaves/benchmarks), Sonnet 4.6 + `think` (mechanical), Opus 4.7 + `think harder` (research). See §5.                                                                                                                                    |
+| Worktree base                 | `E:\Bradley\Documents\VSCodeProjects\godot-mcp-worktrees\<branch-name>`                                                                                                                                                                                                                                     |
 
 ---
 
@@ -145,8 +146,18 @@ echo ".orchestrator/" >> .gitignore   # if not already ignored
   "issues": {
     "3": {
       "status": "In-Progress",
-      "branch": "feat/3-refactor-index",
-      "pr": null,
+      "stage": "review",
+      "stageHistory": [
+        {
+          "stage": "impl",
+          "agentId": "...",
+          "outcome": "IMPL_READY",
+          "pr": 58,
+          "completedAt": "..."
+        }
+      ],
+      "branch": "refactor/3-modules",
+      "pr": 58,
       "worktree": "...",
       "attempts": 1,
       "lastTick": "2026-05-20T18:00:00Z"
@@ -195,11 +206,20 @@ A long-running Claude Code agent invoked via `/loop 10m <coordinator-prompt>`. E
 2. **Reconcile**
    - For each issue with `Status=Ready-for-Review` whose PR has been merged externally → mark `Done`.
    - For each PR where a blocker PR's head SHA changed since last tick → enqueue a rebase job (handled by spawning a short-lived rebase agent in the existing worktree).
-3. **Launch implementers**
-   - Build the set of issues where `Status=Pending` AND every `blockedBy` issue is in `{Ready-for-Review, Done}`.
-   - For each, spawn an implementer agent (see §5) in its own worktree. Set `Status=In-Progress` immediately.
+3. **Launch / transition stages.** Each tracked issue has a `stage` field in `{pending, impl, review, finalize, done, blocked}` and an `attempts` counter (Implementer restarts only).
+   - `pending` with all blockers in `{Ready-for-Review, Done}`: spawn Implementer (§5a). Transition to `stage=impl`, `attempts=1`.
+   - `impl` returns `IMPL_READY <pr>`: store PR number, spawn Reviewer (§5b). Transition to `stage=review`.
+   - `impl` returns `IMPL_BLOCKED`: surface diagnostic on the issue, transition to `stage=blocked`.
+   - `review` returns `REVIEW_APPROVE`: spawn Finalizer (§5c). Transition to `stage=finalize`.
+   - `review` returns `REVIEW_REQUEST_CHANGES <findings>`:
+     - If `attempts < 2`: respawn Implementer (§5a) with `RESTART CONTEXT` block populated from the findings. Increment `attempts`. Stay in `stage=impl`.
+     - If `attempts >= 2`: surface findings on the issue with `[BLOCKED] needs human intervention` prefix, transition to `stage=blocked`.
+   - `review` returns `REVIEW_SECURITY_BLOCKER <findings>`: surface findings to the user with HIGH-severity label, transition to `stage=blocked`. (Skip Finalizer regardless of how minor — security blockers always escalate.)
+   - `finalize` returns `EXIT_READY`: transition to `stage=done` for the Wave-1 contract (Status=Ready-for-Review). Final `done` (Status=Done on board) comes when the user merges.
+   - `finalize` returns `EXIT_BLOCKED`: very rare — Finalizer is mechanical. Treat as escalation.
+
 4. **Escalations**
-   - For any implementer that returned `BLOCKED`, set `Status=Blocked`, post a comment on the issue with the agent's diagnostic.
+   - For any agent that returned a `BLOCKED` variant, set `Status=Blocked`, post a comment on the issue with the agent's diagnostic.
 5. **Heartbeat**
    - Write `.orchestrator/state.json` and `.orchestrator/tick-<n>.log`.
    - Print a one-line summary: `tick 17: 4 in-progress, 2 ready, 1 blocked, 31 pending, 0 done`.
@@ -225,78 +245,119 @@ Never edit code yourself. Never merge PRs.
 
 ---
 
-## 5. The implementer agent
+## 5. The agent pipeline
 
-Each implementer is spawned in its own git worktree. It receives a tailored prompt built from this template. The first line is a thinking-budget trigger — `ultrathink` for architectural PRs (#3, #5, #7-infra, #9-infra, #43, #44, #47, #6, #8), `think hard` for tool leaves and benchmarks, `think` for purely mechanical work (#4, curation):
+Each issue runs through three subagents in sequence, orchestrated by the coordinator. Splits "deep analytical work" from "linear gate finishing" — the combination is what caused the stuck-at-review failure mode in Wave 1.
+
+### 5a. Implementer
+
+Builds the change, opens a draft PR, exits. No /review, no /security-review, no ready/comment/board.
+
+- **Model:** per the tier table below.
+- **Isolation:** `subagent_type=general-purpose`, `isolation=worktree`, `run_in_background=true`.
+- **Final message:** exactly `IMPL_READY <pr-number>` or `IMPL_BLOCKED <one-line reason>`.
+
+Implementer prompt template:
 
 ```
 <thinking-trigger>
 
-ROLE: Implement GitHub issue #<N> for riverbank-studio/godot-mcp.
+ROLE: Implement GitHub issue #<N> for riverbank-studio/godot-mcp. Final message MUST be `IMPL_READY <pr-number>` or `IMPL_BLOCKED <reason>`.
 
 ISSUE: #<N> — <title>
 ISSUE URL: https://github.com/riverbank-studio/godot-mcp/issues/<N>
-BLOCKED BY: <list of blocker issue numbers and their PR branches if open>
-
-BASE BRANCH:
-  - If all blockers are merged: base off origin/main.
-  - If any blocker has an open PR: base off the topmost open blocker PR's head branch.
-    Branch chain: <list>. Use git rebase --onto if multiple blockers.
-
+BLOCKED BY: <list with PR branches if open>
+BASE BRANCH: <origin/main or origin/<blocker-branch>>
 BRANCH NAME: <type>/<N>-<slug>
-  e.g. feat/14-godot-search-api, refactor/3-modules, chore/47-tarball-sha
 
-WORKTREE: Already created at <path>. cwd is set there.
+RESTART CONTEXT (only if attempts > 1):
+  Prior attempt's PR: #<prior-PR>
+  Reviewer findings to address:
+  <verbatim findings from REVIEW_REQUEST_CHANGES>
 
-CONTRACT (must hold for every implementer):
-1. Read docs/DESIGN.md first. Then read the full issue body.
-2. TDD: write failing tests before implementation. Exceptions:
-   - Research issues (#34, #39): produce docs/research/<topic>.md instead.
-   - Curation issues (#40, #41, #42): produce the artifact + an assertion script
-     that validates the curated dataset's shape.
-   - Benchmark issues (#30, #31, #32, #45, #46): build the harness + a small smoke
-     fixture + assertions on the harness output shape.
-3. Tools available: npm, git, gh, node (>=24), Godot binary at <path-or-detect>.
-4. Quality gate before marking ready-for-review:
-   a. npm run build && npm test && npm run lint (all green locally)
-   b. git push -u origin <branch>
-   c. gh pr create --draft --base <base> --head <branch> --title "..." --body "Closes #<N>. ..."
-   d. Wait for CI green (`gh pr checks <pr> --watch`).
-   e. /review the PR. Address non-trivial findings in a follow-up commit.
-   f. If this PR touches src/dispatch.ts, src/tools/, src/lsp/, or any child-process
-      spawning code: also run /security-review.
-   g. gh pr ready <pr>
-   h. Comment on the issue with the PR URL.
-   i. Exit with status READY.
-5. Failure handling:
-   - If after one full attempt (writing tests, implementing, running quality gate,
-     fixing review feedback) you cannot reach READY, output a diagnostic of:
-     what you tried, what failed, what's needed to unblock. Exit with status BLOCKED.
-   - The coordinator will retry once with a fresh worktree before final escalation.
-6. Drive-by findings:
-   - If you find an unrelated bug, missing test, dead code, security smell, or
-     documentation gap that's clearly out of scope for your issue, file it as a
-     new GH issue with `gh issue create`. Include: reproduction or pointer
-     to the file/line, why it's out of scope here, and a link back to your PR
-     (e.g. "Discovered while implementing #<N>").
-   - Apply labels matching the area (`area:foundation`, `area:docs`, `area:lsp`)
-     and a type label (`bug`, `tech-debt`, `follow-up`, etc.).
-   - Do NOT include the drive-by fix in your PR. Keep your diff scoped.
-7. Never:
-   - Force-push unless rebasing onto a blocker (coordinator handles rebases anyway).
-   - Modify .orchestrator/, the coordinator's state, or other agents' worktrees.
-   - Merge any PR (yours or others').
-   - Add yourself as reviewer or assignee.
-   - Touch files outside the scope of your issue (file new issues instead, per §6).
-8. Commit message footer (every commit):
-   Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>
-9. PR body footer:
-   🤖 Generated with [Claude Code](https://claude.com/claude-code)
+1. Verify cwd is your harness worktree (`pwd` should contain `worktrees/agent-`). Otherwise `IMPL_BLOCKED wrong cwd: <pwd>`.
+2. `git fetch origin && git checkout --ignore-other-worktrees -B <branch> <base>`.
+3. Read docs/DESIGN.md and `gh issue view <N>`.
+4. TDD: write failing tests, then implement. (Research issues produce docs/research/<topic>.md; curation issues produce fixtures + a validator.)
+5. Local quality gate: `npm run build && npm test && npm run lint` (all green).
+6. `git push -u origin <branch>`.
+7. `gh pr create --draft --base <base> --head <branch> --title "..." --body "Closes #<N>. ..."`. Capture the PR number.
+8. Final message: `IMPL_READY <pr-number>`.
+
+DO NOT:
+- Run /review or /security-review (Reviewer subagent handles those).
+- Mark the PR ready, comment on the issue, or touch the project board (Finalizer handles those).
+- Use `gh pr checks --watch` (it has hung agents).
+- Operate in the main checkout — only in your harness worktree.
+
+Drive-by findings → new GH issues via `gh issue create` (or upstream-PR suggestions per §1, §5d). Keep your diff scoped.
+
+Commit footer: <model-appropriate Co-Authored-By>
+PR body footer: 🤖 Generated with [Claude Code](https://claude.com/claude-code)
 ```
 
-The implementer is `subagent_type=general-purpose`, `isolation=worktree`, `run_in_background=true`.
+### 5b. Reviewer
 
-**Model + effort assignment:**
+Reviews the Implementer's PR. Always Sonnet/`think` — cheap, reliable, no `ultrathink` to trigger verbose-terminal-output behavior.
+
+- **Final message:** structured. Exactly one of:
+  - `REVIEW_APPROVE` — no must-fix items, or all must-fix items were trivial and applied inline.
+  - `REVIEW_REQUEST_CHANGES <multi-line findings>` — non-trivial correctness/design issues for the Implementer to address.
+  - `REVIEW_SECURITY_BLOCKER <findings>` — HIGH-severity security finding.
+
+Reviewer prompt template:
+
+```
+think
+
+ROLE: Review PR #<N> for issue #<I> in riverbank-studio/godot-mcp. Final message MUST be exactly `REVIEW_APPROVE`, `REVIEW_REQUEST_CHANGES <findings>`, or `REVIEW_SECURITY_BLOCKER <findings>`.
+
+PR: #<N> — base <base-branch>, head <branch>
+ISSUE: #<I>
+
+1. Verify cwd is your harness worktree. Otherwise the corresponding BLOCKED-form message.
+2. `git fetch origin && git checkout --ignore-other-worktrees -B <branch> origin/<branch>`.
+3. Run /review on PR #<N>. If §5(f) triggers (src/dispatch.ts, src/tools/, src/lsp/, child-process spawning), ALSO run /security-review.
+4. Classify findings:
+   - **Trivial must-fix** (correctness fix < 10 lines, single file, no architectural change — typos, missing assertions, format, broken import paths): apply inline with TDD, push a single fix commit, then continue.
+   - **Non-trivial must-fix** (any architectural change, multi-file changes, design decisions): do NOT apply. Capture in a `REVIEW_REQUEST_CHANGES` message.
+   - **Nice-to-have**: aggregate into a single `gh pr comment <N> --body "..."` posted to the PR. Do NOT trigger restart.
+   - **HIGH-severity security finding**: do NOT apply (the user needs to see it). Capture in `REVIEW_SECURITY_BLOCKER`.
+5. Final message — exactly one:
+   - All clean or only inline-applied must-fixes + posted nice-to-have comment → `REVIEW_APPROVE`
+   - Non-trivial must-fix → `REVIEW_REQUEST_CHANGES\n<findings, formatted as actionable list>`
+   - HIGH security → `REVIEW_SECURITY_BLOCKER\n<findings>`
+
+DO NOT:
+- Mark the PR ready (Finalizer's job).
+- Comment on the issue or touch the project board.
+- Push commits other than inline trivial must-fixes (≤10 lines, ≤1 file).
+- Combine review prose with the exit token — the structured final message is what the coordinator parses.
+```
+
+### 5c. Finalizer
+
+Marks the PR ready, comments on the issue, updates the project board. Mechanical, Sonnet/`think`.
+
+- **Final message:** exactly `EXIT_READY` or `EXIT_BLOCKED <reason>`.
+
+Finalizer prompt template:
+
+```
+ROLE: Run 3 commands to finish the gate on PR #<N>. Final message MUST be exactly `EXIT_READY`.
+
+1. `gh pr ready <N>`
+2. `gh issue comment <I> --body "PR #<N> ready for review."` (skip if a comment already exists — check `gh issue view <I> --comments`).
+3. `gh project item-edit --project-id PVT_kwDOEJ5TiM4BYP0g --id <ITEM_ID> --field-id PVTSSF_lADOEJ5TiM4BYP0gzhTW_68 --single-select-option-id 20c1ca31`
+
+Final message: `EXIT_READY`. Nothing else.
+
+DO NOT run any /review skill, edit any file, or push any commit.
+```
+
+### Model + effort tiering (preserved from old §5, refined)
+
+The Implementer's tier table from old §5 still applies — Opus/`ultrathink` for architectural, Sonnet/`think hard` for tool leaves and benchmarks, Sonnet/`think` for mechanical/curation, Opus/`think harder` for research. Reviewer and Finalizer are ALWAYS Sonnet/`think` regardless of the Implementer's tier — they're scoped tasks that don't benefit from extended thinking, and Opus + extended thinking is the failure mode this pipeline defends against.
 
 | Bucket                   | Issues                                               | Model      | Thinking trigger | Effort approximation |
 | ------------------------ | ---------------------------------------------------- | ---------- | ---------------- | -------------------- |
@@ -305,11 +366,11 @@ The implementer is `subagent_type=general-purpose`, `isolation=worktree`, `run_i
 | Mechanical / curation    | #4, #40, #41, #42                                    | Sonnet 4.6 | `think`          | medium               |
 | Research hand-off        | #34, #39                                             | Opus 4.7   | `think harder`   | very high            |
 
-The Agent tool doesn't expose an explicit effort/thinking-budget parameter; the
-trigger words above are interpreted by the spawned subagent's Claude Code instance
-and enable extended thinking at progressively higher budgets. Architectural prompts
-also explicitly call for "explore 2–3 alternatives in design notes inline before
-writing code"; leaf prompts go straight to "implement, test, ship."
+The Agent tool doesn't expose an explicit effort/thinking-budget parameter; the trigger words above are interpreted by the spawned subagent's Claude Code instance and enable extended thinking at progressively higher budgets. Architectural prompts also explicitly call for "explore 2–3 alternatives in design notes inline before writing code"; leaf prompts go straight to "implement, test, ship."
+
+### Drive-by findings
+
+Same as §1, §5d, §6 of the old plan (the upstream-suggestion route from #63 still applies). Implementers and Reviewers both file new GH issues for unrelated findings; Implementers may post upstream-PR suggestions per §5d.
 
 ---
 
@@ -403,6 +464,8 @@ Same pattern for `src/tools/lsp-tools.ts` driven by epic #9's infra PR.
 ---
 
 ## 8. Wave-by-wave forecast
+
+**Pipeline note:** Wave 1 ran under the old single-agent contract (§5 prior version) and is grandfathered — those PRs are mid-merge and don't need the new pipeline retroactively. Wave 2 (#4, #5) also already shipped under the old contract. Wave 3 onward uses the §5a/§5b/§5c pipeline.
 
 ### Wave 0 — Interactive CI setup
 
@@ -501,6 +564,7 @@ A rebase agent that exits `REBASE_BLOCKED` triggers the same path against the _d
 4. **Token cost.** No concurrency cap × 13 concurrent agents × `ultrathink`/`think hard` triggers × multi-step implementations can spend significantly. Mitigation: model + thinking-trigger tiering per §5; Sonnet 4.6 with `think hard` (not `ultrathink`) for leaves; reserved Opus 4.7 + `ultrathink` for architectural PRs only.
 5. **`activeProcess` model in `run_project`.** Not relevant to most issues, but a few may need to touch it; flag as architectural.
 6. **Drive-by issue spam.** Implementers may file many low-value follow-up issues. Mitigation: §5 item 6 requires a concrete pointer to the file/line and a one-line "why it's out of scope here"; coordinator can review the issues each tick and the user can close noisy ones.
+7. **Reviewer-Implementer disagreement loops.** If the Reviewer's `REVIEW_REQUEST_CHANGES` rationale isn't specific enough, the restart Implementer may make changes that the Reviewer still rejects. Mitigation: §5b requires `REVIEW_REQUEST_CHANGES` to include an actionable list, not "make it better"; cap of 2 restarts ensures the loop terminates.
 
 ---
 
@@ -533,6 +597,7 @@ Subsequent ticks will pick up Wave 1 as soon as #3's PR opens, and so on.
 - [x] **Drive-by findings.** Implementers file new GH issues with `gh issue create` when they find unrelated work. PR diffs stay scoped. See §5 item 6.
 - [x] **Terminal behavior.** Coordinator auto-exits when every issue is in `{Done, Blocked}`. See §4 step 6.
 - [x] **Model + effort tiering.** Opus 4.7 + `ultrathink` for architectural; Sonnet 4.6 + `think hard` for leaves & benchmarks; Sonnet 4.6 + `think` for mechanical/curation; Opus 4.7 + `think harder` for research hand-offs. See §5 table.
+- [x] **Stuck-at-review pattern.** Wave 1 had ~67% of first-pass agents exit at `/review` returning the verbose review as terminal output (Opus + ultrathink especially robust to prompt countermeasures). The three-stage pipeline (§5a/§5b/§5c) splits implementation from review from gate-finishing, with the Reviewer's terminal action BEING the structured review token (`REVIEW_APPROVE` / `REVIEW_REQUEST_CHANGES` / `REVIEW_SECURITY_BLOCKER`). Sonnet/`think` for Reviewer and Finalizer regardless of Implementer tier.
 
 ---
 
