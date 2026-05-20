@@ -351,8 +351,13 @@ ROLE: Run 3 commands to finish the gate on PR #<N>. Final message MUST be exactl
 1. `gh pr ready <N>`
 2. `gh issue comment <I> --body "PR #<N> ready for review."` (skip if a comment already exists — check `gh issue view <I> --comments`).
 3. `gh project item-edit --project-id PVT_kwDOEJ5TiM4BYP0g --id <ITEM_ID> --field-id PVTSSF_lADOEJ5TiM4BYP0gzhTW_68 --single-select-option-id 20c1ca31`
+   - If this command exits non-zero with stderr containing `denied by the Claude Code auto mode classifier`, do NOT retry. The classifier doesn't propagate the user's session allowlist to sub-agents (see §10). Skip to the alternate final message below.
 
-Final message: `EXIT_READY`. Nothing else.
+Final message:
+
+- `EXIT_READY` if all three steps succeeded.
+- `EXIT_BLOCKED classifier-board-edit` if step 3 was blocked by the auto-mode classifier (steps 1 and 2 succeeded, so the PR is ready and the issue is commented — the coordinator will apply the board edit centrally from its own session before transitioning the issue to `done`).
+- `EXIT_BLOCKED <one-line reason>` for any other failure.
 
 DO NOT run any /review skill, edit any file, or push any commit.
 ```
