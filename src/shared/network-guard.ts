@@ -40,12 +40,37 @@ export type OfflineCheckable = Pick<
  * Stable identifiers for the things we might call out to. Keeping these as a
  * union (rather than `string`) lets reviewers grep call sites and prevents
  * typos like `"github_tags"` vs `"github-tags-api"` silently diverging.
+ *
+ * - `github-tags-api`: resolving `GODOT_DOCS_VERSION=latest` via the GitHub
+ *   Tags API.
+ * - `codeload-engine-tarball-fetch`: downloading `godotengine/godot` source
+ *   tarballs from codeload.github.com.
+ * - `codeload-docs-tarball-fetch`: downloading `godotengine/godot-docs`
+ *   source tarballs from codeload.github.com.
+ * - `model-download`: downloading BGE-small-en-v1.5 ONNX files from
+ *   HuggingFace.
  */
 export type NetworkOperation =
   | "github-tags-api"
-  | "codeload-tarball-fetch"
+  | "codeload-engine-tarball-fetch"
   | "codeload-docs-tarball-fetch"
   | "model-download";
+
+/**
+ * Per-operation escape-hatch hint. Lives next to the `NetworkOperation` type
+ * so adding a new network-call type forces the developer to write a hint at
+ * the same time.
+ */
+const OFFLINE_HINTS: Record<NetworkOperation, string> = {
+  "github-tags-api":
+    "Pin GODOT_DOCS_VERSION to a specific X.Y (not 'latest') or set GODOT_DOCS_DB_PATH to a pre-built database.",
+  "codeload-engine-tarball-fetch":
+    "Set GODOT_DOCS_DB_PATH to a pre-built database to skip the Godot engine tarball fetch.",
+  "codeload-docs-tarball-fetch":
+    "Set GODOT_DOCS_DB_PATH to a pre-built database to skip the godot-docs tarball fetch.",
+  "model-download":
+    "Set GODOT_MCP_MODEL_PATH to a pre-downloaded copy of the embedding model.",
+};
 
 /**
  * The single gate every network call must pass through.
@@ -78,22 +103,6 @@ export function assertOnlineAllowed(
     ].join("\n"),
   );
 }
-
-/**
- * Per-operation escape-hatch hint. Lives next to the operation enum so
- * adding a new network call type forces the developer to write a hint at
- * the same time.
- */
-const OFFLINE_HINTS: Record<NetworkOperation, string> = {
-  "github-tags-api":
-    "Pin GODOT_DOCS_VERSION to a specific X.Y (not 'latest') or set GODOT_DOCS_DB_PATH to a pre-built database.",
-  "codeload-tarball-fetch":
-    "Set GODOT_DOCS_DB_PATH to a pre-built database to skip the Godot tarball fetch.",
-  "codeload-docs-tarball-fetch":
-    "Set GODOT_DOCS_DB_PATH to a pre-built database to skip the godot-docs tarball fetch.",
-  "model-download":
-    "Set GODOT_MCP_MODEL_PATH to a pre-downloaded copy of the embedding model.",
-};
 
 /**
  * Classification of how the docs subsystem should source its DB given the

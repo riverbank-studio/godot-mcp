@@ -19,6 +19,7 @@
    docs/DESIGN.md — not papered over with narrower per-line ignores. */
 
 import { fileURLToPath } from "url";
+import { createRequire } from "module";
 import { join, dirname, basename, normalize } from "path";
 import { existsSync, readdirSync, mkdirSync } from "fs";
 import { spawn, execFile } from "child_process";
@@ -34,6 +35,49 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 
 import { parseSharedEnv, OfflineModeError } from "./shared/env.js";
+
+// Handle --version and --help before any env validation so these flags work
+// without a Godot binary present and without starting the MCP stdio transport.
+// Must be placed before the parseSharedEnv block so `--version` doesn't hang
+// waiting for env validation — these are the "does it exist?" sanity checks
+// referenced in docs/installation.md § Verification.
+(function handleCliFlags(): void {
+  const args = process.argv.slice(2);
+  if (args.includes("--version") || args.includes("-v")) {
+    // Read version from package.json at runtime so it's always in sync.
+    const require = createRequire(import.meta.url);
+    const pkg = require("../package.json") as { version: string };
+    process.stdout.write(`godot-mcp ${pkg.version}\n`);
+    process.exit(0);
+  }
+  if (args.includes("--help") || args.includes("-h")) {
+    process.stdout.write(
+      [
+        "Usage: godot-mcp [options]",
+        "",
+        "MCP server for the Godot game engine. Communicates over stdio using the",
+        "Model Context Protocol (MCP). Normally launched by an MCP client (Claude",
+        "Desktop, Cline, etc.) — not invoked directly by users.",
+        "",
+        "Options:",
+        "  --version, -v  Print the version and exit.",
+        "  --help, -h     Print this message and exit.",
+        "",
+        "Environment variables:",
+        "  GODOT_PATH            Override the Godot binary path.",
+        "  GODOT_MCP_OFFLINE     Set to '1' or 'true' to disable all network calls.",
+        "  GODOT_DOCS_DB_PATH    Path to a pre-built docs .db file (skips version",
+        "                        resolution; for air-gapped installs).",
+        "  GODOT_MCP_MODEL_PATH  Path to a pre-downloaded embedding-model directory.",
+        "  GODOT_DOCS_VERSION    Pin the Godot docs version (e.g. '4.5', 'latest').",
+        "",
+        "See docs/installation.md for the full offline-installation procedure.",
+        "",
+      ].join("\n"),
+    );
+    process.exit(0);
+  }
+})();
 
 // Check if debug mode is enabled
 const DEBUG_MODE: boolean = process.env.DEBUG === "true";

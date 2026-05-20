@@ -32,11 +32,11 @@ describe("assertOnlineAllowed", () => {
 
   it("error message names the blocked operation so logs identify the call site", () => {
     try {
-      assertOnlineAllowed({ offline: true }, "codeload-tarball-fetch");
+      assertOnlineAllowed({ offline: true }, "codeload-engine-tarball-fetch");
       throw new Error("expected throw");
     } catch (e) {
       expect(e).toBeInstanceOf(OfflineModeError);
-      expect((e as Error).message).toMatch(/codeload-tarball-fetch/);
+      expect((e as Error).message).toMatch(/codeload-engine-tarball-fetch/);
       expect((e as Error).message).toMatch(/GODOT_MCP_OFFLINE/);
     }
   });
@@ -122,5 +122,16 @@ describe("resolveDocsDbPath", () => {
     // assertOnlineAllowed and *that* throws.
     const result = resolveDocsDbPath({ offline: true, docsVersion: "4.5" });
     expect(result.kind).toBe("resolve-required");
+  });
+
+  it("offline + docsDbPath override + no version → kind=override (bare-override happy path)", () => {
+    // Most common air-gap setup: set GODOT_DOCS_DB_PATH, leave everything else
+    // unset. Override wins regardless of offline flag and absent version.
+    const result = resolveDocsDbPath({
+      offline: true,
+      docsDbPath: "/tmp/x.db",
+      docsVersion: undefined,
+    });
+    expect(result).toEqual({ kind: "override", path: "/tmp/x.db" });
   });
 });

@@ -51,7 +51,12 @@ npm install -g godot-mcp
 # 2. Resolve the docs DB for the version you actually want. Replace 4.5
 #    with the X.Y you need. This triggers the network fetch and parse;
 #    the result is cached under your OS cache dir.
-GODOT_DOCS_VERSION=4.5 godot-mcp --help   # any invocation runs ingestion
+#
+#    NOTE: godot-mcp must be run by an MCP client to trigger ingestion;
+#    you cannot drive this from the CLI directly. As a workaround, start
+#    the server with your MCP client configured to GODOT_DOCS_VERSION=4.5
+#    and issue any docs tool call (e.g. search_docs), then stop it.
+GODOT_DOCS_VERSION=4.5 godot-mcp --version  # sanity-check the binary is reachable
 
 # 3. Trigger a tutorial search so the embedding model is downloaded into
 #    the HuggingFace cache. (Any docs tool call that hits the tutorial
@@ -100,19 +105,25 @@ a schema version that can change between godot-mcp releases.
 
 ### Verification
 
-With offline mode enabled, any forbidden network call fails fast with a
-clear error and exit code **2** (user error, distinct from exit 1 for
-runtime failures). To verify your setup is air-gap safe:
+`godot-mcp --version` exits immediately (it does not start the MCP stdio
+transport), so it is safe to use as a quick smoke test. With offline mode
+enabled, env-var misconfiguration is caught before the server starts and
+exits with code **2** (user error, distinct from exit 1 for runtime
+failures).
 
 ```sh
-# Should exit 0: bundled stable DB, no network needed.
+# Print the installed version — exits 0 immediately without touching stdin.
+godot-mcp --version
+
+# Should exit 0: env vars are valid; offline + no network-requiring version.
 GODOT_MCP_OFFLINE=1 godot-mcp --version
 
-# Should exit 2: 'latest' requires a GitHub Tags API call.
+# Should exit 2: 'latest' requires a GitHub Tags API call, which is
+# forbidden in offline mode.
 GODOT_MCP_OFFLINE=1 GODOT_DOCS_VERSION=latest godot-mcp --version
 ```
 
-The second invocation's error message names the env var combination that
+The third invocation's error message names the env var combination that
 failed and the four ways to resolve it (unset offline, pin to X.Y, use
 `GODOT_DOCS_DB_PATH`, or fall back to bundled `stable`).
 
