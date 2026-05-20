@@ -33,6 +33,8 @@ import {
   McpError,
 } from "@modelcontextprotocol/sdk/types.js";
 
+import { parseSharedEnv, OfflineModeError } from "./shared/env.js";
+
 // Check if debug mode is enabled
 const DEBUG_MODE: boolean = process.env.DEBUG === "true";
 const GODOT_DEBUG_MODE: boolean = true; // Always use GODOT DEBUG MODE
@@ -2334,6 +2336,27 @@ class GodotServer {
       process.exit(1);
     }
   }
+}
+
+// Validate shared env vars before the server constructor runs. Misconfigured
+// offline mode (e.g. GODOT_MCP_OFFLINE=1 + GODOT_DOCS_VERSION=latest) is a
+// user error per DESIGN.md L275 and exits with code 2 — distinct from runtime
+// failures which exit 1.
+//
+// This is the temporary wiring; #5 (shared infrastructure) will own the full
+// config-passing pipeline and route the parsed config into every subsystem.
+try {
+  parseSharedEnv(process.env);
+} catch (error: unknown) {
+  const message = error instanceof Error ? error.message : String(error);
+  const prefix =
+    error instanceof OfflineModeError
+      ? "[SERVER] Offline-mode configuration error"
+      : "[SERVER] Configuration error";
+  console.error(`${prefix}: ${message}`);
+  // Everything parseSharedEnv throws is user-input misconfiguration → exit 2
+  // per DESIGN.md L275 (distinct from exit 1 for runtime failures).
+  process.exit(2);
 }
 
 // Create and run the server
