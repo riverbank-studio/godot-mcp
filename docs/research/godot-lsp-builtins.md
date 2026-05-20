@@ -15,7 +15,7 @@ This document characterises what Godot's GDScript LSP returns from `textDocument
 **Recommended adapter strategy:** the empty-array response is **not** a "symbol not found" signal — it overlaps with the genuine no-result case. The adapter cannot distinguish "no symbol at cursor" from "symbol resolved to a native". Therefore the adapter must either:
 
 1. **Hover-first probe (recommended):** call `textDocument/hover` before `textDocument/definition` to disambiguate. Hover returns a populated `contents` for native symbols (it renders the native symbol's documentation). An empty-array `definition` response paired with a non-empty `hover` response means "native, redirect to docs".
-2. **Custom `textDocument/nativeSymbol` probe:** Godot exposes a non-standard custom JSON-RPC method (see §4.4) that returns the rendered docs for a `(native_class, symbol_name)` pair. Use this *after* resolving the class/symbol name via hover or completion data when redirecting.
+2. **Custom `textDocument/nativeSymbol` probe:** Godot exposes a non-standard custom JSON-RPC method (see §4.4) that returns the rendered docs for a `(native_class, symbol_name)` pair. Use this _after_ resolving the class/symbol name via hover or completion data when redirecting.
 
 The adapter should then redirect to `godot_find_member` in the docs subsystem with `class_name = <native_class>` and `member_name = <symbol_name>`, surfacing the result with `source: "docs"` per the DESIGN.md § Tool-specific behavior contract for `godot_find_definition`.
 
@@ -108,7 +108,7 @@ Two gates discard native symbols:
 1. **`location.uri.is_empty()` check** — native symbols never have a uri; gate fails.
 2. **`file_checker->file_exists(path)`** — even if a URI were synthesised, it would also have to pass a real filesystem readability check, so any `gdscript://` / `godot://` synthetic scheme would be rejected unless `get_file_path` mapped it to a real on-disk path.
 
-Note also that `r_list.push_back(symbol)` runs **regardless of URI presence**. The native symbol *is* tracked in the out-parameter; it is the JSON response that is empty. This is the key fact `declaration` exploits (see §3.3).
+Note also that `r_list.push_back(symbol)` runs **regardless of URI presence**. The native symbol _is_ tracked in the out-parameter; it is the JSON response that is empty. This is the key fact `declaration` exploits (see §3.3).
 
 ### 3.3 `declaration` has a hidden side-channel for natives
 
@@ -162,7 +162,7 @@ Hover does not gate on `uri`. A native symbol renders fine — `symbol->render()
 
 ### 3.5 References work, but only over user code
 
-`textDocument/references` resolves via `resolve_symbol` then calls `find_all_usages(*symbol)` (`gdscript_workspace.cpp`, ~line 473), which scans every `.gd` file under `res://`. The returned `Location[]` therefore consists of `file://` URIs pointing at the user's scripts where the native is *used* — never the engine source. There is no declaration entry in the array (the native has no `selectionRange` in any disk file).
+`textDocument/references` resolves via `resolve_symbol` then calls `find_all_usages(*symbol)` (`gdscript_workspace.cpp`, ~line 473), which scans every `.gd` file under `res://`. The returned `Location[]` therefore consists of `file://` URIs pointing at the user's scripts where the native is _used_ — never the engine source. There is no declaration entry in the array (the native has no `selectionRange` in any disk file).
 
 ---
 
@@ -170,18 +170,18 @@ Hover does not gate on `uri`. A native symbol renders fine — `symbol->render()
 
 The following table summarises expected response shapes for each LSP method, based on the source-code paths above. Until empirical verification (§6) is done, treat these as predicted shapes derived from source-code inference.
 
-| Symbol category                        | `definition`                    | `declaration`                                                    | `hover`            | `references`                                | `documentSymbol` |
-| -------------------------------------- | ------------------------------- | ---------------------------------------------------------------- | ------------------ | ------------------------------------------- | ---------------- |
-| User func/var (same file)              | `[{uri: "file://…", range: …}]` | same as definition                                               | populated          | user-code usages                            | included         |
-| User func/var (other file in project)  | `[{uri: "file://…", range: …}]` | same                                                             | populated          | user-code usages                            | not included     |
-| `Node.add_child` (native method)       | **`[]`**                        | `[]` + `gdscript/show_native_symbol` notification (out-of-band)  | populated          | user-code usages (no engine-side decl)      | n/a              |
-| `Vector2.length` (native method)       | **`[]`**                        | `[]` + notification                                              | populated          | user-code usages                            | n/a              |
-| `Dictionary.keys` (native method)      | **`[]`**                        | `[]` + notification                                              | populated *        | user-code usages                            | n/a              |
-| `RefCounted` (native class)            | **`[]`**                        | `[]` + notification                                              | populated          | user-code usages                            | n/a              |
-| Built-in constant (e.g. `INF`, `PI`)   | **`[]`**                        | `[]` + notification                                              | populated          | user-code usages                            | n/a              |
-| Built-in enum value                    | **`[]`**                        | `[]` + notification                                              | populated          | user-code usages                            | n/a              |
-| Autoload class name                    | `[{uri: "file://…", range: …}]` | same                                                             | populated          | user-code usages                            | included         |
-| Unknown / no symbol at cursor          | `[]`                            | `[]`                                                             | `null` / `{}`      | `[]`                                        | n/a              |
+| Symbol category                       | `definition`                    | `declaration`                                                   | `hover`       | `references`                           | `documentSymbol` |
+| ------------------------------------- | ------------------------------- | --------------------------------------------------------------- | ------------- | -------------------------------------- | ---------------- |
+| User func/var (same file)             | `[{uri: "file://…", range: …}]` | same as definition                                              | populated     | user-code usages                       | included         |
+| User func/var (other file in project) | `[{uri: "file://…", range: …}]` | same                                                            | populated     | user-code usages                       | not included     |
+| `Node.add_child` (native method)      | **`[]`**                        | `[]` + `gdscript/show_native_symbol` notification (out-of-band) | populated     | user-code usages (no engine-side decl) | n/a              |
+| `Vector2.length` (native method)      | **`[]`**                        | `[]` + notification                                             | populated     | user-code usages                       | n/a              |
+| `Dictionary.keys` (native method)     | **`[]`**                        | `[]` + notification                                             | populated \*  | user-code usages                       | n/a              |
+| `RefCounted` (native class)           | **`[]`**                        | `[]` + notification                                             | populated     | user-code usages                       | n/a              |
+| Built-in constant (e.g. `INF`, `PI`)  | **`[]`**                        | `[]` + notification                                             | populated     | user-code usages                       | n/a              |
+| Built-in enum value                   | **`[]`**                        | `[]` + notification                                             | populated     | user-code usages                       | n/a              |
+| Autoload class name                   | `[{uri: "file://…", range: …}]` | same                                                            | populated     | user-code usages                       | included         |
+| Unknown / no symbol at cursor         | `[]`                            | `[]`                                                            | `null` / `{}` | `[]`                                   | n/a              |
 
 `*` The Dictionary-specific error reported in [godot#111400](https://github.com/godotengine/godot/issues/111400) appears to be a downstream-client bug (the user's external editor failing to render hover contents for built-in container types), not a server-side regression — the server-side code path is identical to `Vector2`. We should still cover it explicitly in the integration fixture (§6) because the upstream report is recent and not closed.
 
@@ -219,7 +219,7 @@ In principle a client could call `textDocument/declaration` instead of (or in ad
 - It is a notification, not a response — correlating it to a specific in-flight request is fragile (no request id).
 - It only fires when `network/language_server/show_native_symbols_in_editor` is `false` in the running editor's settings. This setting is editor-side configuration we cannot guarantee from the LSP client; a user running their own editor alongside the headless LSP could have toggled it.
 
-The notification is still useful as a *secondary* signal — if the adapter sees it, that confirms native; but the adapter must not require it to function correctly.
+The notification is still useful as a _secondary_ signal — if the adapter sees it, that confirms native; but the adapter must not require it to function correctly.
 
 ### 4.4 Disambiguation via `textDocument/nativeSymbol` (custom method)
 
@@ -231,7 +231,7 @@ Godot registers a non-standard JSON-RPC method `textDocument/nativeSymbol` (`gds
 
 Returns the full `DocumentSymbol` JSON for the matched native symbol, or `null` if not found. This is **not a position-based query** — the caller must already know the class+symbol name (typically from hover-resolved name plus the symbol's containing class, or from completion-item `data`).
 
-This method is therefore most useful for *implementing the docs redirect's pre-flight check* ("is `Node.add_child` a known native?") rather than for routing the original cursor-based query. Our adapter doesn't strictly need it — once we know we have a native, we should hand off to the docs subsystem (`godot_find_member`) which has its own offline XML index — but it is a useful cross-check during development of the integration fixture.
+This method is therefore most useful for _implementing the docs redirect's pre-flight check_ ("is `Node.add_child` a known native?") rather than for routing the original cursor-based query. Our adapter doesn't strictly need it — once we know we have a native, we should hand off to the docs subsystem (`godot_find_member`) which has its own offline XML index — but it is a useful cross-check during development of the integration fixture.
 
 ---
 
@@ -388,7 +388,7 @@ Confirm `codeActionProvider` is still absent (per godot-proposals#14307 — DESI
 The following are not blockers for #20/#13 design but should be answered when the integration fixture is recorded:
 
 1. **Does hover for `Dictionary.keys` differ from `Vector2.length` server-side?** Source says no, but [godot#111400](https://github.com/godotengine/godot/issues/111400) reports user-visible differences. Likely client-side, but worth confirming on a single fixture.
-2. **Does `references` on a native method find usages in *script docstrings*?** `find_usages_in_file` does a token-stream scan over the script body; docstring comments shouldn't match but worth verifying.
+2. **Does `references` on a native method find usages in _script docstrings_?** `find_usages_in_file` does a token-stream scan over the script body; docstring comments shouldn't match but worth verifying.
 3. **Does `gdscript/show_native_symbol` notification fire in headless `--editor` mode at all?** The handler defers via `callable_mp(...).call_deferred()` which depends on the main loop; if headless cycles the main loop differently this may not arrive. (Probably fine — the headless editor still runs a main loop — but worth a test.)
 4. **What does `textDocument/nativeSymbol` return when only `native_class` is provided (no `symbol_name`)?** Source suggests it returns the class symbol itself (with children populated). Worth confirming for adapter use.
 
