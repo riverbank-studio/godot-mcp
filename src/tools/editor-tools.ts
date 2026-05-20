@@ -1,7 +1,6 @@
 /**
- * Editor-area tools: launching the Godot editor, running and stopping a
- * project, getting captured debug output, and reporting the installed Godot
- * version.
+ * Editor-area tools: godot_launch_editor, godot_run_project,
+ * godot_stop_project, godot_get_debug_output, godot_get_version.
  *
  * Each entry in `editorTools` is a `ToolDefinition` consumed by the
  * auto-discovery registry in `src/dispatch.ts`. Use `registerEditorTool`
@@ -117,7 +116,7 @@ async function handleLaunchEditor(
 }
 
 registerEditorTool({
-  name: "launch_editor",
+  name: "godot_launch_editor",
   description: "Launch Godot editor for a specific project",
   inputSchema: {
     type: "object",
@@ -231,7 +230,7 @@ async function handleRunProject(
       content: [
         {
           type: "text",
-          text: `Godot project started in debug mode. Use get_debug_output to see output.`,
+          text: `Godot project started in debug mode. Use godot_get_debug_output to see output.`,
         },
       ],
     };
@@ -246,7 +245,7 @@ async function handleRunProject(
 }
 
 registerEditorTool({
-  name: "run_project",
+  name: "godot_run_project",
   description: "Run the Godot project and capture output",
   inputSchema: {
     type: "object",
@@ -277,7 +276,7 @@ async function handleGetDebugOutput(
   const active = ctx.activeProcess.get();
   if (!active) {
     return createErrorResponse("No active Godot process.", [
-      "Use run_project to start a Godot project first",
+      "Use godot_run_project to start a Godot project first",
       "Check if the Godot process crashed unexpectedly",
     ]);
   }
@@ -297,7 +296,7 @@ async function handleGetDebugOutput(
 }
 
 registerEditorTool({
-  name: "get_debug_output",
+  name: "godot_get_debug_output",
   description: "Get the current debug output and errors",
   inputSchema: { type: "object", properties: {}, required: [] },
   handler: handleGetDebugOutput,
@@ -318,7 +317,7 @@ async function handleStopProject(
   const active = ctx.activeProcess.get();
   if (!active) {
     return createErrorResponse("No active Godot process to stop.", [
-      "Use run_project to start a Godot project first",
+      "Use godot_run_project to start a Godot project first",
       "The process may have already terminated",
     ]);
   }
@@ -347,7 +346,7 @@ async function handleStopProject(
 }
 
 registerEditorTool({
-  name: "stop_project",
+  name: "godot_stop_project",
   description: "Stop the currently running Godot project",
   inputSchema: { type: "object", properties: {}, required: [] },
   handler: handleStopProject,
@@ -389,7 +388,7 @@ async function handleGetGodotVersion(
 }
 
 registerEditorTool({
-  name: "get_godot_version",
+  name: "godot_get_version",
   description: "Get the installed Godot version",
   inputSchema: { type: "object", properties: {}, required: [] },
   handler: handleGetGodotVersion,

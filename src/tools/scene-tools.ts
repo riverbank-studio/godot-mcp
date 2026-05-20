@@ -1,6 +1,7 @@
 /**
- * Scene-area tools: create_scene, add_node, load_sprite, export_mesh_library,
- * save_scene. All five funnel through the bundled-GDScript execution path
+ * Scene-area tools: godot_create_scene, godot_add_node, godot_load_sprite,
+ * godot_export_mesh_library, godot_save_scene. All five funnel through the
+ * bundled-GDScript execution path
  * (`ctx.executeOperation`); none invoke Godot CLI flags directly.
  */
 
@@ -65,7 +66,7 @@ async function handleCreateScene(
         `Not a valid Godot project: ${args.projectPath}`,
         [
           "Ensure the path points to a directory containing a project.godot file",
-          "Use list_projects to find valid Godot projects",
+          "Use godot_list_projects to find valid Godot projects",
         ],
       );
     }
@@ -104,7 +105,7 @@ async function handleCreateScene(
 }
 
 registerSceneTool({
-  name: "create_scene",
+  name: "godot_create_scene",
   description: "Create a new Godot scene file",
   inputSchema: {
     type: "object",
@@ -167,7 +168,7 @@ async function handleAddNode(
         `Not a valid Godot project: ${args.projectPath}`,
         [
           "Ensure the path points to a directory containing a project.godot file",
-          "Use list_projects to find valid Godot projects",
+          "Use godot_list_projects to find valid Godot projects",
         ],
       );
     }
@@ -178,7 +179,7 @@ async function handleAddNode(
         `Scene file does not exist: ${args.scenePath}`,
         [
           "Ensure the scene path is correct",
-          "Use create_scene to create a new scene first",
+          "Use godot_create_scene to create a new scene first",
         ],
       );
     }
@@ -225,7 +226,7 @@ async function handleAddNode(
 }
 
 registerSceneTool({
-  name: "add_node",
+  name: "godot_add_node",
   description: "Add a node to an existing scene",
   inputSchema: {
     type: "object",
@@ -296,7 +297,7 @@ async function handleLoadSprite(
         `Not a valid Godot project: ${args.projectPath}`,
         [
           "Ensure the path points to a directory containing a project.godot file",
-          "Use list_projects to find valid Godot projects",
+          "Use godot_list_projects to find valid Godot projects",
         ],
       );
     }
@@ -306,7 +307,7 @@ async function handleLoadSprite(
         `Scene file does not exist: ${args.scenePath}`,
         [
           "Ensure the scene path is correct",
-          "Use create_scene to create a new scene first",
+          "Use godot_create_scene to create a new scene first",
         ],
       );
     }
@@ -359,7 +360,7 @@ async function handleLoadSprite(
 }
 
 registerSceneTool({
-  name: "load_sprite",
+  name: "godot_load_sprite",
   description: "Load a sprite into a Sprite2D node",
   inputSchema: {
     type: "object",
@@ -419,7 +420,7 @@ async function handleExportMeshLibrary(
         `Not a valid Godot project: ${args.projectPath}`,
         [
           "Ensure the path points to a directory containing a project.godot file",
-          "Use list_projects to find valid Godot projects",
+          "Use godot_list_projects to find valid Godot projects",
         ],
       );
     }
@@ -429,7 +430,7 @@ async function handleExportMeshLibrary(
         `Scene file does not exist: ${args.scenePath}`,
         [
           "Ensure the scene path is correct",
-          "Use create_scene to create a new scene first",
+          "Use godot_create_scene to create a new scene first",
         ],
       );
     }
@@ -476,7 +477,7 @@ async function handleExportMeshLibrary(
 }
 
 registerSceneTool({
-  name: "export_mesh_library",
+  name: "godot_export_mesh_library",
   description: "Export a scene as a MeshLibrary resource",
   inputSchema: {
     type: "object",
@@ -539,7 +540,7 @@ async function handleSaveScene(
         `Not a valid Godot project: ${args.projectPath}`,
         [
           "Ensure the path points to a directory containing a project.godot file",
-          "Use list_projects to find valid Godot projects",
+          "Use godot_list_projects to find valid Godot projects",
         ],
       );
     }
@@ -549,7 +550,7 @@ async function handleSaveScene(
         `Scene file does not exist: ${args.scenePath}`,
         [
           "Ensure the scene path is correct",
-          "Use create_scene to create a new scene first",
+          "Use godot_create_scene to create a new scene first",
         ],
       );
     }
@@ -592,7 +593,7 @@ async function handleSaveScene(
 }
 
 registerSceneTool({
-  name: "save_scene",
+  name: "godot_save_scene",
   description: "Save changes to a scene file",
   inputSchema: {
     type: "object",

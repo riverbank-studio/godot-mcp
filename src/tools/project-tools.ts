@@ -1,7 +1,7 @@
 /**
- * Project-area tools: list_projects, get_project_info, get_uid,
- * update_project_uids. UID tools require Godot 4.4+ — that check is enforced
- * here against the version Godot reports.
+ * Project-area tools: godot_list_projects, godot_get_project_info,
+ * godot_get_uid, godot_update_project_uids. UID tools require Godot 4.4+ —
+ * that check is enforced here against the version Godot reports.
  */
 
 import { execFile } from "node:child_process";
@@ -85,7 +85,7 @@ async function handleListProjects(rawArgs: unknown): Promise<ToolResponse> {
 }
 
 registerProjectTool({
-  name: "list_projects",
+  name: "godot_list_projects",
   description: "List Godot projects in a directory",
   inputSchema: {
     type: "object",
@@ -144,7 +144,7 @@ async function handleGetProjectInfo(
         `Not a valid Godot project: ${args.projectPath}`,
         [
           "Ensure the path points to a directory containing a project.godot file",
-          "Use list_projects to find valid Godot projects",
+          "Use godot_list_projects to find valid Godot projects",
         ],
       );
     }
@@ -190,7 +190,7 @@ async function handleGetProjectInfo(
 }
 
 registerProjectTool({
-  name: "get_project_info",
+  name: "godot_get_project_info",
   description: "Retrieve metadata about a Godot project",
   inputSchema: {
     type: "object",
@@ -245,7 +245,7 @@ async function handleGetUid(
         `Not a valid Godot project: ${args.projectPath}`,
         [
           "Ensure the path points to a directory containing a project.godot file",
-          "Use list_projects to find valid Godot projects",
+          "Use godot_list_projects to find valid Godot projects",
         ],
       );
     }
@@ -306,7 +306,7 @@ async function handleGetUid(
 }
 
 registerProjectTool({
-  name: "get_uid",
+  name: "godot_get_uid",
   description:
     "Get the UID for a specific file in a Godot project (for Godot 4.4+)",
   inputSchema: {
@@ -367,7 +367,7 @@ async function handleUpdateProjectUids(
         `Not a valid Godot project: ${args.projectPath}`,
         [
           "Ensure the path points to a directory containing a project.godot file",
-          "Use list_projects to find valid Godot projects",
+          "Use godot_list_projects to find valid Godot projects",
         ],
       );
     }
@@ -424,7 +424,7 @@ async function handleUpdateProjectUids(
 }
 
 registerProjectTool({
-  name: "update_project_uids",
+  name: "godot_update_project_uids",
   description:
     "Update UID references in a Godot project by resaving resources (for Godot 4.4+)",
   inputSchema: {
