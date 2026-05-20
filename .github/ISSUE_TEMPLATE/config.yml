@@ -1,0 +1,5 @@
+# Allow blank issues as an escape hatch alongside the structured templates.
+# The templates cover the common work-types in this repo (tool, research,
+# benchmark, epic, bug, drive-by); blank stays available for anything that
+# doesn't fit.
+blank_issues_enabled: true

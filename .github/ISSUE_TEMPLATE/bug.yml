@@ -1,0 +1,84 @@
+name: Bug report
+description: Something isn't working as expected
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for filing. The required fields below capture enough to reproduce; the optional fields help triage.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A concise description of the bug.
+      placeholder: e.g. godot_search_api returns an MCP error when query contains a non-ASCII character.
+    validations:
+      required: true
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Minimal reproduction. Include the MCP tool invocation and parameters.
+      placeholder: |
+        1. Invoke `godot_search_api` with `{"query": "Vector²", "inherits_from": "Node2D"}`
+        2. Server returns ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior (with output)
+      description: Paste the JSON response, error stack, MCP error code, or stderr log.
+      render: shell
+    validations:
+      required: true
+
+  - type: dropdown
+    id: subsystem
+    attributes:
+      label: Affected subsystem
+      options:
+        - foundation
+        - docs
+        - lsp
+        - build / install
+        - other / unsure
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: godot-mcp version
+      placeholder: "0.1.1 (from npm) or commit SHA if running from source"
+    validations:
+      required: true
+
+  - type: input
+    id: godot-version
+    attributes:
+      label: Godot version
+      placeholder: "e.g. 4.6.stable.official.89cea1439 (from `godot --version`)"
+
+  - type: input
+    id: env
+    attributes:
+      label: OS / Node version
+      placeholder: "e.g. Ubuntu 22.04, Node 24.1.0"
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Additional context (optional)
+      description: Hypotheses, related issues, what you've already tried.
