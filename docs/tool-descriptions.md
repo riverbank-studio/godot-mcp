@@ -6,14 +6,14 @@ The descriptions here are identical to those in `descriptions.ts`. They are orga
 
 ## Disambiguation matrix
 
-| Pair | Disambiguating signal |
-|------|-----------------------|
-| `godot_search_api` vs `godot_search_tutorials` | "API signatures / classes" vs "tutorials and guides / how-to" |
-| `godot_search_api` vs `godot_get_class` | "search matching a query" vs "look up by exact name" |
-| `godot_get_class` vs `godot_find_member` | "full API / explore a class" vs "one member / exact details" |
-| `godot_search_tutorials` vs `godot_get_tutorial` | "search to discover" vs "fetch a known path returned by search" |
-| `godot_get_class` vs `godot_docs_info` | "look up class content" vs "report loaded docs version/coverage" |
-| `godot_search_api` vs `godot_docs_info` | same axis as above |
+| Pair                                                                                        | Disambiguating signal                                                  |
+| ------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------- |
+| `godot_search_api` vs `godot_search_tutorials`                                              | "API signatures / classes" vs "tutorials and guides / how-to"          |
+| `godot_search_api` vs `godot_get_class`                                                     | "search matching a query" vs "look up by exact name"                   |
+| `godot_get_class` vs `godot_find_member`                                                    | "full API / explore a class" vs "one member / exact details"           |
+| `godot_search_tutorials` vs `godot_get_tutorial`                                            | "search to discover" vs "fetch a known path returned by search"        |
+| `godot_get_class` vs `godot_docs_info`                                                      | "look up class content" vs "report loaded docs version/coverage"       |
+| `godot_search_api` vs `godot_docs_info`                                                     | same axis as above                                                     |
 | `godot_find_definition` (user code) vs `godot_get_class` / `godot_find_member` (engine API) | "symbol in your GDScript project code" vs "built-in Godot engine type" |
 
 ---
@@ -36,12 +36,12 @@ Search the Godot Engine API reference for classes or members matching a query �
 
 ### Parameters
 
-| Name | Required | Description |
-|------|----------|-------------|
-| `query` | Recommended | Search query string. Matched against class names, member names, and brief descriptions using FTS5 full-text search. Leave empty only when using filters. |
-| `inherits_from` | No | Restrict results to classes that inherit (directly or transitively) from this class name. Example: `Node2D`. |
-| `category` | No | Restrict results to classes in this category. Common values: `2D`, `3D`, `Physics`, `Audio`, `Animation`, `UI`. |
-| `limit` | No | Maximum number of results to return. Default: 20. |
+| Name            | Required    | Description                                                                                                                                              |
+| --------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `query`         | Recommended | Search query string. Matched against class names, member names, and brief descriptions using FTS5 full-text search. Leave empty only when using filters. |
+| `inherits_from` | No          | Restrict results to classes that inherit (directly or transitively) from this class name. Example: `Node2D`.                                             |
+| `category`      | No          | Restrict results to classes in this category. Common values: `2D`, `3D`, `Physics`, `Audio`, `Animation`, `UI`.                                          |
+| `limit`         | No          | Maximum number of results to return. Default: 20.                                                                                                        |
 
 ### Example invocation
 
@@ -88,10 +88,10 @@ Look up a Godot built-in engine class by exact name to explore its full API — 
 
 ### Parameters
 
-| Name | Required | Description |
-|------|----------|-------------|
-| `class_name` | Yes | Exact name of the Godot class to look up. Case-insensitive with a "did you mean?" suggestion on mismatch. Example: `CharacterBody3D`. |
-| `include` | No | Comma-separated subset of sections to return. Valid values: `methods`, `properties`, `signals`, `constants`, `description`, `inheritance`. Omitting returns all sections. |
+| Name         | Required | Description                                                                                                                                                               |
+| ------------ | -------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `class_name` | Yes      | Exact name of the Godot class to look up. Case-insensitive with a "did you mean?" suggestion on mismatch. Example: `CharacterBody3D`.                                     |
+| `include`    | No       | Comma-separated subset of sections to return. Valid values: `methods`, `properties`, `signals`, `constants`, `description`, `inheritance`. Omitting returns all sections. |
 
 ### Example invocation
 
@@ -113,10 +113,18 @@ Look up a Godot built-in engine class by exact name to explore its full API — 
   "inherits": "PhysicsBody3D",
   "brief": "Specialized physics body for characters...",
   "methods": [
-    { "name": "move_and_slide", "signature": "bool move_and_slide()", "description": "..." }
+    {
+      "name": "move_and_slide",
+      "signature": "bool move_and_slide()",
+      "description": "..."
+    }
   ],
   "properties": [
-    { "name": "velocity", "type": "Vector3", "description": "Current movement velocity." }
+    {
+      "name": "velocity",
+      "type": "Vector3",
+      "description": "Current movement velocity."
+    }
   ]
 }
 ```
@@ -137,11 +145,11 @@ Look up exact details on one member (method, property, signal, or constant) of a
 
 ### Parameters
 
-| Name | Required | Description |
-|------|----------|-------------|
-| `class_name` | Yes | Name of the Godot class to search within. Example: `Node2D`. |
-| `member_name` | Yes | Name of the member to find. Example: `global_position` or `move_and_slide`. |
-| `kind` | No | Restrict results to one member kind: `method`, `property`, `signal`, or `constant`. When omitted, all matching members across all kinds are returned. |
+| Name          | Required | Description                                                                                                                                           |
+| ------------- | -------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `class_name`  | Yes      | Name of the Godot class to search within. Example: `Node2D`.                                                                                          |
+| `member_name` | Yes      | Name of the member to find. Example: `global_position` or `move_and_slide`.                                                                           |
+| `kind`        | No       | Restrict results to one member kind: `method`, `property`, `signal`, or `constant`. When omitted, all matching members across all kinds are returned. |
 
 ### Example invocation
 
@@ -188,10 +196,10 @@ Search Godot's tutorials and guides for how-to answers — prefer this over gues
 
 ### Parameters
 
-| Name | Required | Description |
-|------|----------|-------------|
-| `query` | Yes | Natural-language question or topic. Examples: "how do I move a character with physics", "collision layers and masks explained". |
-| `limit` | No | Maximum number of result chunks to return. Default: 5. |
+| Name    | Required | Description                                                                                                                     |
+| ------- | -------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| `query` | Yes      | Natural-language question or topic. Examples: "how do I move a character with physics", "collision layers and masks explained". |
+| `limit` | No       | Maximum number of result chunks to return. Default: 5.                                                                          |
 
 ### Example invocation
 
@@ -236,9 +244,9 @@ Fetch the full content of a Godot tutorial by its path — use this after `godot
 
 ### Parameters
 
-| Name | Required | Description |
-|------|----------|-------------|
-| `path` | Yes | Tutorial path as returned in `godot_search_tutorials` results. Example: `tutorials/3d/using_gridmaps.rst`. |
+| Name   | Required | Description                                                                                                |
+| ------ | -------- | ---------------------------------------------------------------------------------------------------------- |
+| `path` | Yes      | Tutorial path as returned in `godot_search_tutorials` results. Example: `tutorials/3d/using_gridmaps.rst`. |
 
 ### Example invocation
 
@@ -329,11 +337,11 @@ Find the definition of a symbol in your GDScript project code — for built-in G
 
 ### Parameters
 
-| Name | Required | Description |
-|------|----------|-------------|
-| `file` | Conditional | Absolute path to the GDScript (.gd or .gdshader) file. Required unless `symbol_name` is provided. |
-| `line` | Conditional | Line number of the symbol. **1-based:** line 1 is the first line of the file. Required when `file` is provided. |
-| `character` | Conditional | Column number of the symbol. **1-based:** column 1 is the first character. Required when `file` is provided. |
+| Name          | Required    | Description                                                                                                                             |
+| ------------- | ----------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `file`        | Conditional | Absolute path to the GDScript (.gd or .gdshader) file. Required unless `symbol_name` is provided.                                       |
+| `line`        | Conditional | Line number of the symbol. **1-based:** line 1 is the first line of the file. Required when `file` is provided.                         |
+| `character`   | Conditional | Column number of the symbol. **1-based:** column 1 is the first character. Required when `file` is provided.                            |
 | `symbol_name` | Conditional | Alternative to position-based lookup. Symbol name to resolve across the project. Use when you know the name but not the exact location. |
 
 ### Example invocation
@@ -378,12 +386,12 @@ Find all references to a GDScript symbol across your project — returns every l
 
 ### Parameters
 
-| Name | Required | Description |
-|------|----------|-------------|
-| `file` | Conditional | Absolute path to the GDScript (.gd) file containing the symbol. Required unless `symbol_name` is provided. |
-| `line` | Conditional | Line number of the symbol. **1-based:** line 1 is the first line of the file. |
-| `character` | Conditional | Column number of the symbol. **1-based:** column 1 is the first character. |
-| `symbol_name` | Conditional | Alternative to position-based lookup. Symbol name to find references to across the project. |
+| Name          | Required    | Description                                                                                                |
+| ------------- | ----------- | ---------------------------------------------------------------------------------------------------------- |
+| `file`        | Conditional | Absolute path to the GDScript (.gd) file containing the symbol. Required unless `symbol_name` is provided. |
+| `line`        | Conditional | Line number of the symbol. **1-based:** line 1 is the first line of the file.                              |
+| `character`   | Conditional | Column number of the symbol. **1-based:** column 1 is the first character.                                 |
+| `symbol_name` | Conditional | Alternative to position-based lookup. Symbol name to find references to across the project.                |
 
 ### Example invocation
 
@@ -405,7 +413,12 @@ Find all references to a GDScript symbol across your project — returns every l
   "references": [
     { "file": "scripts/player.gd", "line": 8, "character": 5 },
     { "file": "scripts/game.gd", "line": 33, "character": 12 },
-    { "file": "scripts/hud.gd", "line": 17, "character": 8, "source": "grep_fallback" }
+    {
+      "file": "scripts/hud.gd",
+      "line": 17,
+      "character": 8,
+      "source": "grep_fallback"
+    }
   ]
 }
 ```
@@ -424,12 +437,12 @@ Get hover information (type signature and inline documentation) for a GDScript s
 
 ### Parameters
 
-| Name | Required | Description |
-|------|----------|-------------|
-| `file` | Conditional | Absolute path to the GDScript (.gd or .gdshader) file. Required unless `symbol_name` is provided. |
-| `line` | Conditional | Line number of the symbol. **1-based:** line 1 is the first line of the file. |
-| `character` | Conditional | Column number of the symbol. **1-based:** column 1 is the first character. |
-| `symbol_name` | Conditional | Alternative to position-based lookup. Symbol name to fetch hover information for. |
+| Name          | Required    | Description                                                                                       |
+| ------------- | ----------- | ------------------------------------------------------------------------------------------------- |
+| `file`        | Conditional | Absolute path to the GDScript (.gd or .gdshader) file. Required unless `symbol_name` is provided. |
+| `line`        | Conditional | Line number of the symbol. **1-based:** line 1 is the first line of the file.                     |
+| `character`   | Conditional | Column number of the symbol. **1-based:** column 1 is the first character.                        |
+| `symbol_name` | Conditional | Alternative to position-based lookup. Symbol name to fetch hover information for.                 |
 
 ### Example invocation
 
@@ -470,9 +483,9 @@ List all symbols (functions, variables, classes, signals) declared in a single G
 
 ### Parameters
 
-| Name | Required | Description |
-|------|----------|-------------|
-| `file` | Yes | Absolute path to the GDScript (.gd or .gdshader) file. |
+| Name   | Required | Description                                            |
+| ------ | -------- | ------------------------------------------------------ |
+| `file` | Yes      | Absolute path to the GDScript (.gd or .gdshader) file. |
 
 ### Example invocation
 
@@ -513,9 +526,9 @@ Search for GDScript symbols by name across all tracked files in the project. Use
 
 ### Parameters
 
-| Name | Required | Description |
-|------|----------|-------------|
-| `query` | Yes | Substring to search for in symbol names. Case-insensitive. Example: `player_health`. |
+| Name    | Required | Description                                                                          |
+| ------- | -------- | ------------------------------------------------------------------------------------ |
+| `query` | Yes      | Substring to search for in symbol names. Case-insensitive. Example: `player_health`. |
 
 ### Example invocation
 
@@ -533,8 +546,18 @@ Search for GDScript symbols by name across all tracked files in the project. Use
 ```json
 {
   "symbols": [
-    { "name": "player_health", "kind": "variable", "file": "scripts/player.gd", "line": 5 },
-    { "name": "max_player_health", "kind": "constant", "file": "scripts/constants.gd", "line": 1 }
+    {
+      "name": "player_health",
+      "kind": "variable",
+      "file": "scripts/player.gd",
+      "line": 5
+    },
+    {
+      "name": "max_player_health",
+      "kind": "constant",
+      "file": "scripts/constants.gd",
+      "line": 1
+    }
   ]
 }
 ```
@@ -553,9 +576,9 @@ Get GDScript type errors, warnings, and parse errors for a specific file from Go
 
 ### Parameters
 
-| Name | Required | Description |
-|------|----------|-------------|
-| `file` | Yes | Absolute path to the GDScript (.gd) file to get diagnostics for. |
+| Name   | Required | Description                                                      |
+| ------ | -------- | ---------------------------------------------------------------- |
+| `file` | Yes      | Absolute path to the GDScript (.gd) file to get diagnostics for. |
 
 ### Example invocation
 
@@ -602,11 +625,11 @@ Get parameter signature help for a function call at a position in a GDScript fil
 
 ### Parameters
 
-| Name | Required | Description |
-|------|----------|-------------|
-| `file` | Yes | Absolute path to the GDScript (.gd) file. |
-| `line` | Yes | Line number of the cursor position inside the function call. **1-based:** line 1 is the first line of the file. |
-| `character` | Yes | Column number of the cursor position inside the function call. **1-based:** column 1 is the first character. |
+| Name        | Required | Description                                                                                                     |
+| ----------- | -------- | --------------------------------------------------------------------------------------------------------------- |
+| `file`      | Yes      | Absolute path to the GDScript (.gd) file.                                                                       |
+| `line`      | Yes      | Line number of the cursor position inside the function call. **1-based:** line 1 is the first line of the file. |
+| `character` | Yes      | Column number of the cursor position inside the function call. **1-based:** column 1 is the first character.    |
 
 ### Example invocation
 
@@ -658,13 +681,13 @@ Compute a rename of a GDScript symbol across the whole project — returns propo
 
 ### Parameters
 
-| Name | Required | Description |
-|------|----------|-------------|
-| `file` | Conditional | Absolute path to the GDScript (.gd) file containing the symbol to rename. Required unless `symbol_name` is provided. |
-| `line` | Conditional | Line number of the symbol to rename. **1-based:** line 1 is the first line of the file. |
-| `character` | Conditional | Column number of the symbol to rename. **1-based:** column 1 is the first character. |
-| `symbol_name` | Conditional | Alternative to position-based lookup. Symbol name to rename across the project. |
-| `new_name` | Yes | The new name to rename the symbol to. |
+| Name          | Required    | Description                                                                                                          |
+| ------------- | ----------- | -------------------------------------------------------------------------------------------------------------------- |
+| `file`        | Conditional | Absolute path to the GDScript (.gd) file containing the symbol to rename. Required unless `symbol_name` is provided. |
+| `line`        | Conditional | Line number of the symbol to rename. **1-based:** line 1 is the first line of the file.                              |
+| `character`   | Conditional | Column number of the symbol to rename. **1-based:** column 1 is the first character.                                 |
+| `symbol_name` | Conditional | Alternative to position-based lookup. Symbol name to rename across the project.                                      |
+| `new_name`    | Yes         | The new name to rename the symbol to.                                                                                |
 
 ### Example invocation
 
@@ -689,14 +712,26 @@ Compute a rename of a GDScript symbol across the whole project — returns propo
     {
       "file": "scripts/player.gd",
       "changes": [
-        { "line": 3, "before": "const MAX_SPEED = 200", "after": "const MOVEMENT_SPEED = 200" },
-        { "line": 22, "before": "    velocity = direction * MAX_SPEED", "after": "    velocity = direction * MOVEMENT_SPEED" }
+        {
+          "line": 3,
+          "before": "const MAX_SPEED = 200",
+          "after": "const MOVEMENT_SPEED = 200"
+        },
+        {
+          "line": 22,
+          "before": "    velocity = direction * MAX_SPEED",
+          "after": "    velocity = direction * MOVEMENT_SPEED"
+        }
       ]
     },
     {
       "file": "scripts/enemy.gd",
       "changes": [
-        { "line": 15, "before": "    if player.max_speed > 100:", "after": "    if player.movement_speed > 100:" }
+        {
+          "line": 15,
+          "before": "    if player.max_speed > 100:",
+          "after": "    if player.movement_speed > 100:"
+        }
       ]
     }
   ],

@@ -93,7 +93,9 @@ describe("disambiguation matrix", () => {
    * Signal: "API signatures / classes" vs "how-to questions / guides"
    */
   it('godot_search_api first sentence mentions "API" to signal API-signatures routing', () => {
-    const sentence = firstSentence(TOOL_DESCRIPTIONS.godot_search_api.description);
+    const sentence = firstSentence(
+      TOOL_DESCRIPTIONS.godot_search_api.description,
+    );
     expect(sentence.toLowerCase()).toContain("api");
   });
 
@@ -112,7 +114,9 @@ describe("disambiguation matrix", () => {
    * Signal: "find by query" vs "look up by name"
    */
   it('godot_search_api first sentence signals "search / query" (find by query)', () => {
-    const sentence = firstSentence(TOOL_DESCRIPTIONS.godot_search_api.description);
+    const sentence = firstSentence(
+      TOOL_DESCRIPTIONS.godot_search_api.description,
+    );
     expect(
       sentence.toLowerCase().includes("search") ||
         sentence.toLowerCase().includes("query") ||
@@ -121,7 +125,9 @@ describe("disambiguation matrix", () => {
   });
 
   it('godot_get_class first sentence signals "look up" or "exact name" (look up by name)', () => {
-    const sentence = firstSentence(TOOL_DESCRIPTIONS.godot_get_class.description);
+    const sentence = firstSentence(
+      TOOL_DESCRIPTIONS.godot_get_class.description,
+    );
     expect(
       sentence.toLowerCase().includes("look up") ||
         sentence.toLowerCase().includes("exact name"),
@@ -133,7 +139,9 @@ describe("disambiguation matrix", () => {
    * Signal: "explore a class" vs "exact details on one member"
    */
   it('godot_get_class first sentence signals "full API" or class-level exploration', () => {
-    const sentence = firstSentence(TOOL_DESCRIPTIONS.godot_get_class.description);
+    const sentence = firstSentence(
+      TOOL_DESCRIPTIONS.godot_get_class.description,
+    );
     expect(
       sentence.toLowerCase().includes("full api") ||
         sentence.toLowerCase().includes("explore") ||
@@ -142,7 +150,9 @@ describe("disambiguation matrix", () => {
   });
 
   it('godot_find_member first sentence signals "one member" or "exact details"', () => {
-    const sentence = firstSentence(TOOL_DESCRIPTIONS.godot_find_member.description);
+    const sentence = firstSentence(
+      TOOL_DESCRIPTIONS.godot_find_member.description,
+    );
     expect(
       sentence.toLowerCase().includes("one member") ||
         sentence.toLowerCase().includes("exact detail") ||
@@ -154,7 +164,7 @@ describe("disambiguation matrix", () => {
    * Pair: godot_search_tutorials vs godot_get_tutorial
    * Signal: "search to discover" vs "fetch a known path (returned by search)"
    */
-  it('godot_search_tutorials first sentence signals search/discovery, not fetching', () => {
+  it("godot_search_tutorials first sentence signals search/discovery, not fetching", () => {
     const sentence = firstSentence(
       TOOL_DESCRIPTIONS.godot_search_tutorials.description,
     );
@@ -164,8 +174,10 @@ describe("disambiguation matrix", () => {
     ).toBe(true);
   });
 
-  it('godot_get_tutorial first sentence signals fetching a known path', () => {
-    const sentence = firstSentence(TOOL_DESCRIPTIONS.godot_get_tutorial.description);
+  it("godot_get_tutorial first sentence signals fetching a known path", () => {
+    const sentence = firstSentence(
+      TOOL_DESCRIPTIONS.godot_get_tutorial.description,
+    );
     expect(
       sentence.toLowerCase().includes("fetch") ||
         sentence.toLowerCase().includes("path"),
@@ -176,8 +188,10 @@ describe("disambiguation matrix", () => {
    * Pair: godot_get_class / godot_search_api vs godot_docs_info
    * Signal: "look up content" vs "report loaded docs version/coverage"
    */
-  it('godot_docs_info first sentence signals metadata / version, not content lookup', () => {
-    const sentence = firstSentence(TOOL_DESCRIPTIONS.godot_docs_info.description);
+  it("godot_docs_info first sentence signals metadata / version, not content lookup", () => {
+    const sentence = firstSentence(
+      TOOL_DESCRIPTIONS.godot_docs_info.description,
+    );
     expect(
       sentence.toLowerCase().includes("version") ||
         sentence.toLowerCase().includes("coverage") ||
@@ -200,7 +214,7 @@ describe("disambiguation matrix", () => {
     ).toBe(true);
   });
 
-  it('godot_find_definition description tells agents to use godot_get_class for built-in types', () => {
+  it("godot_find_definition description tells agents to use godot_get_class for built-in types", () => {
     const { description } = TOOL_DESCRIPTIONS.godot_find_definition;
     expect(
       description.toLowerCase().includes("godot_get_class") ||

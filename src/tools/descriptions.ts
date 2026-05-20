@@ -235,7 +235,7 @@ export const TOOL_DESCRIPTIONS: Record<V1ToolName, ToolDescription> = {
       "Find the definition of a symbol in your GDScript project code — for built-in Godot engine types use `godot_get_class` or `godot_find_member` instead. " +
       "Accepts either a file position (`file`, `line`, `character`) or a `symbol_name` for symbol-based lookup. " +
       "Returns an array of definition locations; empty array when no definition is found (never an MCP error). " +
-      "When a position resolves to a built-in Godot type (`gdscript://` URI), the result is automatically redirected to the docs subsystem with `source: \"docs\"`.",
+      'When a position resolves to a built-in Godot type (`gdscript://` URI), the result is automatically redirected to the docs subsystem with `source: "docs"`.',
     params: {
       file: {
         description:
@@ -375,8 +375,7 @@ export const TOOL_DESCRIPTIONS: Record<V1ToolName, ToolDescription> = {
       "and on multi-line argument lists (godot#51617).",
     params: {
       file: {
-        description:
-          "Absolute path to the GDScript (.gd) file.",
+        description: "Absolute path to the GDScript (.gd) file.",
       },
       line: {
         description:
