@@ -32,4 +32,27 @@ try {
   process.exit(1);
 }
 
+// Copy the data/ directory (Godot release hash manifest + schema) into
+// build/data/. The manifest is read at runtime by the docs ingestion
+// pipeline (src/docs/integrity.ts) to verify tarball SHAs, so it must
+// ship inside the published tarball — see docs/supply-chain.md.
+try {
+  const dataSrc = path.join(__dirname, "..", "data");
+  const dataDst = path.join(__dirname, "..", "build", "data");
+  if (fs.existsSync(dataSrc)) {
+    fs.ensureDirSync(dataDst);
+    for (const entry of fs.readdirSync(dataSrc)) {
+      // Only ship JSON files — leaves room for future non-shippable data
+      // (e.g. test fixtures, reports) to live in data/ without bloating npm.
+      if (entry.endsWith(".json")) {
+        fs.copyFileSync(path.join(dataSrc, entry), path.join(dataDst, entry));
+      }
+    }
+    console.log("Successfully copied data/*.json to build/data");
+  }
+} catch (error) {
+  console.error("Error copying data files:", error);
+  process.exit(1);
+}
+
 console.log("Build scripts completed successfully!");

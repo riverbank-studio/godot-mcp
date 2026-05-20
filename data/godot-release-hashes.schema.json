@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/riverbank-studio/godot-mcp/blob/main/data/godot-release-hashes.schema.json",
+  "title": "Godot release hash manifest",
+  "description": "Pinned SHA-256 hashes of godotengine/godot and godotengine/godot-docs source tarballs, keyed by the upstream git tag.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "$comment": { "type": "string" }
+  },
+  "patternProperties": {
+    "^[0-9]+\\.[0-9]+(?:\\.[0-9]+)?-(?:stable|beta[0-9]+|rc[0-9]+|dev[0-9]+)$": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["godot", "godot-docs-branch", "godot-docs"],
+      "properties": {
+        "godot": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "description": "SHA-256 of https://codeload.github.com/godotengine/godot/tar.gz/refs/tags/{tag}"
+        },
+        "godot-docs-branch": {
+          "type": "string",
+          "description": "Branch name in godotengine/godot-docs corresponding to this engine tag (e.g. '4.5' for tag '4.5-stable')."
+        },
+        "godot-docs": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$",
+          "description": "SHA-256 of https://codeload.github.com/godotengine/godot-docs/tar.gz/refs/heads/{godot-docs-branch}"
+        }
+      }
+    }
+  },
+  "additionalProperties": false
+}
