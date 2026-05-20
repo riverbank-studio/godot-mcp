@@ -26,3 +26,6 @@ Thumbs.db
 
 # Coverage directory
 coverage/
+
+# Orchestrator runtime state (see docs/orchestration-plan.md)
+.orchestrator/
