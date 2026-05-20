@@ -78,7 +78,7 @@ The `get_godot_version` → `godot_get_version` change drops a redundant "godot"
 
 1. **`godot_search_api`** — Search the Godot Engine API reference. Supports optional `inherits_from` and `category` filters. Empty query with no filters returns `{results: [], hint}` (not an error), so agents can recover without an error-handling branch.
 2. **`godot_get_class`** — Look up a specific Godot class by name. Returns full structured record with optional `include` parameter for subset selection (methods, properties, signals, constants, description, inheritance).
-3. **`godot_find_member`** — Look up a method, property, signal, or constant on a class. Returns array of matches when `kind` is unspecified (cross-kind name collisions return all hits). _(Originally proposed as `godot_get_member`; renamed in Wave 2 because the singular noun contradicted the array-return semantics and the `find_*` family naming makes routing easier for LSP-trained agents.)_
+3. **`godot_find_member`** — Look up a method, property, signal, or constant on a class. Returns array of matches when `kind` is unspecified (cross-kind name collisions return all hits). Originally proposed as `godot_get_member`; renamed in Wave 2 because the singular noun contradicted the array-return semantics and the `find_*` family naming makes routing easier for LSP-trained agents.
 4. **`godot_search_tutorials`** — Search Godot's tutorials and guides (prose docs). Hybrid lexical + dense retrieval.
 5. **`godot_get_tutorial`** — Fetch a specific tutorial by path returned from `godot_search_tutorials`.
 6. **`godot_docs_info`** — Get information about the documentation currently loaded (version, source, indexed_at, class count, tutorial count, ingestion warnings, embedding model id, source SHAs).
@@ -136,34 +136,34 @@ All configuration via environment variables. No config file.
 | -------------------------------------- | ------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `GODOT_DOCS_VERSION`                   | `stable`                  | Which Godot version's docs to serve. Accepts `stable`, `latest`, or `X.Y` (e.g., `4.5`). Patch versions and pre-releases rejected. Godot 3.x not supported in v1 — versions `<4.0` rejected (see Future Work). |
 | `GODOT_DOCS_FAILURE_THRESHOLD_PERCENT` | `5` at runtime, `0` in CI | Maximum percentage of files allowed to fail parsing before ingestion fails.                                                                                                                                    |
-| `GODOT_DOCS_EAGER_INIT`                | `false`                   | Preload the embedding model in the background after server init, hiding the ~2–4s ONNX cold-start cost from the first tutorial search.                                                                          |
-| `GODOT_DOCS_DB_PATH`                   | unset                     | Override the resolved DB path with a pre-built `.db` file. Skips version resolution; schema integrity check still runs. Useful for offline installs.                                                            |
-| `GODOT_DOCS_TARBALL_HASH_OVERRIDE`     | unset                     | Override the `data/godot-release-hashes.json` manifest for a single ingestion. Rare — needed only for forks with non-upstream tarballs.                                                                         |
+| `GODOT_DOCS_EAGER_INIT`                | `false`                   | Preload the embedding model in the background after server init, hiding the ~2–4s ONNX cold-start cost from the first tutorial search.                                                                         |
+| `GODOT_DOCS_DB_PATH`                   | unset                     | Override the resolved DB path with a pre-built `.db` file. Skips version resolution; schema integrity check still runs. Useful for offline installs.                                                           |
+| `GODOT_DOCS_TARBALL_HASH_OVERRIDE`     | unset                     | Override the `data/godot-release-hashes.json` manifest for a single ingestion. Rare — needed only for forks with non-upstream tarballs.                                                                        |
 
 ### LSP subsystem
 
-| Variable                          | Default     | Purpose                                                                                                                                              |
-| --------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `GODOT_LSP_PORT`                  | `6005`      | Starting port for headless Godot LSP. Scans upward if in use.                                                                                        |
-| `GODOT_LSP_PROJECT_PATH`          | auto-detect | Project root. Auto-detect walks up from cwd looking for `project.godot`.                                                                             |
-| `GODOT_LSP_EAGER_INIT`            | `false`     | Spawn headless Godot at MCP startup instead of on first LSP call. **Recommended `true` for interactive agent use** — see Process management § Spawn lifecycle. |
-| `GODOT_LSP_SPAWN_RESET_MINUTES`   | `30`        | If no spawn cycle has occurred in N minutes, the spawn-cycle counter resets (windowed cap; complements the on-successful-handshake reset).            |
-| `GODOT_LSP_DIAGNOSTIC_FIRST_MS`   | `10000`     | First-touch `publishDiagnostics` await timeout per file URI in a session.                                                                            |
-| `GODOT_LSP_DIAGNOSTIC_STEADY_MS`  | `2000`      | Steady-state `publishDiagnostics` await timeout (after the first touch).                                                                             |
+| Variable                         | Default     | Purpose                                                                                                                                                        |
+| -------------------------------- | ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GODOT_LSP_PORT`                 | `6005`      | Starting port for headless Godot LSP. Scans upward if in use.                                                                                                  |
+| `GODOT_LSP_PROJECT_PATH`         | auto-detect | Project root. Auto-detect walks up from cwd looking for `project.godot`.                                                                                       |
+| `GODOT_LSP_EAGER_INIT`           | `false`     | Spawn headless Godot at MCP startup instead of on first LSP call. **Recommended `true` for interactive agent use** — see Process management § Spawn lifecycle. |
+| `GODOT_LSP_SPAWN_RESET_MINUTES`  | `30`        | If no spawn cycle has occurred in N minutes, the spawn-cycle counter resets (windowed cap; complements the on-successful-handshake reset).                     |
+| `GODOT_LSP_DIAGNOSTIC_FIRST_MS`  | `10000`     | First-touch `publishDiagnostics` await timeout per file URI in a session.                                                                                      |
+| `GODOT_LSP_DIAGNOSTIC_STEADY_MS` | `2000`      | Steady-state `publishDiagnostics` await timeout (after the first touch).                                                                                       |
 
 `GODOT_LSP_HOST` was considered and **removed**: Godot's LSP has no authentication, so the host is hardcoded to `127.0.0.1` (loopback) to prevent WSL/devcontainer users from accidentally binding to `0.0.0.0` and exposing the LSP to the LAN.
 
 ### Shared
 
-| Variable                  | Default                  | Purpose                                                                                                                                                                  |
-| ------------------------- | ------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `GODOT_PATH`              | inherited from fork      | Path to Godot binary. Used for both editor launch (existing tools) and headless LSP spawn (new).                                                                         |
-| `GODOT_MCP_LOG_LEVEL`     | `info`                   | Stderr log verbosity. Levels: `silent`, `error`, `warn`, `info`, `debug`. At `info`, headless Godot's stdout/stderr is filtered to warn/error only; `debug` forwards all. |
-| `GODOT_MCP_OFFLINE`       | unset                    | Set to `1` to disable all runtime network calls (no GitHub Tags API, no tarball fetch, no model download). `GODOT_DOCS_VERSION=latest` errors out under this mode.        |
-| `GODOT_MCP_MODEL_PATH`    | unset                    | Override path for the embedding model ONNX files (offline-install support).                                                                                              |
-| `GODOT_MCP_TRACE_QUERIES` | unset                    | Set to `1` to capture verbatim query strings in OTel traces. Default behavior is length-hashing for privacy.                                                             |
-| `GITHUB_TOKEN`            | unset (auto in Actions)  | Bearer token for the GitHub Tags API. Boosts from 60 req/hr unauthenticated to 5,000 req/hr. CI environments auto-detect.                                                |
-| `OTEL_SDK_DISABLED`       | unset                    | Standard OTel env var. Set to `true` to disable telemetry instrumentation entirely.                                                                                      |
+| Variable                  | Default                 | Purpose                                                                                                                                                                   |
+| ------------------------- | ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `GODOT_PATH`              | inherited from fork     | Path to Godot binary. Used for both editor launch (existing tools) and headless LSP spawn (new).                                                                          |
+| `GODOT_MCP_LOG_LEVEL`     | `info`                  | Stderr log verbosity. Levels: `silent`, `error`, `warn`, `info`, `debug`. At `info`, headless Godot's stdout/stderr is filtered to warn/error only; `debug` forwards all. |
+| `GODOT_MCP_OFFLINE`       | unset                   | Set to `1` to disable all runtime network calls (no GitHub Tags API, no tarball fetch, no model download). `GODOT_DOCS_VERSION=latest` errors out under this mode.        |
+| `GODOT_MCP_MODEL_PATH`    | unset                   | Override path for the embedding model ONNX files (offline-install support).                                                                                               |
+| `GODOT_MCP_TRACE_QUERIES` | unset                   | Set to `1` to capture verbatim query strings in OTel traces. Default behavior is length-hashing for privacy.                                                              |
+| `GITHUB_TOKEN`            | unset (auto in Actions) | Bearer token for the GitHub Tags API. Boosts from 60 req/hr unauthenticated to 5,000 req/hr. CI environments auto-detect.                                                 |
+| `OTEL_SDK_DISABLED`       | unset                   | Standard OTel env var. Set to `true` to disable telemetry instrumentation entirely.                                                                                       |
 
 ## Architecture
 
@@ -366,6 +366,7 @@ From inspection of [`gdscript_language_protocol.cpp`](https://github.com/godoten
 **Supported:** `textDocumentSync` = `Full` (1; no incremental), `hoverProvider`, `definitionProvider`, `referencesProvider`, `documentSymbolProvider`, `signatureHelpProvider`, `renameProvider`, `completionProvider`, `codeLensProvider`, `documentHighlightProvider`, `foldingRangeProvider`, `documentLinkProvider`, `colorPresentationProvider`.
 
 **NOT supported:**
+
 - `codeActionProvider` — open at [godot-proposals#14307](https://github.com/godotengine/godot-proposals/issues/14307); reason `godot_code_actions`/`godot_preview_code_action` are deferred to v1.1.
 - `workspaceSymbolProvider` — claims support but de-facto broken ([godot-vscode-plugin#989](https://github.com/godotengine/godot-vscode-plugin/issues/989)); the per-server adapter shims this with a union of `documentSymbol` over tracked-open `.gd` files.
 - `semanticTokensProvider`, `inlayHintProvider`.
@@ -563,16 +564,16 @@ The model used in v1 is **BGE-small-en-v1.5** (384-dim, 512-token context, MIT l
 
 #### Supported platform matrix
 
-| Platform                          | `better-sqlite3` | `sqlite-vec` | `@huggingface/transformers` |
-| --------------------------------- | ---------------- | ------------ | --------------------------- |
-| Linux x64 (glibc)                 | ✅                | ✅            | ✅                           |
-| Linux arm64 (glibc)               | ✅                | ✅            | ✅                           |
-| Linux x64 (musl / Alpine)         | ✅                | ❌ ([PR #199](https://github.com/asg017/sqlite-vec/pull/199)) | ❌                           |
-| Linux arm64 (musl)                | ✅                | ❌            | ❌                           |
-| macOS x64                         | ✅                | ✅            | ✅                           |
-| macOS arm64                       | ✅                | ✅            | ✅                           |
-| Windows x64                       | ✅                | ✅            | ✅                           |
-| Windows arm64                     | ✅                | ❌ ([PR #271](https://github.com/asg017/sqlite-vec/pull/271)) | varies by version           |
+| Platform                  | `better-sqlite3` | `sqlite-vec`                                                  | `@huggingface/transformers` |
+| ------------------------- | ---------------- | ------------------------------------------------------------- | --------------------------- |
+| Linux x64 (glibc)         | ✅               | ✅                                                            | ✅                          |
+| Linux arm64 (glibc)       | ✅               | ✅                                                            | ✅                          |
+| Linux x64 (musl / Alpine) | ✅               | ❌ ([PR #199](https://github.com/asg017/sqlite-vec/pull/199)) | ❌                          |
+| Linux arm64 (musl)        | ✅               | ❌                                                            | ❌                          |
+| macOS x64                 | ✅               | ✅                                                            | ✅                          |
+| macOS arm64               | ✅               | ✅                                                            | ✅                          |
+| Windows x64               | ✅               | ✅                                                            | ✅                          |
+| Windows arm64             | ✅               | ❌ ([PR #271](https://github.com/asg017/sqlite-vec/pull/271)) | varies by version           |
 
 #### Unsupported platforms
 
