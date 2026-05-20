@@ -1,0 +1,82 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  # Cancel in-progress runs on PR branches when a new commit arrives; never cancel main.
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  ci:
+    name: build + test + lint (Ubuntu, Node 24, Godot 4.6-stable)
+    runs-on: ubuntu-latest
+
+    env:
+      # Bump this single line when upgrading. Once #47 (godot-release-hashes.json)
+      # lands, the workflow should read from that manifest instead of hard-coding.
+      GODOT_VERSION: 4.6-stable
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      - name: Cache Godot binary
+        id: godot-cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ runner.tool_cache }}/godot
+          key: godot-${{ env.GODOT_VERSION }}-linux-x86_64
+
+      - name: Download Godot ${{ env.GODOT_VERSION }} (Linux x86_64)
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euxo pipefail
+          mkdir -p "${{ runner.tool_cache }}/godot"
+          curl -fsSL -o /tmp/godot.zip \
+            "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          unzip -q /tmp/godot.zip -d /tmp/godot-extract
+          mv "/tmp/godot-extract/Godot_v${GODOT_VERSION}_linux.x86_64" "${{ runner.tool_cache }}/godot/godot"
+          chmod +x "${{ runner.tool_cache }}/godot/godot"
+          rm -rf /tmp/godot.zip /tmp/godot-extract
+
+      - name: Expose Godot on PATH
+        run: echo "${{ runner.tool_cache }}/godot" >> "$GITHUB_PATH"
+
+      - name: Godot smoke — godot --version
+        run: |
+          set -euxo pipefail
+          godot --headless --version | tee godot-version.txt
+          grep -Eq '^4\.6' godot-version.txt
+
+      - name: Test
+        env:
+          # Tools that shell out to Godot read this env var via detectGodotPath().
+          # Tests don't actually invoke Godot yet — added now so it's wired when
+          # real tool tests land in Wave 4.
+          GODOT_PATH: ${{ runner.tool_cache }}/godot/godot
+        run: npm test
