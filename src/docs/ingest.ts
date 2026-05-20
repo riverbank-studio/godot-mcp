@@ -234,10 +234,13 @@ export async function fetchAndParseVersion(
     }
   }
 
-  // Parse all class XML, tracking per-file failures.
+  // Parse all class XML, tracking per-file failures. The first (and
+  // only) pass attaches `class_name` to each member at construction
+  // time so the SQL writer can run `INSERT INTO members(class_name,
+  // ...)` without a separate join pass over the ~700 XML files.
   onStage("parse.classes");
   const classes: ParsedClass[] = [];
-  const members: ParsedMember[] = [];
+  const memberRows: Array<ParsedMember & { class_name: string }> = [];
   const classWarnings: string[] = [];
   let classFailed = 0;
   for (const entry of classEntries) {
@@ -245,28 +248,13 @@ export async function fetchAndParseVersion(
       const r = parseClassXml(entry.xml);
       classes.push(r.cls);
       for (const m of r.members) {
-        // Stash class_name alongside the member for the schema writer.
-        members.push({ ...m, name: m.name });
+        memberRows.push({ ...m, class_name: r.cls.name });
       }
-      // Hold the class_name in a parallel array — we re-attach below.
     } catch (err) {
       classFailed += 1;
       classWarnings.push(
         `${entry.filename}: ${err instanceof Error ? err.message : String(err)}`,
       );
-    }
-  }
-  // Re-walk the entries in order to pair each member with its class_name.
-  // Cheapest fix: re-parse the valid entries, tracking class_name → members.
-  const memberRows: Array<ParsedMember & { class_name: string }> = [];
-  for (const entry of classEntries) {
-    try {
-      const r = parseClassXml(entry.xml);
-      for (const m of r.members) {
-        memberRows.push({ ...m, class_name: r.cls.name });
-      }
-    } catch {
-      // Already counted above.
     }
   }
 

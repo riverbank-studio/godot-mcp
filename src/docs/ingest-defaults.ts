@@ -34,16 +34,38 @@ import { retryWithBackoff, isRetryableHttpStatus } from "./retry.js";
 import type { ClassXmlEntry, FetcherInput } from "./ingest.js";
 import { buildTarballUrl } from "./ingest.js";
 import type { RstBlock, RstPage } from "./chunking.js";
+import { assertOnlineAllowed } from "../shared/network-guard.js";
 
 /**
  * Fetch a tarball with the documented retry policy. Uses `node:https`
  * directly (one fewer dep than node-fetch / undici) and surfaces the
  * status code on the thrown error so `retry`'s 4xx/5xx classifier
  * routes correctly.
+ *
+ * Offline-mode enforcement
+ * ------------------------
+ * This is the actual network call site for the engine and docs
+ * tarballs, so it owns the `assertOnlineAllowed` invocation. The gate
+ * fires *before* any retry attempt — `OfflineModeError` is not a
+ * retryable status, so leaking it through the retry wrapper would
+ * waste user time, but more importantly: a single early throw matches
+ * what the docs subsystem expects for offline mode.
+ *
+ * The parse-time check in `parseSharedEnv` only catches the
+ * `offline + GODOT_DOCS_VERSION=latest` case (because `latest` requires
+ * a Tags-API resolution). With an explicit `X.Y`, the cache might hit
+ * and the request never reaches us; but if the cache misses and we get
+ * called, this guard catches the bypass.
  */
 export async function fetchTarballWithRetry(
   input: FetcherInput,
+  opts: { offline: boolean },
 ): Promise<Buffer> {
+  const operation =
+    input.asset === "engine"
+      ? "codeload-engine-tarball-fetch"
+      : "codeload-docs-tarball-fetch";
+  assertOnlineAllowed({ offline: opts.offline }, operation);
   const url = buildTarballUrl(input);
   return retryWithBackoff(() => fetchTarballOnce(url));
 }

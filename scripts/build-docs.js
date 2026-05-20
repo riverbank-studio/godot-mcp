@@ -49,6 +49,7 @@ import {
 import { createStubEmbedder } from "../build/docs/embed.js";
 import { parseDocsVersion } from "../build/docs/version-manager.js";
 import { loadHashManifest } from "../build/docs/integrity.js";
+import { parseSharedEnv } from "../build/shared/env.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -119,6 +120,21 @@ if (fs.existsSync(manifestPath)) {
 
 const embedder = createStubEmbedder();
 
+// Parse the shared env once so the offline flag flows into the
+// fetcher's `assertOnlineAllowed` gate. `parseSharedEnv` itself
+// throws OfflineModeError for offline+latest; we already rejected
+// `latest` above for build:docs, so any throw here is a different
+// env-config error and exit 2 is correct.
+let sharedEnv;
+try {
+  sharedEnv = parseSharedEnv(process.env);
+} catch (err) {
+  console.error(
+    `build:docs: ${err instanceof Error ? err.message : String(err)}`,
+  );
+  process.exit(2);
+}
+
 console.error(
   `[build:docs] starting ingestion for ${version.major}.${version.minor} → ${outputPath} (threshold=${failureThresholdPercent}%)`,
 );
@@ -126,7 +142,8 @@ console.error(
 try {
   const report = await fetchAndParseVersion(version, outputPath, {
     manifest,
-    fetcher: fetchTarballWithRetry,
+    fetcher: (input) =>
+      fetchTarballWithRetry(input, { offline: sharedEnv.offline }),
     extractClasses: extractClassesFromTarball,
     extractTutorials: extractTutorialPagesFromTarball,
     embedder,
@@ -152,6 +169,8 @@ try {
   if (
     name === "VersionParseError" ||
     name === "IntegrityError" ||
+    name === "OfflineModeError" ||
+    name === "EnvParseError" ||
     /threshold/.test(err instanceof Error ? err.message : "")
   ) {
     process.exit(2);

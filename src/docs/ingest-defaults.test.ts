@@ -4,11 +4,18 @@
  * Network-fetcher + tarball extractors are tested via integration in
  * the build script; here we focus on the small RST-parsing surface
  * because that's where Godot-docs-shape assumptions are encoded.
+ *
+ * The offline-mode guard at the real network call site
+ * (`fetchTarballWithRetry`) is also covered here — without an offline
+ * check at this layer, `GODOT_MCP_OFFLINE=1` combined with an explicit
+ * `GODOT_DOCS_VERSION=X.Y` leaks past the parse-time guard in
+ * `parseSharedEnv` (which only catches offline+latest).
  */
 
 import { describe, it, expect } from "vitest";
 
-import { parseRstPage } from "./ingest-defaults.js";
+import { fetchTarballWithRetry, parseRstPage } from "./ingest-defaults.js";
+import { OfflineModeError } from "../shared/network-guard.js";
 
 describe("parseRstPage — headings", () => {
   it("treats === underline as H1 and uses it for the title", () => {
@@ -107,5 +114,47 @@ describe("parseRstPage — empty input", () => {
     const r = parseRstPage("foo.rst", "");
     expect(r.content).toEqual([]);
     expect(r.title).toBe("foo.rst");
+  });
+});
+
+describe("fetchTarballWithRetry — offline-mode guard", () => {
+  // These tests assert that the offline gate fires *before* any network
+  // call is attempted. They never reach `https.get` because
+  // `assertOnlineAllowed` throws synchronously inside the retry
+  // wrapper's first attempt.
+  it("throws OfflineModeError for engine tarball when offline=true (explicit X.Y bypass)", async () => {
+    await expect(
+      fetchTarballWithRetry(
+        { asset: "engine", tag: "4.5-stable" },
+        { offline: true },
+      ),
+    ).rejects.toBeInstanceOf(OfflineModeError);
+  });
+
+  it("throws OfflineModeError for docs tarball when offline=true", async () => {
+    await expect(
+      fetchTarballWithRetry(
+        { asset: "docs", branch: "4.5" },
+        { offline: true },
+      ),
+    ).rejects.toBeInstanceOf(OfflineModeError);
+  });
+
+  it("names the operation in the error message (engine)", async () => {
+    await expect(
+      fetchTarballWithRetry(
+        { asset: "engine", tag: "4.5-stable" },
+        { offline: true },
+      ),
+    ).rejects.toThrow(/codeload-engine-tarball-fetch/);
+  });
+
+  it("names the operation in the error message (docs)", async () => {
+    await expect(
+      fetchTarballWithRetry(
+        { asset: "docs", branch: "4.5" },
+        { offline: true },
+      ),
+    ).rejects.toThrow(/codeload-docs-tarball-fetch/);
   });
 });
