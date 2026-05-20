@@ -1,0 +1,6 @@
+build
+coverage
+node_modules
+package-lock.json
+# GDScript is not Prettier-formatted; the only .gd file is src/scripts/godot_operations.gd
+*.gd
