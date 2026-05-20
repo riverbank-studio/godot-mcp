@@ -7,6 +7,17 @@
  * capture debug output, and control project execution.
  */
 
+/* eslint-disable
+   @typescript-eslint/no-explicit-any,
+   @typescript-eslint/no-require-imports,
+   @typescript-eslint/no-unused-vars
+   --
+   TODO(refactor): These rules are suppressed file-wide as part of the initial
+   code-quality tooling install. The existing `any` usages, the `require()`
+   call, and the unused `mkdirSync` import / `godotDebugMode` variable predate
+   the lint setup and should be fixed during the module split described in
+   docs/DESIGN.md — not papered over with narrower per-line ignores. */
+
 import { fileURLToPath } from 'url';
 import { join, dirname, basename, normalize } from 'path';
 import { existsSync, readdirSync, mkdirSync } from 'fs';

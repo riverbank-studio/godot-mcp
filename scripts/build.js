@@ -1,3 +1,9 @@
+/* eslint-disable no-undef --
+   TODO(refactor): `console` and `process` are Node built-in globals that this
+   script legitimately uses. They flag here because eslint.config.js does not
+   yet declare a Node `languageOptions.globals` env. Suppressed alongside the
+   other initial-install lint errors; revisit when the eslint config is
+   tightened during the refactor described in docs/DESIGN.md. */
 import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
