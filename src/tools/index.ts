@@ -24,6 +24,13 @@ import { lspTools } from "./lsp-tools.js";
 
 export { editorTools, sceneTools, projectTools, lspTools };
 
+// LSP leaf tools — each file calls registerLspTool at import time.
+// These imports MUST live here (not in lsp-tools.ts) to avoid a circular
+// dependency: lsp-tools.ts exports registerLspTool which the leaves import;
+// if lsp-tools.ts also imported the leaves we'd have a cycle that puts
+// lspTools in the TDZ when the leaf's registerLspTool call runs.
+import "./lsp/find-references.js";
+
 /**
  * The flat, ordered list of all tools the server exposes. Concatenation
  * order: editor → scene → project → LSP. Docs will splice in once #7
