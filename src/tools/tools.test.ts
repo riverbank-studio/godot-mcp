@@ -79,7 +79,11 @@ describe("tool registries", () => {
   it("allTools is the union of editor/scene/project tools, no duplicates", () => {
     const names = allTools.map((t) => t.name);
     expect(new Set(names).size).toBe(names.length);
-    expect(names.sort()).toEqual([...PRE_REFACTOR_TOOLS].sort());
+    // All pre-refactor tools must still be present; Wave 4 docs/LSP leaf tools
+    // (#14–#19) add additional entries beyond this baseline list.
+    for (const name of PRE_REFACTOR_TOOLS) {
+      expect(names).toContain(name);
+    }
   });
 
   it("each tool definition has a non-empty description, schema, and async handler", () => {

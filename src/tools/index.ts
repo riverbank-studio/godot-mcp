@@ -26,6 +26,12 @@ export { editorTools, sceneTools, projectTools, docsTools };
  * `src/tools/docs-tools.ts` → `src/tools/docs/index.ts`. Phase 1 of #7
  * ships it empty; Phase 2 leaves (#14–#19) register themselves.
  */
+// Leaf docs tools — each import is a side-effect-only registration via
+// registerDocsTool. Placed after the `docsTools` import above so the
+// array is initialized before the leaf's top-level registerDocsTool call
+// runs (avoids TDZ; see orchestration-plan §7 note on circular-dep).
+import "./docs/get-class.js";
+
 export const allTools: ToolDefinition[] = [
   ...editorTools,
   ...sceneTools,
