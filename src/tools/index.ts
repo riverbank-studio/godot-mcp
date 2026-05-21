@@ -21,6 +21,7 @@ import { editorTools } from "./editor-tools.js";
 import { sceneTools } from "./scene-tools.js";
 import { projectTools } from "./project-tools.js";
 import { lspTools } from "./lsp-tools.js";
+import "./lsp/find-definition.js";
 
 export { editorTools, sceneTools, projectTools, lspTools };
 

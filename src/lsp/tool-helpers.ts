@@ -451,6 +451,75 @@ export async function withLspClient(
   }
 }
 
+// ---------------------------------------------------------------------------
+// Location conversion
+// ---------------------------------------------------------------------------
+
+/**
+ * An LSP `Location` — a URI plus a range. The URI may use the `file://`
+ * scheme (user files) or a synthetic scheme such as `gdscript://` or
+ * `godot://` (built-in symbols). Non-`file://` URIs are passed through
+ * unchanged by {@link fromLspLocation} so callers can detect them by prefix.
+ */
+export interface LspLocation {
+  uri: string;
+  range: LspRange;
+}
+
+/**
+ * An LSP `LocationLink` returned when the server advertises
+ * `definitionProvider: { linkSupport: true }`. Godot's server may return
+ * plain `Location` values instead; the leaf tools handle both shapes.
+ */
+export interface LspLocationLink {
+  targetUri: string;
+  targetRange: LspRange;
+  targetSelectionRange: LspRange;
+  originSelectionRange?: LspRange;
+}
+
+/**
+ * Wire-side definition location. `file` is the decoded file-system path
+ * (or the raw non-`file://` URI for built-in symbols); `range` uses 1-based
+ * positions per DESIGN.md L490.
+ */
+export interface WireLocation {
+  file: string;
+  range: WireRange;
+}
+
+/**
+ * Convert an {@link LspLocation} to a {@link WireLocation}.
+ *
+ * URI handling:
+ *   - `file://` URIs are decoded to filesystem paths via {@link uriToFilePath}.
+ *   - Non-`file://` URIs (e.g. `gdscript://@GlobalScope`, `godot://Node`) are
+ *     returned verbatim in the `file` field so callers can detect synthetic /
+ *     built-in-symbol references by prefix rather than silently swallowing them.
+ *
+ * Position handling: both range endpoints are converted from 0-based LSP
+ * coordinates to 1-based wire coordinates via {@link fromLspRange}.
+ */
+export function fromLspLocation(loc: LspLocation): WireLocation {
+  return {
+    file: uriToFilePath(loc.uri),
+    range: fromLspRange(loc.range),
+  };
+}
+
+/**
+ * Convert an {@link LspLocationLink} to a {@link WireLocation}, using the
+ * `targetSelectionRange` (the precise symbol range) rather than the broader
+ * `targetRange` (the entire definition scope). This matches the convention
+ * used by VS Code and matches DESIGN.md's guidance for leaf tools.
+ */
+export function fromLspLocationLink(link: LspLocationLink): WireLocation {
+  return {
+    file: uriToFilePath(link.targetUri),
+    range: fromLspRange(link.targetSelectionRange),
+  };
+}
+
 // Re-export the diagnostic shape so leaves can import everything from
 // this barrel rather than reaching back into `client.js`.
 export type { DiagnosticCacheEntry, LspDiagnostic };
