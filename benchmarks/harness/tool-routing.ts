@@ -178,9 +178,7 @@ function parseArgs(): {
  *
  * Returns an array of Anthropic tool definition objects.
  */
-async function loadToolSchemas(
-  ablation: AblationMode,
-): Promise<
+async function loadToolSchemas(ablation: AblationMode): Promise<
   Array<{
     name: string;
     description: string;
@@ -225,9 +223,7 @@ async function loadToolSchemas(
  * Builds stub tool schemas from the tools registered in src/index.ts.
  * Used only for pre-dep-merge scaffolding validation.
  */
-function buildStubSchemas(
-  ablation: AblationMode,
-): Array<{
+function buildStubSchemas(ablation: AblationMode): Array<{
   name: string;
   description: string;
   input_schema: Record<string, unknown>;

@@ -14,36 +14,36 @@ datasets/tool-routing/
 
 ### `queries.json` fields
 
-| Field                 | Type              | Required | Description                                                               |
-| --------------------- | ----------------- | -------- | ------------------------------------------------------------------------- |
-| `id`                  | string (tr-NNN)   | yes      | Unique query identifier                                                   |
-| `query`               | string            | yes      | Verbatim natural-language query given to the model                        |
-| `expected_tool`       | string            | yes      | The `godot_*` tool the model should select                                |
-| `category`            | `docs\|lsp\|editor` | yes    | Capability area the query targets                                         |
-| `disambiguation_pair` | string \| null    | yes      | Named pair from DESIGN.md §Tool descriptions, or null                     |
-| `notes`               | string            | yes      | Reviewer rationale for the expected tool selection                        |
+| Field                 | Type                | Required | Description                                           |
+| --------------------- | ------------------- | -------- | ----------------------------------------------------- |
+| `id`                  | string (tr-NNN)     | yes      | Unique query identifier                               |
+| `query`               | string              | yes      | Verbatim natural-language query given to the model    |
+| `expected_tool`       | string              | yes      | The `godot_*` tool the model should select            |
+| `category`            | `docs\|lsp\|editor` | yes      | Capability area the query targets                     |
+| `disambiguation_pair` | string \| null      | yes      | Named pair from DESIGN.md §Tool descriptions, or null |
+| `notes`               | string              | yes      | Reviewer rationale for the expected tool selection    |
 
 ## Dataset composition (v1)
 
-| Category | Count | Description                                    |
-| -------- | ----- | ---------------------------------------------- |
-| `docs`   | 24    | Queries targeting API lookup and tutorial tools |
-| `lsp`    | 18    | Queries targeting LSP code-intelligence tools   |
-| `editor` | 18    | Queries targeting editor control tools          |
-| **Total** | **60** |                                               |
+| Category  | Count  | Description                                     |
+| --------- | ------ | ----------------------------------------------- |
+| `docs`    | 23     | Queries targeting API lookup and tutorial tools |
+| `lsp`     | 22     | Queries targeting LSP code-intelligence tools   |
+| `editor`  | 15     | Queries targeting editor control tools          |
+| **Total** | **60** |                                                 |
 
 ### Disambiguation pairs covered
 
 All pairs named in DESIGN.md §Tool descriptions are exercised:
 
-| Pair | Count |
-| ---- | ----- |
-| `get_class` vs `find_member` | 8 |
-| `search_api` vs `search_tutorials` | 6 |
-| `search_api` vs `get_class` | 6 |
-| `search_tutorials` vs `get_tutorial` | 4 |
-| `get_class` vs `docs_info` | 4 |
-| `find_definition` vs `get_class` | 4 |
+| Pair                                 | Count |
+| ------------------------------------ | ----- |
+| `get_class` vs `find_member`         | 8     |
+| `search_api` vs `search_tutorials`   | 4     |
+| `search_api` vs `get_class`          | 4     |
+| `search_tutorials` vs `get_tutorial` | 4     |
+| `get_class` vs `docs_info`           | 3     |
+| `find_definition` vs `get_class`     | 4     |
 
 ## Running the harness
 
@@ -65,11 +65,11 @@ done
 
 ## Ablation modes
 
-| Mode | Description |
-| ---- | ----------- |
-| `full` | Full tool descriptions (production candidate) |
+| Mode         | Description                                                              |
+| ------------ | ------------------------------------------------------------------------ |
+| `full`       | Full tool descriptions (production candidate)                            |
 | `first-sent` | First sentence of each description only (validates routing-signal claim) |
-| `name-only` | Tool name + parameter schema, no description text (baseline control) |
+| `name-only`  | Tool name + parameter schema, no description text (baseline control)     |
 
 ## Results
 

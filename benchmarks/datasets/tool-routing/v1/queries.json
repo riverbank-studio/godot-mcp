@@ -273,7 +273,7 @@
       "query": "How many classes are in the docs database and when was it last indexed?",
       "expected_tool": "godot_docs_info",
       "category": "docs",
-      "disambiguation_pair": "search_api vs docs_info",
+      "disambiguation_pair": "get_class vs docs_info",
       "notes": "Coverage/metadata → docs_info; not searching the API"
     },
     {
