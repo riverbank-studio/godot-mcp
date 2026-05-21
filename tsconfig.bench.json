@@ -1,0 +1,10 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "./build/bench",
+    "noEmit": true
+  },
+  "include": ["benchmarks/**/*", "src/**/*"],
+  "exclude": ["node_modules"]
+}

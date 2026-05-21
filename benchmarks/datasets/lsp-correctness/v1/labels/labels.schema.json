@@ -1,0 +1,128 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "lsp-correctness-labels-v1",
+  "title": "LSP Correctness Benchmark Labels v1",
+  "description": "Ground-truth label set for the LSP correctness harness (#45).",
+  "type": "object",
+  "required": ["version", "godot_version_min", "fixture_root", "labels"],
+  "properties": {
+    "version": { "type": "string", "const": "1" },
+    "godot_version_min": { "type": "string" },
+    "fixture_root": { "type": "string" },
+    "labels": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/Label" },
+      "minItems": 1
+    }
+  },
+  "definitions": {
+    "Label": {
+      "type": "object",
+      "required": ["id", "tool", "description", "file", "expect", "variants"],
+      "properties": {
+        "id": { "type": "string", "pattern": "^[a-z0-9-]+$" },
+        "tool": {
+          "type": "string",
+          "enum": [
+            "godot_find_definition",
+            "godot_find_references",
+            "godot_hover",
+            "godot_document_symbols",
+            "godot_workspace_symbols",
+            "godot_get_diagnostics",
+            "godot_signature_help"
+          ]
+        },
+        "description": { "type": "string" },
+        "file": { "type": "string" },
+        "line": { "type": "integer", "minimum": 1 },
+        "character": { "type": "integer", "minimum": 1 },
+        "symbol_name": { "type": "string" },
+        "external_edit": {
+          "type": "object",
+          "properties": {
+            "append_line": { "type": "string" }
+          }
+        },
+        "expect": { "$ref": "#/definitions/Expectation" },
+        "note": { "type": "string" },
+        "variants": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "enum": [
+              "cold_call",
+              "steady_state",
+              "external_edit",
+              "imprecise_position"
+            ]
+          },
+          "minItems": 1
+        }
+      }
+    },
+    "Expectation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["kind"],
+          "properties": {
+            "kind": { "const": "location_array" },
+            "min_results": { "type": "integer", "minimum": 0 },
+            "any_result": { "$ref": "#/definitions/LocationMatcher" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["kind", "substring"],
+          "properties": {
+            "kind": { "const": "hover_substring" },
+            "substring": { "type": "string" },
+            "allow_empty": { "type": "boolean" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["kind"],
+          "properties": {
+            "kind": { "const": "hover_or_empty" }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["kind", "names"],
+          "properties": {
+            "kind": { "const": "symbol_names_include" },
+            "names": { "type": "array", "items": { "type": "string" } }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["kind", "min_count", "severity"],
+          "properties": {
+            "kind": { "const": "diagnostics_min_severity" },
+            "min_count": { "type": "integer", "minimum": 1 },
+            "severity": { "type": "integer", "minimum": 1, "maximum": 4 }
+          }
+        },
+        {
+          "type": "object",
+          "required": ["kind", "max_count", "severity"],
+          "properties": {
+            "kind": { "const": "diagnostics_max_severity" },
+            "max_count": { "type": "integer", "minimum": 0 },
+            "severity": { "type": "integer", "minimum": 1, "maximum": 4 }
+          }
+        }
+      ]
+    },
+    "LocationMatcher": {
+      "type": "object",
+      "properties": {
+        "file_suffix": { "type": "string" },
+        "file_prefix_not": { "type": "string" },
+        "range_start_line": { "type": "integer", "minimum": 1 }
+      }
+    }
+  }
+}
