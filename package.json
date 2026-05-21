@@ -39,7 +39,9 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "analyze": "fallow audit",
-    "analyze:dead": "fallow dead-code"
+    "analyze:dead": "fallow dead-code",
+    "bench:gdscript": "node benchmarks/harness/run-gdscript-bench.mjs",
+    "bench:gdscript:dry": "node benchmarks/harness/run-gdscript-bench.mjs --dry-run"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "0.6.0",
