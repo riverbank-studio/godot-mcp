@@ -33,9 +33,18 @@
  * Registration
  * ------------
  *
- * This file calls `registerDocsTool` at module-load time.  The barrel at
- * `src/tools/docs/index.ts` imports this file for its side effect; that is
- * the only edit a leaf author must make in the docs registry.
+ * This file calls `registerDocsTool` at module-load time.  The import that
+ * triggers this side effect lives in `src/tools/index.ts` (not
+ * `src/tools/docs/index.ts`).  It must sit there — rather than inside
+ * `docs-tools.ts` or the leaf barrel — because of an ESM TDZ circular-dep:
+ * `docs-tools.ts` exports `docsTools`, `src/tools/index.ts` spreads
+ * `docsTools` into `allTools`, and any leaf import inside `docs-tools.ts`
+ * would form a cycle that reads `docsTools` before it is initialised
+ * (orchestration-plan §7 hotspot mitigation).
+ *
+ * Canonical reference for leaf PRs #14, #15, #16, #18, #19: to register a
+ * new docs tool, add a single import line to `src/tools/index.ts` — that is
+ * the only dispatch-layer change required.
  */
 
 import type Database from "better-sqlite3";

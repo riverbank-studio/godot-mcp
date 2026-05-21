@@ -22,9 +22,12 @@ export { editorTools, sceneTools, projectTools, docsTools };
  * project (the renamed existing tools) precede the docs subsystem. LSP
  * tools will splice in after docs once epic #9-infra lands.
  *
- * The `docsTools` array is populated by side-effect imports in
- * `src/tools/docs-tools.ts` → `src/tools/docs/index.ts`. Phase 1 of #7
- * ships it empty; Phase 2 leaves (#14–#19) register themselves.
+ * The `docsTools` array is populated by side-effect imports listed below
+ * this declaration (see the "Docs-tool leaf side-effect imports" block).
+ * They must live here — not in `docs-tools.ts` — to avoid the ESM TDZ
+ * circular-dep (see orchestration-plan §7). Phase 1 of #7 ships one leaf
+ * (#17); remaining Phase 2 leaves (#14, #15, #16, #18, #19) each add one
+ * import line to this block.
  */
 export const allTools: ToolDefinition[] = [
   ...editorTools,

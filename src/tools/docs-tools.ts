@@ -94,13 +94,13 @@ export function _resetDocsToolsForTesting(): void {
 }
 
 /**
- * Side-effect import of the per-tool leaf barrel. Each leaf file under
- * `src/tools/docs/` registers itself by calling `registerDocsTool` at
- * top level; importing the barrel here is what triggers those calls.
+ * Side-effect import of the leaf barrel at `src/tools/docs/index.ts`.
+ * This import is a no-op today (the barrel is empty in Phase 1 of #7)
+ * but ensures the barrel is always in the module graph.
  *
- * The barrel starts out empty (Phase 1 of #7). Phase 2 leaves (#14–#19)
- * each append one import line to the barrel — that single-line append
- * is the entirety of the dispatch-layer change required to land a new
- * docs tool.
+ * NOTE: leaf side-effect imports do NOT go into `docs/index.ts` or here.
+ * They live in `src/tools/index.ts` after the `allTools` declaration to
+ * avoid the ESM TDZ circular-dep (see orchestration-plan §7). Phase 2
+ * leaves (#14, #15, #16, #18, #19) each add one import line there.
  */
 import "./docs/index.js";
