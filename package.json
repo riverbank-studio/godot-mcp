@@ -39,7 +39,9 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "analyze": "fallow audit",
-    "analyze:dead": "fallow dead-code"
+    "analyze:dead": "fallow dead-code",
+    "typecheck:bench": "tsc --project tsconfig.bench.json",
+    "bench:lsp": "node --import tsx/esm benchmarks/lsp-correctness/run.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "0.6.0",

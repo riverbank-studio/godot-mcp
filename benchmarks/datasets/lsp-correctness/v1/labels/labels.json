@@ -1,0 +1,220 @@
+{
+  "$schema": "./labels.schema.json",
+  "version": "1",
+  "godot_version_min": "4.3",
+  "fixture_root": "../fixtures/project",
+  "labels": [
+    {
+      "id": "def-player-jump-decl",
+      "tool": "godot_find_definition",
+      "description": "Definition of 'jump' at its own declaration site returns itself.",
+      "file": "scripts/player.gd",
+      "line": 52,
+      "character": 6,
+      "expect": {
+        "kind": "location_array",
+        "min_results": 1,
+        "any_result": {
+          "file_suffix": "scripts/player.gd",
+          "range_start_line": 52
+        }
+      },
+      "variants": ["cold_call", "steady_state"]
+    },
+    {
+      "id": "def-entity-despawn-from-player",
+      "tool": "godot_find_definition",
+      "description": "Definition of inherited 'despawn' call-site in player.gd resolves to entity.gd.",
+      "file": "scripts/player.gd",
+      "line": 75,
+      "character": 3,
+      "expect": {
+        "kind": "location_array",
+        "min_results": 1,
+        "any_result": {
+          "file_suffix": "scripts/entity.gd",
+          "range_start_line": 36
+        }
+      },
+      "variants": ["steady_state"]
+    },
+    {
+      "id": "def-builtin-is-on-floor",
+      "tool": "godot_find_definition",
+      "description": "Definition of built-in is_on_floor() returns a non-file:// URI.",
+      "file": "scripts/player.gd",
+      "line": 53,
+      "character": 6,
+      "expect": {
+        "kind": "location_array",
+        "min_results": 0,
+        "any_result": {
+          "file_prefix_not": "file://"
+        }
+      },
+      "note": "Zero or one result; if present, URI should not be file://.",
+      "variants": ["steady_state"]
+    },
+    {
+      "id": "refs-entity-despawn",
+      "tool": "godot_find_references",
+      "description": "References to despawn() in entity.gd include the call-site in player.gd.",
+      "file": "scripts/entity.gd",
+      "line": 36,
+      "character": 6,
+      "expect": {
+        "kind": "location_array",
+        "min_results": 1,
+        "any_result": {
+          "file_suffix": "scripts/player.gd"
+        }
+      },
+      "variants": ["steady_state"]
+    },
+    {
+      "id": "refs-player-jump",
+      "tool": "godot_find_references",
+      "description": "References to jump() returns an array (may be empty if not called within the fixture project).",
+      "file": "scripts/player.gd",
+      "line": 52,
+      "character": 6,
+      "expect": {
+        "kind": "location_array",
+        "min_results": 0
+      },
+      "variants": ["steady_state"]
+    },
+    {
+      "id": "hover-player-jump",
+      "tool": "godot_hover",
+      "description": "Hover over 'jump' in player.gd returns a non-empty response with 'jump' substring.",
+      "file": "scripts/player.gd",
+      "line": 52,
+      "character": 6,
+      "expect": {
+        "kind": "hover_substring",
+        "substring": "jump",
+        "allow_empty": false
+      },
+      "variants": ["steady_state"]
+    },
+    {
+      "id": "hover-entity-entity-id",
+      "tool": "godot_hover",
+      "description": "Hover over 'entity_id' property in entity.gd returns non-empty response.",
+      "file": "scripts/entity.gd",
+      "line": 22,
+      "character": 5,
+      "expect": {
+        "kind": "hover_substring",
+        "substring": "entity_id",
+        "allow_empty": false
+      },
+      "variants": ["steady_state"]
+    },
+    {
+      "id": "hover-builtin-queue-free",
+      "tool": "godot_hover",
+      "description": "Hover over built-in queue_free() returns non-empty response (or empty — not an error).",
+      "file": "scripts/entity.gd",
+      "line": 37,
+      "character": 2,
+      "expect": {
+        "kind": "hover_or_empty"
+      },
+      "variants": ["steady_state"]
+    },
+    {
+      "id": "docsyms-inventory-ui",
+      "tool": "godot_document_symbols",
+      "description": "Document symbols for inventory_ui.gd includes at least bind_player, _rebuild_rows, page_forward, page_back.",
+      "file": "scripts/inventory_ui.gd",
+      "expect": {
+        "kind": "symbol_names_include",
+        "names": [
+          "bind_player",
+          "_rebuild_rows",
+          "page_forward",
+          "page_back",
+          "player",
+          "page_offset"
+        ]
+      },
+      "variants": ["steady_state"]
+    },
+    {
+      "id": "docsyms-player",
+      "tool": "godot_document_symbols",
+      "description": "Document symbols for player.gd includes jump, take_damage, pick_up, consume.",
+      "file": "scripts/player.gd",
+      "expect": {
+        "kind": "symbol_names_include",
+        "names": [
+          "jump",
+          "take_damage",
+          "pick_up",
+          "consume",
+          "health",
+          "MAX_SPEED"
+        ]
+      },
+      "variants": ["steady_state"]
+    },
+    {
+      "id": "diagnostics-broken-types",
+      "tool": "godot_get_diagnostics",
+      "description": "Diagnostics for broken_types.gd returns at least one error (severity 1).",
+      "file": "../broken/broken_types.gd",
+      "expect": {
+        "kind": "diagnostics_min_severity",
+        "min_count": 1,
+        "severity": 1
+      },
+      "variants": ["steady_state"]
+    },
+    {
+      "id": "diagnostics-clean-entity",
+      "tool": "godot_get_diagnostics",
+      "description": "Diagnostics for clean entity.gd returns zero errors (severity 1).",
+      "file": "scripts/entity.gd",
+      "expect": {
+        "kind": "diagnostics_max_severity",
+        "max_count": 0,
+        "severity": 1
+      },
+      "variants": ["steady_state"]
+    },
+    {
+      "id": "imprecise-symbol-jump",
+      "tool": "godot_find_definition",
+      "description": "Symbol-based fallback: querying 'jump' by name (no position) resolves in player.gd.",
+      "file": "scripts/player.gd",
+      "symbol_name": "jump",
+      "expect": {
+        "kind": "location_array",
+        "min_results": 1,
+        "any_result": {
+          "file_suffix": "scripts/player.gd"
+        }
+      },
+      "note": "Validates #12 symbol-based fallback. Skipped if tool does not accept symbol_name.",
+      "variants": ["steady_state", "imprecise_position"]
+    },
+    {
+      "id": "external-edit-resync",
+      "tool": "godot_get_diagnostics",
+      "description": "After an external edit injecting a type error into player.gd, diagnostics reflect the change.",
+      "file": "scripts/player.gd",
+      "external_edit": {
+        "append_line": "var _type_error: int = \"injected\""
+      },
+      "expect": {
+        "kind": "diagnostics_min_severity",
+        "min_count": 1,
+        "severity": 1
+      },
+      "note": "Validates auto-resync (DESIGN.md D11). The harness reverts the edit after the check.",
+      "variants": ["external_edit"]
+    }
+  ]
+}
