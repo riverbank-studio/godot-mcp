@@ -40,7 +40,7 @@ const PRE_REFACTOR_TOOLS = [
 /**
  * Docs-subsystem tools registered by Wave 4 leaf PRs (#14–#19). Each leaf
  * PR appends one entry here when it lands. This list must stay in sync with
- * the side-effect imports at the bottom of `src/tools/docs/index.ts`.
+ * the side-effect imports at the bottom of `src/tools/index.ts`.
  */
 const DOCS_TOOLS = [
   "godot_find_member", // #16

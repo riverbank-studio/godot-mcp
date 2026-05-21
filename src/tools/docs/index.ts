@@ -11,15 +11,20 @@
  *      `registerDocsTool` from `../docs-tools.js` and call it with the
  *      `ToolDefinition`. (See `src/tools/editor-tools.ts` for the
  *      shape; mirror that exactly.)
- *   2. Add one line to this file:
+ *   2. Add one line to `src/tools/index.ts` (NOT this file):
  *
  *      ```ts
- *      import "./<tool-name>.js";
+ *      import "./docs/<tool-name>.js";
  *      ```
  *
+ *      Imports must live in `src/tools/index.ts` to avoid a
+ *      temporal dead-zone (TDZ) circular dependency: this barrel
+ *      is itself imported by `src/tools/index.ts`, so adding a
+ *      leaf import here would create a cycle that silently breaks
+ *      `registerDocsTool` registration at module-load time.
  *      Imports are intentionally side-effect-only — the leaf's
- *      `registerDocsTool` call runs when the file is loaded, which is
- *      what populates the `docsTools` array consumed by
+ *      `registerDocsTool` call runs when the file is loaded, which
+ *      is what populates the `docsTools` array consumed by
  *      `src/tools/index.ts` → `allTools`.
  *
  * Why a manual barrel instead of dynamic discovery
