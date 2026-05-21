@@ -39,7 +39,9 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "analyze": "fallow audit",
-    "analyze:dead": "fallow dead-code"
+    "analyze:dead": "fallow dead-code",
+    "bench:tool-routing": "npx tsx benchmarks/harness/tool-routing.ts",
+    "validate:tool-routing-dataset": "npx tsx benchmarks/harness/validate-tool-routing-dataset.ts"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "0.6.0",

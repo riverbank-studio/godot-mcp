@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "tool-routing-dataset-schema",
+  "title": "Tool-Routing Query Dataset",
+  "description": "Schema for tool-routing benchmark query datasets (issue #30).",
+  "type": "object",
+  "required": ["version", "description", "queries"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": {
+      "type": "string",
+      "description": "Dataset version string (e.g. '1')"
+    },
+    "description": {
+      "type": "string",
+      "description": "Human-readable description of this query set"
+    },
+    "generated_from": {
+      "type": "string",
+      "description": "Source reference for the dataset"
+    },
+    "queries": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "query", "expected_tool", "category"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^tr-[0-9]{3,}$",
+            "description": "Unique query identifier (e.g. 'tr-001')"
+          },
+          "query": {
+            "type": "string",
+            "minLength": 5,
+            "description": "Natural-language query given to the model"
+          },
+          "expected_tool": {
+            "type": "string",
+            "pattern": "^godot_[a-z_]+$",
+            "description": "The godot_* tool the model should select"
+          },
+          "category": {
+            "type": "string",
+            "enum": ["docs", "lsp", "editor"],
+            "description": "Capability area the query targets"
+          },
+          "disambiguation_pair": {
+            "type": ["string", "null"],
+            "description": "Named disambiguation pair from DESIGN.md that this query exercises (null if not a disambiguation test)"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Reviewer notes explaining why this tool is correct"
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}
