@@ -24,6 +24,15 @@
  *      and the universal zero-results rule (DESIGN.md L492): empty
  *      array (or empty object for hover) on no results, never an MCP
  *      error.
+ *   4. **Advisory-write tools only** (`godot_preview_rename` and the
+ *      v1.1 code-action follow-ups): convert the LSP `WorkspaceEdit`
+ *      result via
+ *      {@link import("../lsp/advisory-write.js").workspaceEditToAdvisory}
+ *      to get the canonical `{action, edits, summary}` envelope with
+ *      `before`-widening and same-line edit merging applied. These
+ *      tools register through the same `registerLspTool` as the
+ *      read-only leaves — the response shape is what differs, not the
+ *      registration path.
  *
  * The file ships **empty** at the registry level — the seven leaves
  * land as separate PRs (#20–#26) that each `registerLspTool` themselves.

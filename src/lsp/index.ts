@@ -103,3 +103,21 @@ export type {
   WirePosition,
   WireRange,
 } from "./tool-helpers.js";
+
+export {
+  MAX_WIDEN_LINES,
+  mergeSameLineEdits,
+  widenBefore,
+  workspaceEditToAdvisory,
+} from "./advisory-write.js";
+export type {
+  AdvisoryAction,
+  AdvisoryChange,
+  AdvisoryEdit,
+  AdvisorySummary,
+  AdvisoryWriteResponse,
+  LspTextEdit,
+  LspWorkspaceEdit,
+  WidenResult,
+  WorkspaceEditToAdvisoryOptions,
+} from "./advisory-write.js";
