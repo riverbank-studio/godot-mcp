@@ -67,11 +67,13 @@ registerLspTool({
           "Must be within the Godot project root.",
       },
       line: {
-        type: "number",
+        type: "integer",
+        minimum: 1,
         description: "1-based line number of the symbol.",
       },
       character: {
-        type: "number",
+        type: "integer",
+        minimum: 1,
         description: "1-based character offset of the symbol on the line.",
       },
     },
@@ -101,7 +103,20 @@ registerLspTool({
       }
 
       // Convert 1-based wire positions to 0-based LSP positions.
-      const lspPos = toLspPosition({ line, character });
+      // toLspPosition throws on non-positive values; catch here so callers
+      // receive a clean MCP error instead of an uncaught programmer-bug throw.
+      let lspPos: { line: number; character: number };
+      try {
+        lspPos = toLspPosition({ line, character });
+      } catch (err) {
+        return createErrorResponse(
+          err instanceof Error ? err.message : String(err),
+          [
+            "Provide 1-based line and character values (minimum 1). " +
+              "Line 1 is the first line; character 1 is the first column.",
+          ],
+        );
+      }
 
       // Send textDocument/references. `includeDeclaration: true` matches the
       // default agent expectation (show definition site + all uses).

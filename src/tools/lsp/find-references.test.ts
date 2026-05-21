@@ -248,6 +248,36 @@ describe("godot_find_references — behavior", () => {
     expect(joined).toContain("connection_lost");
   });
 
+  it("returns an MCP error (not an uncaught throw) when line is 0", async () => {
+    const client = makeClient([]);
+    const ctx = makeCtx(client);
+
+    const result = await getHandler()(
+      { file: "/fake/project/scripts/player.gd", line: 0, character: 1 },
+      ctx,
+    );
+
+    expect(result.isError).toBe(true);
+    expect(client.calls).toHaveLength(0);
+    const joined = result.content.map((c) => c.text).join("\n");
+    expect(joined).toMatch(/line/);
+  });
+
+  it("returns an MCP error (not an uncaught throw) when character is 0", async () => {
+    const client = makeClient([]);
+    const ctx = makeCtx(client);
+
+    const result = await getHandler()(
+      { file: "/fake/project/scripts/player.gd", line: 1, character: 0 },
+      ctx,
+    );
+
+    expect(result.isError).toBe(true);
+    expect(client.calls).toHaveLength(0);
+    const joined = result.content.map((c) => c.text).join("\n");
+    expect(joined).toMatch(/character/);
+  });
+
   it("includes file path in each returned reference", async () => {
     const fileUri = filePathToUri("/fake/project/scripts/player.gd");
     const lspLocations = [

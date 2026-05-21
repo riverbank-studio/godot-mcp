@@ -10,9 +10,13 @@
  * everything-in-one-file pattern of the existing areas. The leaves
  * register via {@link import("./lsp-tools.js").registerLspTool} from
  * their own file's top level; for the side effect to fire, the file
- * must be imported during startup. The imports live in `lsp-tools.ts`
- * itself — one line per leaf — so the leaf PRs only touch their own
- * file plus a single line of the registry header.
+ * must be imported during startup. The imports live here in
+ * `src/tools/index.ts` — one line per leaf — so the leaf PRs only touch
+ * their own file plus a single line here. They MUST NOT live in
+ * `lsp-tools.ts`: that module exports `registerLspTool`, which the
+ * leaves import; if `lsp-tools.ts` also imported the leaves we'd have a
+ * circular dependency that puts `lspTools` in the TDZ when each leaf's
+ * top-level `registerLspTool` call runs.
  */
 
 import type { ToolDefinition } from "../shared/types.js";
