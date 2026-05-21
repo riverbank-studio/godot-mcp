@@ -431,6 +431,12 @@ async function main(): Promise<void> {
   const coldLabel = labels.find((l) => l.variants.includes("cold_call"));
   let coldStartSeconds: number | null = null;
 
+  // ---------------------------------------------------------------------------
+  // Main pass: iterate labels × variants.
+  // ---------------------------------------------------------------------------
+
+  const allResults: LabelResult[] = [];
+
   if (coldLabel) {
     console.log(`\nCold-call: ${coldLabel.id}`);
     const coldResult = await runLabel(
@@ -445,6 +451,7 @@ async function main(): Promise<void> {
       `  ${status}  ${coldResult.latency_ms}ms` +
         (coldResult.failure_reason ? `  — ${coldResult.failure_reason}` : ""),
     );
+    allResults.push(coldResult);
   }
 
   // ---------------------------------------------------------------------------
@@ -459,12 +466,6 @@ async function main(): Promise<void> {
     console.warn("  tools/list probe timed out; continuing anyway");
   }
 
-  // ---------------------------------------------------------------------------
-  // Main pass: iterate labels × variants.
-  // ---------------------------------------------------------------------------
-
-  const allResults: LabelResult[] = [];
-
   const variants: Variant[] = filterVariant
     ? [filterVariant]
     : ["cold_call", "steady_state", "external_edit", "imprecise_position"];
@@ -474,16 +475,8 @@ async function main(): Promise<void> {
       variants.includes(v),
     );
     for (const variant of applicableVariants) {
-      // cold_call was already run above.
+      // cold_call was already run pre-warmup and persisted to allResults above.
       if (variant === "cold_call") {
-        const existing = allResults.find(
-          (r) => r.id === label.id && r.variant === "cold_call",
-        );
-        if (!existing) {
-          // Run it if not already done.
-          const r = await runLabel(client, label, labelFile, variant);
-          allResults.push(r);
-        }
         continue;
       }
 
@@ -496,14 +489,6 @@ async function main(): Promise<void> {
           (r.failure_reason ? `  — ${r.failure_reason}` : ""),
       );
     }
-  }
-
-  // If cold_call label was done earlier, fold it in.
-  if (
-    coldLabel &&
-    !allResults.find((r) => r.id === coldLabel.id && r.variant === "cold_call")
-  ) {
-    // The cold result was logged separately — re-run in allResults is fine.
   }
 
   // ---------------------------------------------------------------------------
