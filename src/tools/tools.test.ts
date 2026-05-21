@@ -19,6 +19,9 @@ import { allTools } from "./index.js";
  * #3 PR is a mechanical extraction — every name on this list must survive and
  * no name outside it may appear. The Wave 2 `godot_` prefix rename is #4 and
  * is intentionally not folded in here.
+ *
+ * Docs tools are appended as they land (#14–#19). `godot_search_api` (#14)
+ * was the first to register; extend this list for each subsequent leaf.
  */
 const PRE_REFACTOR_TOOLS = [
   "launch_editor",
@@ -35,6 +38,8 @@ const PRE_REFACTOR_TOOLS = [
   "save_scene",
   "get_uid",
   "update_project_uids",
+  // Docs leaf tools registered via side-effect imports in src/tools/index.ts.
+  "godot_search_api",
 ] as const;
 
 describe("tool registries", () => {

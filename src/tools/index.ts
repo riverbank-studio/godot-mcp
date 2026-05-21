@@ -13,6 +13,13 @@ import { sceneTools } from "./scene-tools.js";
 import { projectTools } from "./project-tools.js";
 import { docsTools } from "./docs-tools.js";
 
+// Docs-tools leaf registrations. Each import below triggers a side-effect
+// `registerDocsTool` call in the leaf file. Appended here (not in
+// docs-tools.ts → docs/index.ts) to avoid the TDZ circular dependency that
+// arises when docs-tools.ts imports its own barrel before `docsTools` is
+// initialized. New docs leaves append one line here per DESIGN.md §7.
+import "./docs/search-api.js";
+
 export { editorTools, sceneTools, projectTools, docsTools };
 
 /**
