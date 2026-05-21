@@ -1,0 +1,163 @@
+name: Release (manual, tag-triggered)
+
+# v1 manual release path. Triggered by pushing a `v*.*.*` tag to GitHub. The
+# maintainer's local machine never publishes directly — all `npm publish` calls
+# happen here, with Sigstore-signed provenance via GitHub Actions OIDC.
+#
+# Trusted Publishing: requires the npm package to be configured with the
+# `https://github.com/riverbank-studio/godot-mcp/.github/workflows/release.yml`
+# trusted publisher at https://www.npmjs.com/package/godot-mcp/access. No
+# long-lived NPM_TOKEN secret is used or required.
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+# Default to read-only. Individual jobs widen only what they need.
+permissions:
+  contents: read
+
+concurrency:
+  # Never cancel a release in flight — serialize them instead.
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build-and-test:
+    name: Build + test before publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    env:
+      # Mirror ci.yml. Once #47 lands, prefer reading from
+      # data/godot-release-hashes.json so this stays in sync automatically.
+      GODOT_VERSION: 4.6-stable
+
+    steps:
+      # actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          # Full history needed for changelog generation in release notes.
+          fetch-depth: 0
+          persist-credentials: false
+
+      # actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      # actions/cache@v4
+      - name: Cache Godot binary
+        id: godot-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ${{ runner.tool_cache }}/godot
+          key: godot-${{ env.GODOT_VERSION }}-linux-x86_64
+
+      - name: Download Godot ${{ env.GODOT_VERSION }} (Linux x86_64)
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euxo pipefail
+          mkdir -p "${{ runner.tool_cache }}/godot"
+          curl -fsSL -o /tmp/godot.zip \
+            "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          unzip -q /tmp/godot.zip -d /tmp/godot-extract
+          mv "/tmp/godot-extract/Godot_v${GODOT_VERSION}_linux.x86_64" "${{ runner.tool_cache }}/godot/godot"
+          chmod +x "${{ runner.tool_cache }}/godot/godot"
+          rm -rf /tmp/godot.zip /tmp/godot-extract
+
+      - name: Expose Godot on PATH
+        run: echo "${{ runner.tool_cache }}/godot" >> "$GITHUB_PATH"
+
+      - name: Test
+        env:
+          GODOT_PATH: ${{ runner.tool_cache }}/godot/godot
+        run: npm test
+
+      - name: Verify tag matches package.json version
+        run: |
+          set -euo pipefail
+          tag="${GITHUB_REF_NAME}"
+          pkg_version="v$(node -p "require('./package.json').version")"
+          if [ "$tag" != "$pkg_version" ]; then
+            echo "::error::Tag ${tag} does not match package.json version ${pkg_version}" >&2
+            exit 1
+          fi
+
+      - name: Pack tarball (artifact)
+        run: npm pack
+
+      # actions/upload-artifact@v4
+      - name: Upload tarball artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: npm-tarball
+          path: "*.tgz"
+          if-no-files-found: error
+          retention-days: 7
+
+  publish-latest:
+    name: Publish to npm (latest)
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    environment: npm-release
+    permissions:
+      # OIDC token for npm Trusted Publishing.
+      id-token: write
+      # Required for the GitHub Release creation step.
+      contents: write
+
+    steps:
+      # actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
+      # actions/setup-node@v4
+      # registry-url is REQUIRED for `npm publish --provenance` over OIDC to
+      # contact registry.npmjs.org with the correct audience.
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+          cache: npm
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Publish (--access public --provenance)
+        # Trusted Publishing supplies the auth token via OIDC; no NPM_TOKEN is
+        # used. `--provenance` attaches a Sigstore-signed statement that pins
+        # this exact workflow run to the published tarball.
+        run: npm publish --access public --provenance
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+          gh release create "${GITHUB_REF_NAME}" \
+            --repo "${GITHUB_REPOSITORY}" \
+            --title "${GITHUB_REF_NAME}" \
+            --generate-notes \
+            --verify-tag

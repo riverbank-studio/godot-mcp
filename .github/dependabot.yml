@@ -1,0 +1,57 @@
+version: 2
+
+# Per issue #11 acceptance criterion: "All Actions referenced in both
+# workflows are pinned to commit SHAs; Dependabot config covers Actions."
+#
+# Dependabot updates SHA pins in workflow files for us — without this config,
+# pinning to SHA freezes us at the initial SHA forever and we miss security
+# patches.
+
+updates:
+  # GitHub Actions used in .github/workflows/*.yml
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Etc/UTC
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: ci
+      include: scope
+    labels:
+      - dependencies
+      - github-actions
+    # Keep SHA pins in PR bodies so reviewers can audit what's actually being
+    # bumped, not just the tag.
+    groups:
+      actions-minor-patch:
+        applies-to: version-updates
+        update-types:
+          - minor
+          - patch
+
+  # npm dependencies (package.json / package-lock.json)
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: Etc/UTC
+    open-pull-requests-limit: 10
+    commit-message:
+      prefix: chore
+      prefix-development: chore
+      include: scope
+    labels:
+      - dependencies
+      - npm
+    groups:
+      # Batch dev-only updates so review noise stays low.
+      dev-dependencies:
+        dependency-type: development
+        update-types:
+          - minor
+          - patch
