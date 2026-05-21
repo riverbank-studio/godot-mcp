@@ -39,11 +39,13 @@ import * as os from "node:os";
 import { fileURLToPath } from "node:url";
 
 /**
+ * Re-exported from `schema.ts` so the two names are provably the same value.
  * Bumped whenever `schema.ts` changes shape — appears in the cache
  * filename so old DBs don't satisfy a cache hit after a schema migration.
  * DESIGN.md § Edge cases ("Schema-version cache pollution.").
  */
-export const DOCS_SCHEMA_VERSION = 1;
+import { SCHEMA_VERSION as DOCS_SCHEMA_VERSION } from "./schema.js";
+export { DOCS_SCHEMA_VERSION };
 
 /**
  * Hard floor on supported Godot versions. 3.x has a different XML schema
