@@ -229,6 +229,39 @@ describe("DocumentTracker.diagnosticsTouched / markDiagnosticsTouched", () => {
   });
 });
 
+describe("DocumentTracker.trackedFiles", () => {
+  it("is empty before any sync", () => {
+    const { fs } = fakeFs({});
+    const t = new DocumentTracker({ statPollThrottleMs: 1_000, fs });
+    expect(t.trackedFiles()).toEqual([]);
+  });
+
+  it("lists every successfully-opened file in insertion order", () => {
+    const { fs } = fakeFs({
+      "/proj/a.gd": { text: "A", stat: { mtimeMs: 1, size: 1 } },
+      "/proj/b.gd": { text: "B", stat: { mtimeMs: 1, size: 1 } },
+    });
+    const t = new DocumentTracker({ statPollThrottleMs: 1_000, fs });
+    t.syncReferenced(["/proj/a.gd"]);
+    t.syncReferenced(["/proj/b.gd"]);
+    expect(t.trackedFiles()).toEqual([
+      path.resolve("/proj/a.gd"),
+      path.resolve("/proj/b.gd"),
+    ]);
+  });
+
+  it("returns a snapshot — mutating the result does not affect the tracker", () => {
+    const { fs } = fakeFs({
+      "/proj/a.gd": { text: "A", stat: { mtimeMs: 1, size: 1 } },
+    });
+    const t = new DocumentTracker({ statPollThrottleMs: 1_000, fs });
+    t.syncReferenced(["/proj/a.gd"]);
+    const snap = t.trackedFiles() as string[];
+    snap.length = 0;
+    expect(t.trackedFiles()).toEqual([path.resolve("/proj/a.gd")]);
+  });
+});
+
 describe("DocumentTracker.reset", () => {
   it("drops every tracked file so the next reference re-opens", () => {
     const { fs } = fakeFs({

@@ -82,3 +82,27 @@ export type {
   LspDiagnostic,
   DiagnosticCacheEntry,
 } from "./client.js";
+
+export {
+  createGodotAdapter,
+  augment,
+  timeoutFor,
+  postprocessorFor,
+  unionWithDocumentSymbols,
+  normalizeHoverMarkup,
+  redirectBuiltinUris,
+  unionAutoloadGrep,
+  resolveTrackedPath,
+} from "./adapter.js";
+export type {
+  AdapterClient,
+  AdapterContext,
+  AdapterSource,
+  LspDocumentSymbol,
+  LspHover,
+  LspMarkupContent,
+  LspSymbolInformation,
+  Postprocessor,
+  ServerAdapter,
+  Sourced,
+} from "./adapter.js";

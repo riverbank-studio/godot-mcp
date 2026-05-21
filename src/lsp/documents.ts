@@ -205,6 +205,20 @@ export class DocumentTracker {
   }
 
   /**
+   * Snapshot of currently tracked-open file paths. Returns absolute paths
+   * in insertion order. Consumed by the LSP adapter's `workspace/symbol`
+   * shim (see `src/lsp/adapter.ts`), which fans out `documentSymbol`
+   * over this set as the union fallback for Godot's broken native
+   * `workspace/symbol` ([godot-vscode-plugin#989]).
+   *
+   * Returns a fresh array; callers may iterate without worrying about
+   * the underlying map mutating mid-loop.
+   */
+  trackedFiles(): readonly string[] {
+    return Array.from(this.tracked.keys());
+  }
+
+  /**
    * Mark `filePath` as having received its first `publishDiagnostics` push
    * in the session. Subsequent awaits use the steady-state timeout.
    * Returns the previous value so the client can branch on first-touch
