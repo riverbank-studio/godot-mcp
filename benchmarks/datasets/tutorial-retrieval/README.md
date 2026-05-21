@@ -71,10 +71,10 @@ Queries with `"split": "held-out"` (q-052 through q-061) are reserved for final 
 Run the validation script to verify dataset shape and counts:
 
 ```bash
-node scripts/validate-tutorial-queries.mjs
+npm test
 ```
 
-The script is also wired into `npm test` via Vitest.
+Validation runs in `src/benchmarks/chunking-quality.test.ts` via Vitest.
 
 ## Grounding notes
 
