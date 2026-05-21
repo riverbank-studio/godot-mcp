@@ -106,3 +106,6 @@ export type {
   ServerAdapter,
   Sourced,
 } from "./adapter.js";
+
+export { resolveSymbol, filterSymbolMatches } from "./symbol-resolve.js";
+export type { ResolvedSymbol, SymbolResolveInput } from "./symbol-resolve.js";
