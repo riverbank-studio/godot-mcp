@@ -22,6 +22,12 @@ import { sceneTools } from "./scene-tools.js";
 import { projectTools } from "./project-tools.js";
 import { lspTools } from "./lsp-tools.js";
 
+// LSP leaf side-effect imports. Each file calls `registerLspTool` once at
+// import time; the imports must come AFTER `lspTools` / `registerLspTool`
+// are initialized by the `./lsp-tools.js` import above (TDZ guard).
+// Add one line per leaf, ordered by issue number.
+import "./lsp/preview-rename.js";
+
 export { editorTools, sceneTools, projectTools, lspTools };
 
 /**
