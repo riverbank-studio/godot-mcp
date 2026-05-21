@@ -193,6 +193,18 @@ export class LspClient {
   }
 
   /**
+   * Expose the document tracker so adapter postprocessors (e.g.
+   * {@link import("./adapter.js").unionWithDocumentSymbols}) can fan out
+   * `documentSymbol` over the tracked-open file set. Leaf tools should
+   * prefer {@link import("./tool-helpers.js").withLspClient} and access
+   * documents through `LspClientLike.documents()` so tests can stub it
+   * without spinning up the full client.
+   */
+  documents(): DocumentTracker {
+    return this.opts.documents;
+  }
+
+  /**
    * Bring up the connection: spawn (or reuse) headless Godot, open the
    * TCP socket, run the handshake, mark the latch ready. Idempotent —
    * a second call while ready is a no-op. Called explicitly when

@@ -142,4 +142,30 @@ export interface ToolContext {
 
   /** Whether to forward `--debug-godot` on bundled-GDScript invocations. */
   godotDebugMode: boolean;
+
+  /**
+   * Lazy provider for the LSP subsystem. Optional so non-LSP-area tools
+   * (editor, scene, project, docs) can keep running unaffected when the
+   * LSP fails init — DESIGN.md L218: "LSP init failure → server stays up,
+   * LSP tools return errors, other tools work." LSP-area tools resolve
+   * this via `withLspClient`, which surfaces the categorized failure as
+   * an MCP error envelope when the slot is undefined or `get()` throws.
+   *
+   * The provider type lives in `src/lsp/tool-helpers.ts` (`LspProvider`);
+   * we don't import it here to avoid a `shared` → `lsp` cycle. Callers
+   * cast at the resolution site.
+   */
+  lsp?: {
+    /**
+     * Return the live LSP client. Throws an `LspUnavailableError`
+     * subclass for terminal-session failures (binary missing, spawn-cap
+     * exhausted, etc.). See `LspProvider.get`.
+     */
+    get(): unknown;
+    /**
+     * Validated absolute project root, or null if the subsystem failed
+     * before reaching project detection.
+     */
+    projectRoot(): string | null;
+  };
 }

@@ -4,6 +4,15 @@
  * so callers (and tests) can rely on it.
  *
  * Order matches DESIGN.md's tool table for the existing tools.
+ *
+ * **LSP leaf auto-discovery.** The LSP area uses a per-tool file pattern
+ * (one file per leaf in `src/tools/lsp/`) rather than the
+ * everything-in-one-file pattern of the existing areas. The leaves
+ * register via {@link import("./lsp-tools.js").registerLspTool} from
+ * their own file's top level; for the side effect to fire, the file
+ * must be imported during startup. The imports live here — one line per
+ * leaf — so the leaf PRs only touch their own file plus a single line of
+ * the registry header.
  */
 
 import type { ToolDefinition } from "../shared/types.js";
@@ -11,15 +20,21 @@ import type { ToolDefinition } from "../shared/types.js";
 import { editorTools } from "./editor-tools.js";
 import { sceneTools } from "./scene-tools.js";
 import { projectTools } from "./project-tools.js";
+import { lspTools } from "./lsp-tools.js";
 
-export { editorTools, sceneTools, projectTools };
+// LSP leaf registrations — side effects populate `lspTools` at startup.
+import "./lsp/workspace-symbols.js";
+
+export { editorTools, sceneTools, projectTools, lspTools };
 
 /**
- * The flat, ordered list of all tools the server exposes. Wave 2+ subsystem
- * registries (docs, LSP) will splice into this array.
+ * The flat, ordered list of all tools the server exposes. Concatenation
+ * order: editor → scene → project → LSP. Docs will splice in once #7
+ * ships.
  */
 export const allTools: ToolDefinition[] = [
   ...editorTools,
   ...sceneTools,
   ...projectTools,
+  ...lspTools,
 ];

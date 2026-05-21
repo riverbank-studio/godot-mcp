@@ -106,3 +106,24 @@ export type {
   ServerAdapter,
   Sourced,
 } from "./adapter.js";
+
+export {
+  toLspPosition,
+  fromLspPosition,
+  toLspRange,
+  fromLspRange,
+  uriToFilePath,
+  validateFileInProject,
+  mapLspErrorToResponse,
+  resolveLspContext,
+  withLspClient,
+} from "./tool-helpers.js";
+export type {
+  WirePosition,
+  LspPosition,
+  WireRange,
+  LspRange,
+  LspClientLike,
+  LspProvider,
+  LspToolContext,
+} from "./tool-helpers.js";

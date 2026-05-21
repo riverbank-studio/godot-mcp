@@ -12,7 +12,10 @@ import { describe, it, expect } from "vitest";
 import { editorTools } from "./editor-tools.js";
 import { sceneTools } from "./scene-tools.js";
 import { projectTools } from "./project-tools.js";
-import { allTools } from "./index.js";
+import { lspTools, allTools } from "./index.js";
+
+// Side-effect: registers LSP leaf tools into lspTools.
+import "./lsp/workspace-symbols.js";
 
 /**
  * The set of tool names that existed in the pre-refactor `src/index.ts`. The
@@ -36,6 +39,13 @@ const PRE_REFACTOR_TOOLS = [
   "get_uid",
   "update_project_uids",
 ] as const;
+
+/**
+ * LSP-area leaf tools added by Wave 4 leaves. Separate from
+ * `PRE_REFACTOR_TOOLS` so the existing registry test can be updated
+ * incrementally as each leaf PR lands.
+ */
+const LSP_LEAF_TOOLS = ["godot_workspace_symbols"] as const;
 
 describe("tool registries", () => {
   it("editor-tools.ts exposes the editor-area tools", () => {
@@ -76,10 +86,17 @@ describe("tool registries", () => {
     );
   });
 
-  it("allTools is the union of editor/scene/project tools, no duplicates", () => {
+  it("allTools is the union of editor/scene/project/LSP tools, no duplicates", () => {
     const names = allTools.map((t) => t.name);
     expect(new Set(names).size).toBe(names.length);
-    expect(names.sort()).toEqual([...PRE_REFACTOR_TOOLS].sort());
+    expect(names.sort()).toEqual(
+      [...PRE_REFACTOR_TOOLS, ...LSP_LEAF_TOOLS].sort(),
+    );
+  });
+
+  it("lspTools contains exactly the registered LSP leaf tools", () => {
+    const names = lspTools.map((t) => t.name);
+    expect(names.sort()).toEqual([...LSP_LEAF_TOOLS].sort());
   });
 
   it("each tool definition has a non-empty description, schema, and async handler", () => {
