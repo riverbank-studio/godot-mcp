@@ -208,6 +208,38 @@ describe("godot_preview_rename handler", () => {
     expect(body.summary.locations).toBe(1);
   });
 
+  it("returns an MCP error when the LSP WorkspaceEdit contains an out-of-project URI", async () => {
+    // A compromised or misconfigured LSP could return a URI for a file outside
+    // the project root (e.g. /etc/passwd).  The readFile callback must reject
+    // it via validateFileInProject, and the handler must wrap the error into an
+    // MCP error envelope rather than letting it propagate uncaught.
+    const outsideUri = "file:///etc/passwd";
+    const workspaceEdit = {
+      changes: {
+        [outsideUri]: [
+          {
+            range: {
+              start: { line: 0, character: 0 },
+              end: { line: 0, character: 4 },
+            },
+            newText: "OWNED",
+          },
+        ],
+      },
+    };
+    const client = makeClient({ requestResult: workspaceEdit });
+    const ctx = makeCtx(client, PROJECT_ROOT);
+    const result = await handler(
+      { file: GD_FILE, line: 3, character: 5, new_name: "new_name" },
+      ctx,
+    );
+    expect(result.isError).toBe(true);
+    // Message should indicate the workspace-edit processing failure, not crash.
+    expect(result.content[0].text).toMatch(
+      /workspace edit|outside|project root/i,
+    );
+  });
+
   it("accepts camelCase parameter aliases (newName, lineNumber)", async () => {
     const client = makeClient({ requestResult: null });
     const ctx = makeCtx(client, PROJECT_ROOT);

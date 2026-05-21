@@ -190,21 +190,37 @@ export async function handler(
       };
     }
 
-    const advisory = workspaceEditToAdvisory(workspaceEdit, {
-      action,
-      readFile: (uri: string) => {
-        const filePath = uriToFilePath(uri);
-        return fs.readFileSync(filePath, "utf8");
-      },
-      resolveFilePath: (uri: string) => {
-        const filePath = uriToFilePath(uri);
-        // Return path relative to project root (forward-slash form).
-        const rel = path.relative(projectRoot, filePath).replace(/\\/g, "/");
-        // If resolving outside root (shouldn't happen after validateFileInProject),
-        // fall back to the absolute path.
-        return rel.startsWith("..") ? filePath : rel;
-      },
-    });
+    let advisory: ReturnType<typeof workspaceEditToAdvisory>;
+    try {
+      advisory = workspaceEditToAdvisory(workspaceEdit, {
+        action,
+        readFile: (uri: string) => {
+          const filePath = uriToFilePath(uri);
+          // DESIGN.md L425 — validate each LSP-returned URI is within the
+          // project root before reading.  A compromised local Godot LSP could
+          // return URIs pointing to arbitrary local files; reject them here to
+          // prevent their content from leaking into the advisory `before` lines.
+          validateFileInProject(filePath, projectRoot);
+          return fs.readFileSync(filePath, "utf8");
+        },
+        resolveFilePath: (uri: string) => {
+          const filePath = uriToFilePath(uri);
+          // Return path relative to project root (forward-slash form).
+          const rel = path.relative(projectRoot, filePath).replace(/\\/g, "/");
+          // If resolving outside root (shouldn't happen after validateFileInProject),
+          // fall back to the absolute path.
+          return rel.startsWith("..") ? filePath : rel;
+        },
+      });
+    } catch (err) {
+      return createErrorResponse(
+        `Failed to process workspace edit: ${err instanceof Error ? err.message : String(err)}`,
+        [
+          "The Godot LSP returned a workspace edit that references a file outside the project root or that could not be read.",
+          "Ensure the LSP is connected to the correct project directory.",
+        ],
+      );
+    }
 
     return {
       content: [{ type: "text", text: JSON.stringify(advisory) }],
@@ -283,7 +299,7 @@ registerLspTool({
         description: "camelCase alias for new_name.",
       },
     },
-    required: ["file", "line", "character"],
+    required: ["file", "line", "character", "new_name"],
   },
   handler: (args: PreviewRenameArgs, ctx: ToolContext) => handler(args, ctx),
 });
