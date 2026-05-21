@@ -22,6 +22,9 @@ import { sceneTools } from "./scene-tools.js";
 import { projectTools } from "./project-tools.js";
 import { lspTools } from "./lsp-tools.js";
 
+// LSP leaf registrations — side effects populate `lspTools` at startup.
+import "./lsp/document-symbols.js";
+
 export { editorTools, sceneTools, projectTools, lspTools };
 
 /**
