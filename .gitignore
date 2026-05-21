@@ -29,3 +29,6 @@ coverage/
 
 # Orchestrator runtime state (see docs/orchestration-plan.md)
 .orchestrator/
+
+# Benchmark run results (generated; not checked in — see benchmarks/results/)
+benchmarks/results/
