@@ -41,7 +41,9 @@
     "analyze": "fallow audit",
     "analyze:dead": "fallow dead-code",
     "bench:chunking-quality": "npx tsx benchmarks/chunking-quality/run.mjs",
-    "bench:chunking-quality:dryrun": "npx tsx benchmarks/chunking-quality/run.mjs --dry-run"
+    "bench:chunking-quality:dryrun": "npx tsx benchmarks/chunking-quality/run.mjs --dry-run",
+    "bench:chunking-ab": "npx tsx benchmarks/chunking-ab/run.mjs",
+    "bench:chunking-ab:dryrun": "npx tsx benchmarks/chunking-ab/run.mjs --dry-run"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "0.6.0",
