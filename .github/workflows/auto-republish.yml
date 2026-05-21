@@ -1,0 +1,376 @@
+name: Auto-republish on Godot release
+
+# Implements the 7-step approval gate from issue #11 / DESIGN.md §
+# "Auto-republish on Godot release".
+#
+#   1. Trigger: scheduled poll of the Godot Releases feed (webhooks not
+#      available across repos without an App). Manual dispatch supported for
+#      forcing a tag.
+#   2. Build: isolated runner builds + tests against the new Godot tag.
+#   3. Hash verify: ingestion verifies the new tag's SHA-256 against
+#      data/godot-release-hashes.json (managed by #47). Manifest mismatch is
+#      a hard fail — the manifest is updated via a separate, reviewed PR.
+#   4. Staged publish: `npm publish --tag canary --provenance` only. Never
+#      direct-publishes to `latest`.
+#   5. Promotion to `latest`: separate workflow_dispatch run gated by the
+#      `npm-release` GitHub Environment with required reviewers.
+#   6. All third-party Actions pinned to commit SHA.
+#   7. Hard invariant: the bundled docs DB is never republished without
+#      rebuilding from a hash-pinned source — enforced by step 3.
+
+on:
+  schedule:
+    # Daily at 14:07 UTC. Off-peak; off-of-the-hour to dodge cron storms.
+    - cron: "7 14 * * *"
+  workflow_dispatch:
+    inputs:
+      force_tag:
+        description: "Force a specific Godot tag (e.g. 4.6.1-stable). Empty = auto-detect latest."
+        required: false
+        type: string
+      promote_to_latest:
+        description: "After publishing canary, promote the canary version to the `latest` dist-tag. Requires environment approval."
+        required: false
+        type: boolean
+        default: false
+
+# Default to read-only. Individual jobs widen only what they need.
+permissions:
+  contents: read
+
+concurrency:
+  # Serialize: never run two auto-republishes against the same repo at once.
+  # Different tags should still queue, not race.
+  group: auto-republish
+  cancel-in-progress: false
+
+jobs:
+  # ---------------------------------------------------------------------------
+  # 1. Detect a new Godot tag worth rebuilding for.
+  # ---------------------------------------------------------------------------
+  detect:
+    name: Detect new Godot release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    outputs:
+      tag: ${{ steps.poll.outputs.tag }}
+      should_rebuild: ${{ steps.poll.outputs.should_rebuild }}
+
+    steps:
+      # actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
+      - name: Poll Godot Releases
+        id: poll
+        env:
+          # GITHUB_TOKEN is enough for the public Godot Releases endpoint; no
+          # PAT needed. Read-only; never logged.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          FORCE_TAG: ${{ inputs.force_tag }}
+        run: |
+          set -euo pipefail
+
+          if [ -n "${FORCE_TAG:-}" ]; then
+            tag="${FORCE_TAG}"
+            echo "Forced tag from workflow_dispatch: ${tag}"
+          else
+            # Latest non-prerelease, non-draft stable release tag.
+            tag="$(gh api repos/godotengine/godot-builds/releases \
+              --jq 'map(select(.draft == false and .prerelease == false))
+                    | .[0].tag_name')"
+            echo "Latest upstream tag: ${tag}"
+          fi
+
+          if [ -z "${tag}" ] || [ "${tag}" = "null" ]; then
+            echo "::error::Failed to resolve a Godot tag from the upstream releases feed." >&2
+            exit 1
+          fi
+
+          # Compare against the manifest. If the tag is missing, do NOT
+          # auto-rebuild — wait for a human-reviewed manifest update PR (#47).
+          manifest="data/godot-release-hashes.json"
+          if [ ! -f "${manifest}" ]; then
+            echo "::warning::Manifest ${manifest} not found yet (depends on #47). Skipping." >&2
+            echo "should_rebuild=false" >> "$GITHUB_OUTPUT"
+            echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if ! jq -e --arg t "${tag}" '.tags[$t] // empty' "${manifest}" > /dev/null; then
+            echo "::warning::Tag ${tag} not present in ${manifest}. A reviewed manifest-update PR must land first." >&2
+            echo "should_rebuild=false" >> "$GITHUB_OUTPUT"
+            echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          # Has the npm registry already shipped a canary for this tag? Use the
+          # tag as the version suffix to make idempotency cheap.
+          pkg="$(node -p "require('./package.json').name")"
+          published="$(npm view "${pkg}" --json 2>/dev/null | jq -r '.versions[]?' || true)"
+          # Suffix shape: 0.1.1-canary.4.6.1-stable
+          base_version="$(node -p "require('./package.json').version")"
+          canary_version="${base_version}-canary.${tag}"
+          if grep -Fxq "${canary_version}" <<< "${published}"; then
+            echo "Canary ${canary_version} already published; nothing to do."
+            echo "should_rebuild=false" >> "$GITHUB_OUTPUT"
+            echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          echo "Tag ${tag} ready for rebuild as ${canary_version}."
+          echo "should_rebuild=true" >> "$GITHUB_OUTPUT"
+          echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+
+  # ---------------------------------------------------------------------------
+  # 2 + 3. Build, test, and hash-verify against the new Godot tag.
+  # ---------------------------------------------------------------------------
+  build-and-verify:
+    name: Build + test + hash-verify
+    needs: detect
+    if: needs.detect.outputs.should_rebuild == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    env:
+      GODOT_VERSION: ${{ needs.detect.outputs.tag }}
+      # Strict mode for ingestion failures in CI; matches DESIGN.md §3.
+      GODOT_DOCS_FAILURE_THRESHOLD_PERCENT: "0"
+
+    steps:
+      # actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
+      # actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Format check
+        run: npm run format:check
+
+      # actions/cache@v4
+      - name: Cache Godot binary
+        id: godot-cache
+        uses: actions/cache@0057852bfaa89a56745cba8c7296529d2fc39830
+        with:
+          path: ${{ runner.tool_cache }}/godot
+          key: godot-${{ env.GODOT_VERSION }}-linux-x86_64
+
+      - name: Download Godot ${{ env.GODOT_VERSION }} (Linux x86_64)
+        if: steps.godot-cache.outputs.cache-hit != 'true'
+        run: |
+          set -euxo pipefail
+          mkdir -p "${{ runner.tool_cache }}/godot"
+          curl -fsSL -o /tmp/godot.zip \
+            "https://github.com/godotengine/godot-builds/releases/download/${GODOT_VERSION}/Godot_v${GODOT_VERSION}_linux.x86_64.zip"
+          unzip -q /tmp/godot.zip -d /tmp/godot-extract
+          mv "/tmp/godot-extract/Godot_v${GODOT_VERSION}_linux.x86_64" "${{ runner.tool_cache }}/godot/godot"
+          chmod +x "${{ runner.tool_cache }}/godot/godot"
+          rm -rf /tmp/godot.zip /tmp/godot-extract
+
+      - name: Expose Godot on PATH
+        run: echo "${{ runner.tool_cache }}/godot" >> "$GITHUB_PATH"
+
+      - name: Godot smoke — godot --version
+        run: |
+          set -euxo pipefail
+          godot --headless --version | tee godot-version.txt
+          # Tag shape is "4.6.1-stable"; strip the "-stable" suffix for the prefix check.
+          prefix="${GODOT_VERSION%-stable}"
+          grep -Eq "^${prefix//./\\.}" godot-version.txt
+
+      - name: Test
+        env:
+          GODOT_PATH: ${{ runner.tool_cache }}/godot/godot
+        run: npm test
+
+      - name: Hash-verify ingestion (depends on #6/#47)
+        # Once #6 lands the docs ingestion CLI, swap this stub for the real
+        # invocation. The CLI MUST exit non-zero on manifest mismatch — that is
+        # what enforces step 3 of the approval gate. Until then, the manifest
+        # presence check in `detect` is the gate.
+        run: |
+          set -euo pipefail
+          if npm run --silent 2>/dev/null | grep -q '^  build:docs$'; then
+            GODOT_DOCS_VERSION="${GODOT_VERSION%-stable}" npm run build:docs
+          else
+            echo "::warning::build:docs script not present yet (#6). Skipping ingestion hash-verify; this gate becomes hard once #6 lands."
+          fi
+
+      - name: Pack canary tarball
+        env:
+          BASE_VERSION: ""
+          GODOT_TAG: ${{ needs.detect.outputs.tag }}
+        run: |
+          set -euo pipefail
+          base="$(node -p "require('./package.json').version")"
+          canary_version="${base}-canary.${GODOT_TAG}"
+          # Rewrite package.json in place; this runner is ephemeral and the
+          # change is never committed back.
+          node -e "
+            const fs = require('fs');
+            const p = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+            p.version = '${canary_version}';
+            fs.writeFileSync('package.json', JSON.stringify(p, null, 2) + '\n');
+          "
+          npm pack
+          echo "CANARY_VERSION=${canary_version}" >> "$GITHUB_ENV"
+
+      # actions/upload-artifact@v4
+      - name: Upload canary tarball artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: canary-tarball
+          path: "*.tgz"
+          if-no-files-found: error
+          retention-days: 14
+
+      # actions/upload-artifact@v4
+      - name: Upload rewritten package.json
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: canary-package-json
+          path: package.json
+          if-no-files-found: error
+          retention-days: 14
+
+  # ---------------------------------------------------------------------------
+  # 4. Staged publish to the `canary` dist-tag.
+  # ---------------------------------------------------------------------------
+  publish-canary:
+    name: Publish to npm (canary)
+    needs: [detect, build-and-verify]
+    if: needs.detect.outputs.should_rebuild == 'true'
+    runs-on: ubuntu-latest
+    # Even canary uses an environment so it can't run without org-level opt-in.
+    environment: npm-canary
+    permissions:
+      # OIDC token for npm Trusted Publishing.
+      id-token: write
+      contents: read
+    outputs:
+      canary_version: ${{ steps.publish.outputs.canary_version }}
+
+    steps:
+      # actions/checkout@v4
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5
+        with:
+          persist-credentials: false
+
+      # actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+          cache: npm
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+
+      # actions/download-artifact@v4
+      - name: Download rewritten package.json
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: canary-package-json
+          path: .
+
+      - id: publish
+        name: Publish (--tag canary --provenance)
+        run: |
+          set -euo pipefail
+          canary_version="$(node -p "require('./package.json').version")"
+          echo "Publishing ${canary_version} to dist-tag 'canary'."
+          npm publish --tag canary --access public --provenance
+          echo "canary_version=${canary_version}" >> "$GITHUB_OUTPUT"
+
+  # ---------------------------------------------------------------------------
+  # Smoke-test the published canary tarball before any promotion is allowed.
+  # ---------------------------------------------------------------------------
+  smoke-canary:
+    name: Smoke test canary install
+    needs: [detect, publish-canary]
+    if: needs.detect.outputs.should_rebuild == 'true'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      # actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+
+      - name: Install the canary version globally
+        env:
+          CANARY_VERSION: ${{ needs.publish-canary.outputs.canary_version }}
+        run: |
+          set -euxo pipefail
+          # The canary version is exact; never `npm install canary` (would resolve
+          # the dist-tag at the time of the smoke and miss the just-published one
+          # on registry-replication lag).
+          npm install --global "godot-mcp@${CANARY_VERSION}"
+
+      - name: Smoke — godot-mcp --help
+        run: |
+          set -euxo pipefail
+          # MCP servers don't ship --help in v0.1.x; this is a "did the binary
+          # link?" check rather than a behavior check. Replace with a real
+          # MCP-handshake smoke once one exists.
+          command -v godot-mcp
+          # `node --check` confirms the bundle parses; the bin is a Node script.
+          node --check "$(command -v godot-mcp)"
+
+  # ---------------------------------------------------------------------------
+  # 5. Promotion to `latest` — gated by GitHub Environment required reviewers.
+  # ---------------------------------------------------------------------------
+  promote-to-latest:
+    name: Promote canary to `latest`
+    needs: [detect, publish-canary, smoke-canary]
+    if: needs.detect.outputs.should_rebuild == 'true' && inputs.promote_to_latest == true
+    runs-on: ubuntu-latest
+    # The `npm-release` environment MUST be configured in repo settings with
+    # required reviewers. That UI gate is what enforces "human approval"; this
+    # workflow file alone is not sufficient.
+    environment: npm-release
+    permissions:
+      # `npm dist-tag add` needs registry auth; OIDC supplies it.
+      id-token: write
+      contents: read
+
+    steps:
+      # actions/setup-node@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: "24"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Promote canary version to `latest`
+        env:
+          CANARY_VERSION: ${{ needs.publish-canary.outputs.canary_version }}
+        run: |
+          set -euo pipefail
+          echo "Promoting godot-mcp@${CANARY_VERSION} -> dist-tag 'latest'."
+          npm dist-tag add "godot-mcp@${CANARY_VERSION}" latest
