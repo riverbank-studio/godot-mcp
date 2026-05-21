@@ -22,6 +22,14 @@ import { sceneTools } from "./scene-tools.js";
 import { projectTools } from "./project-tools.js";
 import { lspTools } from "./lsp-tools.js";
 
+// ---------------------------------------------------------------------------
+// LSP leaf side-effect imports — each leaf PR appends one line here.
+// Import order matches issue number. Must come after lsp-tools.js so that
+// `lspTools` is initialized before the leaves call `registerLspTool`.
+// ---------------------------------------------------------------------------
+
+import "./lsp/get-diagnostics.js";
+
 export { editorTools, sceneTools, projectTools, lspTools };
 
 /**
