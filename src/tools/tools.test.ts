@@ -79,7 +79,13 @@ describe("tool registries", () => {
   it("allTools is the union of editor/scene/project tools, no duplicates", () => {
     const names = allTools.map((t) => t.name);
     expect(new Set(names).size).toBe(names.length);
-    expect(names.sort()).toEqual([...PRE_REFACTOR_TOOLS].sort());
+    // PRE_REFACTOR_TOOLS is the baseline from the #3 refactor. Docs-leaf PRs
+    // (Wave 4) extend allTools via registerDocsTool side-effect imports. We
+    // assert every pre-refactor name is present (superset check) and that there
+    // are no duplicates, rather than requiring an exact equality.
+    for (const name of PRE_REFACTOR_TOOLS) {
+      expect(names).toContain(name);
+    }
   });
 
   it("each tool definition has a non-empty description, schema, and async handler", () => {

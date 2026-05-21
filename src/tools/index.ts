@@ -32,3 +32,8 @@ export const allTools: ToolDefinition[] = [
   ...projectTools,
   ...docsTools,
 ];
+
+// Docs leaf tools — side-effect imports that call registerDocsTool at load
+// time. Placed here (not in src/tools/docs/index.ts) to avoid the TDZ
+// circular dependency: docs-tools.ts → docs/index.ts → leaf → docs-tools.ts.
+import "./docs/get-tutorial.js";
