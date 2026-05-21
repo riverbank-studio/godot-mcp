@@ -79,7 +79,11 @@ describe("tool registries", () => {
   it("allTools is the union of editor/scene/project tools, no duplicates", () => {
     const names = allTools.map((t) => t.name);
     expect(new Set(names).size).toBe(names.length);
-    expect(names.sort()).toEqual([...PRE_REFACTOR_TOOLS].sort());
+    // Wave 4 docs tools expand the set beyond PRE_REFACTOR_TOOLS.
+    // Assert all pre-refactor tools are present; docs tools may extend the set.
+    for (const name of PRE_REFACTOR_TOOLS) {
+      expect(names).toContain(name);
+    }
   });
 
   it("each tool definition has a non-empty description, schema, and async handler", () => {

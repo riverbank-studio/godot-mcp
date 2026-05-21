@@ -32,3 +32,9 @@ export const allTools: ToolDefinition[] = [
   ...projectTools,
   ...docsTools,
 ];
+
+// Docs leaf tools — each file calls registerDocsTool at top level.
+// Imported here (after docs-tools.js is fully evaluated) to avoid a TDZ
+// circular-dep: docs-tools.ts → docs/index.ts → leaf → docs-tools.ts.
+// Per the Wave 4 orchestration plan: append one line per leaf PR.
+import "./docs/docs-info.js";
