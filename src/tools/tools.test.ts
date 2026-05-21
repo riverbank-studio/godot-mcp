@@ -76,10 +76,15 @@ describe("tool registries", () => {
     );
   });
 
-  it("allTools is the union of editor/scene/project tools, no duplicates", () => {
+  it("allTools contains all pre-refactor tools and has no duplicates", () => {
     const names = allTools.map((t) => t.name);
+    // No duplicates across all areas (editor + scene + project + docs + lsp).
     expect(new Set(names).size).toBe(names.length);
-    expect(names.sort()).toEqual([...PRE_REFACTOR_TOOLS].sort());
+    // Every pre-refactor tool still present — docs / LSP tools may be added
+    // by subsequent leaf PRs so we check inclusion, not exact equality.
+    for (const t of PRE_REFACTOR_TOOLS) {
+      expect(names).toContain(t);
+    }
   });
 
   it("each tool definition has a non-empty description, schema, and async handler", () => {

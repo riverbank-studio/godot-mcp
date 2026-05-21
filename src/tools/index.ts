@@ -32,3 +32,10 @@ export const allTools: ToolDefinition[] = [
   ...projectTools,
   ...docsTools,
 ];
+
+// Docs-tool leaf side-effect imports.  Each leaf registers itself into
+// `docsTools` via `registerDocsTool`; the imports must appear AFTER
+// `docsTools` is referenced above to avoid the TDZ circular-dep that
+// would arise if they were placed inside `docs-tools.ts`
+// (see orchestration-plan §7 hotspot mitigation).
+import "./docs/search-tutorials.js";
