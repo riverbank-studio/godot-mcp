@@ -1,0 +1,488 @@
+{
+  "$schema": "../schema.json",
+  "version": "1",
+  "description": "Curated query set for tool-routing accuracy benchmark (issue #30). Covers docs, LSP, and editor tools. Each query maps to an expected godot_* tool.",
+  "generated_from": "DESIGN.md §Tool surface + disambiguation pairs",
+  "queries": [
+    {
+      "id": "tr-001",
+      "query": "What methods does the Node class have?",
+      "expected_tool": "godot_get_class",
+      "category": "docs",
+      "disambiguation_pair": "get_class vs find_member",
+      "notes": "Asking to explore an entire class → get_class, not find_member"
+    },
+    {
+      "id": "tr-002",
+      "query": "Search for Godot classes related to physics bodies",
+      "expected_tool": "godot_search_api",
+      "category": "docs",
+      "disambiguation_pair": "search_api vs get_class",
+      "notes": "Find by query → search_api; not looking up a specific class by name"
+    },
+    {
+      "id": "tr-003",
+      "query": "What is the signature of the move_and_slide method on CharacterBody2D?",
+      "expected_tool": "godot_find_member",
+      "category": "docs",
+      "disambiguation_pair": "get_class vs find_member",
+      "notes": "Asking for exact details on one member → find_member"
+    },
+    {
+      "id": "tr-004",
+      "query": "How do I implement a state machine in Godot?",
+      "expected_tool": "godot_search_tutorials",
+      "category": "docs",
+      "disambiguation_pair": "search_api vs search_tutorials",
+      "notes": "How-to question / guide → search_tutorials, not search_api"
+    },
+    {
+      "id": "tr-005",
+      "query": "Fetch the tutorial at /tutorials/scripting/gdscript/gdscript_basics",
+      "expected_tool": "godot_get_tutorial",
+      "category": "docs",
+      "disambiguation_pair": "search_tutorials vs get_tutorial",
+      "notes": "Fetch a known path → get_tutorial; discovery was already done"
+    },
+    {
+      "id": "tr-006",
+      "query": "What version of the Godot docs is currently loaded?",
+      "expected_tool": "godot_docs_info",
+      "category": "docs",
+      "disambiguation_pair": "get_class vs docs_info",
+      "notes": "Report loaded docs version/coverage → docs_info, not get_class"
+    },
+    {
+      "id": "tr-007",
+      "query": "Find where the variable 'player_speed' is defined in my GDScript file",
+      "expected_tool": "godot_find_definition",
+      "category": "lsp",
+      "disambiguation_pair": "find_definition vs get_class",
+      "notes": "User GDScript symbol lookup → find_definition; NOT engine API lookup"
+    },
+    {
+      "id": "tr-008",
+      "query": "Find all usages of the function 'take_damage' in my project",
+      "expected_tool": "godot_find_references",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "Find references to a user-defined symbol → find_references"
+    },
+    {
+      "id": "tr-009",
+      "query": "Get hover documentation for the symbol at line 42, column 15 in player.gd",
+      "expected_tool": "godot_hover",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "Hover info by position → hover"
+    },
+    {
+      "id": "tr-010",
+      "query": "List all functions and variables defined in enemy.gd",
+      "expected_tool": "godot_document_symbols",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "List symbols in a specific file → document_symbols"
+    },
+    {
+      "id": "tr-011",
+      "query": "Search for all classes named 'Inventory' across my whole project",
+      "expected_tool": "godot_workspace_symbols",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "Workspace-wide symbol search → workspace_symbols"
+    },
+    {
+      "id": "tr-012",
+      "query": "Are there any GDScript errors in my player.gd file?",
+      "expected_tool": "godot_get_diagnostics",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "Get diagnostics for a file → get_diagnostics"
+    },
+    {
+      "id": "tr-013",
+      "query": "What parameters does this function call take at line 23 in my script?",
+      "expected_tool": "godot_signature_help",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "Signature help at a position → signature_help"
+    },
+    {
+      "id": "tr-014",
+      "query": "Rename the variable 'hp' to 'health' across my whole project",
+      "expected_tool": "godot_preview_rename",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "Project-wide rename → preview_rename (advisory, returns edits)"
+    },
+    {
+      "id": "tr-015",
+      "query": "Open the Godot editor for my project at /home/user/game",
+      "expected_tool": "godot_launch_editor",
+      "category": "editor",
+      "disambiguation_pair": null,
+      "notes": "Launch the Godot editor → launch_editor"
+    },
+    {
+      "id": "tr-016",
+      "query": "Run the game project so I can test it",
+      "expected_tool": "godot_run_project",
+      "category": "editor",
+      "disambiguation_pair": null,
+      "notes": "Run/execute the project → run_project"
+    },
+    {
+      "id": "tr-017",
+      "query": "Stop the currently running Godot game",
+      "expected_tool": "godot_stop_project",
+      "category": "editor",
+      "disambiguation_pair": null,
+      "notes": "Stop running project → stop_project"
+    },
+    {
+      "id": "tr-018",
+      "query": "Show me the debug output and print statements from my running game",
+      "expected_tool": "godot_get_debug_output",
+      "category": "editor",
+      "disambiguation_pair": null,
+      "notes": "Get debug output → get_debug_output"
+    },
+    {
+      "id": "tr-019",
+      "query": "What version of Godot is installed on this machine?",
+      "expected_tool": "godot_get_version",
+      "category": "editor",
+      "disambiguation_pair": null,
+      "notes": "Get installed Godot version → get_version"
+    },
+    {
+      "id": "tr-020",
+      "query": "Find all Godot projects in my /home/user/projects directory",
+      "expected_tool": "godot_list_projects",
+      "category": "editor",
+      "disambiguation_pair": null,
+      "notes": "List projects in directory → list_projects"
+    },
+    {
+      "id": "tr-021",
+      "query": "What is the project name and Godot version for my game at /home/user/game?",
+      "expected_tool": "godot_get_project_info",
+      "category": "editor",
+      "disambiguation_pair": null,
+      "notes": "Get project metadata → get_project_info"
+    },
+    {
+      "id": "tr-022",
+      "query": "Create a new scene file with a Node2D root node",
+      "expected_tool": "godot_create_scene",
+      "category": "editor",
+      "disambiguation_pair": null,
+      "notes": "Create a new scene → create_scene"
+    },
+    {
+      "id": "tr-023",
+      "query": "Add a CollisionShape2D node to my player scene",
+      "expected_tool": "godot_add_node",
+      "category": "editor",
+      "disambiguation_pair": null,
+      "notes": "Add node to scene → add_node"
+    },
+    {
+      "id": "tr-024",
+      "query": "Set the texture of the Sprite2D node to player.png",
+      "expected_tool": "godot_load_sprite",
+      "category": "editor",
+      "disambiguation_pair": null,
+      "notes": "Load sprite texture → load_sprite"
+    },
+    {
+      "id": "tr-025",
+      "query": "Export the props scene as a MeshLibrary resource",
+      "expected_tool": "godot_export_mesh_library",
+      "category": "editor",
+      "disambiguation_pair": null,
+      "notes": "Export mesh library → export_mesh_library"
+    },
+    {
+      "id": "tr-026",
+      "query": "Save my current scene to disk",
+      "expected_tool": "godot_save_scene",
+      "category": "editor",
+      "disambiguation_pair": null,
+      "notes": "Save scene → save_scene"
+    },
+    {
+      "id": "tr-027",
+      "query": "Get the UID for the player.gd resource file",
+      "expected_tool": "godot_get_uid",
+      "category": "editor",
+      "disambiguation_pair": null,
+      "notes": "Get resource UID → get_uid"
+    },
+    {
+      "id": "tr-028",
+      "query": "Update all UID references in my Godot 4.4 project",
+      "expected_tool": "godot_update_project_uids",
+      "category": "editor",
+      "disambiguation_pair": null,
+      "notes": "Update project UIDs → update_project_uids"
+    },
+    {
+      "id": "tr-029",
+      "query": "What properties does the RigidBody3D class expose?",
+      "expected_tool": "godot_get_class",
+      "category": "docs",
+      "disambiguation_pair": "get_class vs find_member",
+      "notes": "Explore entire class → get_class"
+    },
+    {
+      "id": "tr-030",
+      "query": "Look up the 'connect' method on the Signal type in the Godot API",
+      "expected_tool": "godot_find_member",
+      "category": "docs",
+      "disambiguation_pair": "get_class vs find_member",
+      "notes": "Exact details on one member → find_member"
+    },
+    {
+      "id": "tr-031",
+      "query": "Search the Godot API for anything related to navigation agents",
+      "expected_tool": "godot_search_api",
+      "category": "docs",
+      "disambiguation_pair": "search_api vs get_class",
+      "notes": "Find by query → search_api; not a specific class name"
+    },
+    {
+      "id": "tr-032",
+      "query": "Show me tutorials about multiplayer networking in Godot",
+      "expected_tool": "godot_search_tutorials",
+      "category": "docs",
+      "disambiguation_pair": "search_api vs search_tutorials",
+      "notes": "How-to / guides → search_tutorials"
+    },
+    {
+      "id": "tr-033",
+      "query": "Retrieve the tutorial page /tutorials/networking/high_level_multiplayer",
+      "expected_tool": "godot_get_tutorial",
+      "category": "docs",
+      "disambiguation_pair": "search_tutorials vs get_tutorial",
+      "notes": "Fetch known path → get_tutorial"
+    },
+    {
+      "id": "tr-034",
+      "query": "How many classes are in the docs database and when was it last indexed?",
+      "expected_tool": "godot_docs_info",
+      "category": "docs",
+      "disambiguation_pair": "search_api vs docs_info",
+      "notes": "Coverage/metadata → docs_info; not searching the API"
+    },
+    {
+      "id": "tr-035",
+      "query": "Where is my custom function 'spawn_enemy' defined in the project?",
+      "expected_tool": "godot_find_definition",
+      "category": "lsp",
+      "disambiguation_pair": "find_definition vs get_class",
+      "notes": "User-written symbol → find_definition, not engine API lookup"
+    },
+    {
+      "id": "tr-036",
+      "query": "Show me the type information for the variable at column 8, line 15 of game.gd",
+      "expected_tool": "godot_hover",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "Hover by position → hover"
+    },
+    {
+      "id": "tr-037",
+      "query": "Check player.gd for any type errors or warnings",
+      "expected_tool": "godot_get_diagnostics",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "Check file diagnostics → get_diagnostics"
+    },
+    {
+      "id": "tr-038",
+      "query": "List all exported variables and signals in player.gd",
+      "expected_tool": "godot_document_symbols",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "Symbols in a specific file → document_symbols"
+    },
+    {
+      "id": "tr-039",
+      "query": "Find all places in the project that use a class called 'GameManager'",
+      "expected_tool": "godot_workspace_symbols",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "Cross-project symbol search → workspace_symbols"
+    },
+    {
+      "id": "tr-040",
+      "query": "What arguments does the emit_signal call expect at line 55?",
+      "expected_tool": "godot_signature_help",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "Function call signature → signature_help"
+    },
+    {
+      "id": "tr-041",
+      "query": "Preview what would change if I rename my class 'Enemy' to 'BaseEnemy'",
+      "expected_tool": "godot_preview_rename",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "Preview rename edits → preview_rename"
+    },
+    {
+      "id": "tr-042",
+      "query": "Find all references to the 'health_changed' signal in my project",
+      "expected_tool": "godot_find_references",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "All references to symbol → find_references"
+    },
+    {
+      "id": "tr-043",
+      "query": "What signals does the Area2D class emit according to the Godot docs?",
+      "expected_tool": "godot_get_class",
+      "category": "docs",
+      "disambiguation_pair": "get_class vs find_member",
+      "notes": "Exploring entire class signals → get_class"
+    },
+    {
+      "id": "tr-044",
+      "query": "What is the 'body_entered' signal's description on Area2D?",
+      "expected_tool": "godot_find_member",
+      "category": "docs",
+      "disambiguation_pair": "get_class vs find_member",
+      "notes": "Exact details on one signal → find_member"
+    },
+    {
+      "id": "tr-045",
+      "query": "Search the Godot docs for classes that handle 2D collision",
+      "expected_tool": "godot_search_api",
+      "category": "docs",
+      "disambiguation_pair": "search_api vs get_class",
+      "notes": "Find by query → search_api"
+    },
+    {
+      "id": "tr-046",
+      "query": "I need a tutorial on how to use Godot's animation system",
+      "expected_tool": "godot_search_tutorials",
+      "category": "docs",
+      "disambiguation_pair": "search_api vs search_tutorials",
+      "notes": "How-to/guides → search_tutorials"
+    },
+    {
+      "id": "tr-047",
+      "query": "Get the tutorial page for /tutorials/animation/animation_tree",
+      "expected_tool": "godot_get_tutorial",
+      "category": "docs",
+      "disambiguation_pair": "search_tutorials vs get_tutorial",
+      "notes": "Fetch known path → get_tutorial"
+    },
+    {
+      "id": "tr-048",
+      "query": "What Godot version's docs am I querying right now?",
+      "expected_tool": "godot_docs_info",
+      "category": "docs",
+      "disambiguation_pair": "get_class vs docs_info",
+      "notes": "Version metadata → docs_info, not a class lookup"
+    },
+    {
+      "id": "tr-049",
+      "query": "Go to the definition of the 'shoot' function I wrote in weapon.gd",
+      "expected_tool": "godot_find_definition",
+      "category": "lsp",
+      "disambiguation_pair": "find_definition vs get_class",
+      "notes": "User-defined symbol → find_definition, not engine docs"
+    },
+    {
+      "id": "tr-050",
+      "query": "Does the AnimationPlayer class have an 'is_playing' property?",
+      "expected_tool": "godot_find_member",
+      "category": "docs",
+      "disambiguation_pair": "get_class vs find_member",
+      "notes": "Exact member lookup → find_member"
+    },
+    {
+      "id": "tr-051",
+      "query": "What does AnimationPlayer look like as a whole — all its methods and properties?",
+      "expected_tool": "godot_get_class",
+      "category": "docs",
+      "disambiguation_pair": "get_class vs find_member",
+      "notes": "Explore entire class → get_class"
+    },
+    {
+      "id": "tr-052",
+      "query": "Find Godot API classes that inherit from Resource",
+      "expected_tool": "godot_search_api",
+      "category": "docs",
+      "disambiguation_pair": "search_api vs get_class",
+      "notes": "Query with filter → search_api"
+    },
+    {
+      "id": "tr-053",
+      "query": "How do I create custom resources in Godot?",
+      "expected_tool": "godot_search_tutorials",
+      "category": "docs",
+      "disambiguation_pair": "search_api vs search_tutorials",
+      "notes": "How-to → search_tutorials"
+    },
+    {
+      "id": "tr-054",
+      "query": "What's in the tutorial at /tutorials/scripting/resources",
+      "expected_tool": "godot_get_tutorial",
+      "category": "docs",
+      "disambiguation_pair": "search_tutorials vs get_tutorial",
+      "notes": "Fetch by path → get_tutorial"
+    },
+    {
+      "id": "tr-055",
+      "query": "Are there any linting issues in my enemy_ai.gd script?",
+      "expected_tool": "godot_get_diagnostics",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "File diagnostics → get_diagnostics"
+    },
+    {
+      "id": "tr-056",
+      "query": "Show an outline of all symbols in main.gd",
+      "expected_tool": "godot_document_symbols",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "File outline → document_symbols"
+    },
+    {
+      "id": "tr-057",
+      "query": "Find the definition of 'PlayerState' in my codebase",
+      "expected_tool": "godot_find_definition",
+      "category": "lsp",
+      "disambiguation_pair": "find_definition vs get_class",
+      "notes": "User-defined type → find_definition, not Godot built-in"
+    },
+    {
+      "id": "tr-058",
+      "query": "Show me what all files reference the 'on_player_died' function",
+      "expected_tool": "godot_find_references",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "Find references → find_references"
+    },
+    {
+      "id": "tr-059",
+      "query": "Get documentation hover for 'move_toward' at position 10:8 in movement.gd",
+      "expected_tool": "godot_hover",
+      "category": "lsp",
+      "disambiguation_pair": null,
+      "notes": "Hover by position → hover"
+    },
+    {
+      "id": "tr-060",
+      "query": "Run the game's main scene for playtest",
+      "expected_tool": "godot_run_project",
+      "category": "editor",
+      "disambiguation_pair": null,
+      "notes": "Run project → run_project"
+    }
+  ]
+}
