@@ -39,7 +39,9 @@
     "test:watch": "vitest",
     "coverage": "vitest run --coverage",
     "analyze": "fallow audit",
-    "analyze:dead": "fallow dead-code"
+    "analyze:dead": "fallow dead-code",
+    "bench:chunking-quality": "npx tsx benchmarks/chunking-quality/run.mjs",
+    "bench:chunking-quality:dryrun": "npx tsx benchmarks/chunking-quality/run.mjs --dry-run"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "0.6.0",
