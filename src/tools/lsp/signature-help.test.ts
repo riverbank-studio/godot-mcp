@@ -310,4 +310,50 @@ describe("godot_signature_help error cases", () => {
     const text = res.content[0]?.text ?? "";
     expect(text).toMatch(/lsp.*not configured|not configured/i);
   });
+
+  /**
+   * Documents the current behavior when `line: 0` bypasses schema validation.
+   *
+   * Schema (`minimum: 1`) catches this at the validation layer under normal
+   * usage. If a caller bypasses validation, `toLspPosition` throws a plain
+   * `Error` (not `LspUnavailableError`) that escapes `withLspClient` uncaught.
+   *
+   * TODO(#78): When issue #78's upstream fix lands (changing `toLspPosition`
+   * to throw `LspUnavailableError`), update this test to expect
+   * `res.isError === true` instead of a thrown error.
+   */
+  it("re-throws on line: 0 when schema validation is bypassed (documents issue #78 contract)", async () => {
+    const client = makeClientStub(async () => ({
+      signatures: [{ label: "fn()" }],
+      activeSignature: 0,
+      activeParameter: 0,
+    }));
+    const ctx = makeCtx(client);
+    // line: 0 bypasses schema if caller skips validation; toLspPosition throws a plain Error
+    // which escapes withLspClient uncaught. When issue #78's upstream fix lands
+    // (LspUnavailableError subclass), this test should expect res.isError === true.
+    await expect(
+      handler({ file: "/project/player.gd", line: 0, character: 1 }, ctx),
+    ).rejects.toThrow(/1-based/);
+  });
+
+  /**
+   * Documents the current behavior when `character: 0` bypasses schema validation.
+   *
+   * Mirrors the `line: 0` case above — see that test's TODO(#78) note.
+   */
+  it("re-throws on character: 0 when schema validation is bypassed (documents issue #78 contract)", async () => {
+    const client = makeClientStub(async () => ({
+      signatures: [{ label: "fn()" }],
+      activeSignature: 0,
+      activeParameter: 0,
+    }));
+    const ctx = makeCtx(client);
+    // character: 0 bypasses schema if caller skips validation; toLspPosition throws a plain Error
+    // which escapes withLspClient uncaught. When issue #78's upstream fix lands
+    // (LspUnavailableError subclass), this test should expect res.isError === true.
+    await expect(
+      handler({ file: "/project/player.gd", line: 1, character: 0 }, ctx),
+    ).rejects.toThrow(/1-based/);
+  });
 });
