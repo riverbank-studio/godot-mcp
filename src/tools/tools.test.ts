@@ -37,6 +37,15 @@ const PRE_REFACTOR_TOOLS = [
   "update_project_uids",
 ] as const;
 
+/**
+ * Docs-subsystem tools registered by Wave 4 leaf PRs (#14–#19). Each leaf
+ * PR appends one entry here when it lands. This list must stay in sync with
+ * the side-effect imports at the bottom of `src/tools/docs/index.ts`.
+ */
+const DOCS_TOOLS = [
+  "godot_find_member", // #16
+] as const;
+
 describe("tool registries", () => {
   it("editor-tools.ts exposes the editor-area tools", () => {
     const names = editorTools.map((t) => t.name).sort();
@@ -76,10 +85,22 @@ describe("tool registries", () => {
     );
   });
 
-  it("allTools is the union of editor/scene/project tools, no duplicates", () => {
+  it("allTools is the union of editor/scene/project/docs tools, no duplicates", () => {
     const names = allTools.map((t) => t.name);
     expect(new Set(names).size).toBe(names.length);
-    expect(names.sort()).toEqual([...PRE_REFACTOR_TOOLS].sort());
+    // All pre-refactor tools must still be present.
+    for (const name of PRE_REFACTOR_TOOLS) {
+      expect(names).toContain(name);
+    }
+    // All registered docs tools must be present.
+    for (const name of DOCS_TOOLS) {
+      expect(names).toContain(name);
+    }
+    // No tool outside the known sets may appear.
+    const knownTools = new Set<string>([...PRE_REFACTOR_TOOLS, ...DOCS_TOOLS]);
+    for (const name of names) {
+      expect(knownTools).toContain(name);
+    }
   });
 
   it("each tool definition has a non-empty description, schema, and async handler", () => {
